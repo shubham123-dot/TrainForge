@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TrainForge v3 — Lab-Grade Dataset Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,300;0,500;0,700;1,300;1,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a0d;--s1:#0c0f13;--s2:#111419;--s3:#181c22;--s4:#1e242c;
+  --b1:#1a2030;--b2:#243040;--b3:#2e3d50;
+  --text:#e2e8f4;--muted:#5a6b80;--muted2:#2e3d50;--dim:#3a4a5c;
+  --accent:#00d4ff;--accent2:#ff6b35;--green:#00e87a;--red:#ff3d5a;
+  --yellow:#ffd166;--purple:#c77dff;--orange:#ff9f1c;--teal:#06d6a0;
+  --grad1:linear-gradient(135deg,#00d4ff,#00e87a);
+  --grad2:linear-gradient(135deg,#ff6b35,#ffd166);
+  --mono:'IBM Plex Mono',monospace;--serif:'Fraunces',serif;
+  --r:6px;--r2:10px;--r3:14px;
+}
+html,body{height:100%}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:12px;line-height:1.5}
+
+/* ══ SIDEBAR ══ */
+#sb{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;position:relative}
+#sb::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent,var(--accent),transparent);opacity:.3}
+.brand{padding:20px 16px 16px;border-bottom:1px solid var(--b1)}
+.brand-name{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.5px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-v{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.brand-tag{font-size:10px;color:var(--dim);margin-top:4px;font-family:var(--mono)}
+
+nav{flex:1;padding:8px;overflow-y:auto}
+.nav-sec{font-size:9px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;padding:14px 8px 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);color:var(--muted);cursor:pointer;transition:all .12s;margin-bottom:2px;border:1px solid transparent;user-select:none;position:relative}
+.ni:hover{background:var(--s2);color:var(--text)}
+.ni.on{background:var(--s2);color:var(--accent);border-color:rgba(0,212,255,.15)}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:60%;background:var(--accent);border-radius:0 2px 2px 0}
+.ni-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.ni-lbl{font-size:11px;font-weight:500}
+.ni-badge{margin-left:auto;font-size:9px;padding:2px 7px;border-radius:10px;background:var(--s3);color:var(--muted)}
+.ni.on .ni-badge{background:rgba(0,212,255,.12);color:var(--accent)}
+
+.sb-foot{padding:10px;border-top:1px solid var(--b1)}
+.api-pill{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:var(--r2);background:var(--s2);border:1px solid var(--b1);margin-bottom:8px}
+.api-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:all .4s}
+.api-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(0,232,122,.5)}
+.api-dot.err{background:var(--red);box-shadow:0 0 6px rgba(255,61,90,.4)}
+.api-txt{font-size:10px;color:var(--muted)}
+.stat-mini{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.sm{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px;text-align:center}
+.sm-v{font-size:16px;font-weight:700;color:var(--accent);font-family:var(--serif)}
+.sm-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.kb-legend{font-size:9px;color:var(--muted2);padding:8px 10px;margin-top:6px;line-height:2}
+.kb-legend kbd{background:var(--s3);border:1px solid var(--b2);border-radius:3px;padding:0 5px;font-size:9px;color:var(--dim)}
+
+/* ══ MAIN ══ */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.tb-left{flex:1}
+.tb-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.5px}
+.tb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tb-right{display:flex;gap:8px;align-items:center}
+.provider-tag{font-size:9px;padding:3px 10px;border-radius:20px;background:var(--s2);border:1px solid var(--b1);color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+
+.content{flex:1;overflow-y:auto;padding:22px 24px}
+.tab{display:none}.tab.on{display:block}
+
+/* ══ CARDS ══ */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:18px;margin-bottom:14px;transition:border-color .15s}
+.card-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card-t::after{content:'';flex:1;height:1px;background:var(--b1)}
+.card-accent{border-color:rgba(0,212,255,.2)}
+
+/* ══ FORMS ══ */
+.fg{margin-bottom:10px}
+.fg label{display:block;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.inp{width:100%;padding:8px 11px;border:1px solid var(--b1);border-radius:var(--r);font-size:11px;font-family:var(--mono);background:var(--s2);color:var(--text);outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.06)}
+.inp::placeholder{color:var(--muted2)}
+textarea.inp{resize:vertical;line-height:1.6}
+select.inp{cursor:pointer}
+.rg{display:flex;gap:8px;flex-wrap:wrap}
+.rg>.fg{flex:1;min-width:130px;margin-bottom:0}
+
+/* ══ BUTTONS ══ */
+.btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--b2);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .12s;display:inline-flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.btn-p{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.btn-p:hover:not(:disabled){background:#33dcff;border-color:#33dcff}
+.btn-g{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
+.btn-g:hover:not(:disabled){opacity:.85}
+.btn-o{background:transparent;color:var(--text);border-color:var(--b2)}
+.btn-o:hover:not(:disabled){background:var(--s2);border-color:var(--b3)}
+.btn-r{background:transparent;color:var(--red);border-color:rgba(255,61,90,.3)}
+.btn-r:hover:not(:disabled){background:rgba(255,61,90,.08)}
+.btn-warn{background:transparent;color:var(--yellow);border-color:rgba(255,209,102,.3)}
+.btn-xs{padding:3px 9px;font-size:9px;border-radius:4px}
+.btn-sm{padding:6px 12px;font-size:10px}
+.btn-lg{padding:11px 22px;font-size:12px}
+
+/* ══ RESULT BOXES ══ */
+.rb{margin-top:8px;padding:8px 12px;border-radius:var(--r);font-size:10px;display:none;line-height:1.7}
+.rb.show{display:block}
+.rb.ok{background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);color:var(--green)}
+.rb.err{background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);color:var(--red)}
+.rb.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--accent)}
+.rb.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);color:var(--yellow)}
+
+/* ══ BADGES ══ */
+.badge{font-size:9px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:600;letter-spacing:.3px}
+.b-inst{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2)}
+.b-conv{background:rgba(199,125,255,.1);color:var(--purple);border:1px solid rgba(199,125,255,.2)}
+.b-pref{background:rgba(255,107,53,.1);color:var(--orange);border:1px solid rgba(255,107,53,.2)}
+.b-adv{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+.b-sys{background:rgba(6,214,160,.1);color:var(--teal);border:1px solid rgba(6,214,160,.2)}
+.b-hi{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2)}
+.b-med{background:rgba(255,209,102,.1);color:var(--yellow);border:1px solid rgba(255,209,102,.2)}
+.b-lo{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+
+/* ══ TERMINAL ══ */
+.tlog{background:#020305;border:1px solid var(--b1);border-radius:var(--r);padding:12px;font-size:10px;line-height:1.9;min-height:80px;max-height:240px;overflow-y:auto;color:#3a4a5c;position:relative}
+.tlog::before{content:'> terminal';position:absolute;top:8px;right:12px;font-size:8px;color:var(--muted2);letter-spacing:1px}
+.tlog .ok{color:var(--green)}
+.tlog .info{color:var(--accent)}
+.tlog .warn{color:var(--yellow)}
+.tlog .err{color:var(--red)}
+.tlog .hl{color:var(--text);font-weight:600}
+.tlog .stage{color:var(--purple)}
+
+/* ══ PROGRESS ══ */
+.pw{background:#020305;border-radius:2px;height:2px;overflow:hidden;margin:8px 0}
+.pb{height:100%;border-radius:2px;transition:width .5s ease}
+.pb-c{background:var(--grad1)}
+.pb-w{background:var(--grad2)}
+
+/* ══ MODE TABS ══ */
+.mode-tabs{display:flex;gap:3px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:4px;margin-bottom:14px;flex-wrap:wrap}
+.mt{flex:1;min-width:90px;padding:7px 10px;border-radius:var(--r);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--mono);text-align:center;color:var(--muted);transition:all .12s;border:none;background:none;text-transform:uppercase;letter-spacing:.6px}
+.mt:hover{color:var(--text)}
+.mt.on{background:var(--s3);color:var(--accent);border:1px solid var(--b2)}
+.mode-pane{display:none}.mode-pane.on{display:block}
+
+/* ══ EXAMPLE CARDS ══ */
+.ds-grid{display:grid;gap:8px}
+.ds-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:13px;animation:fu .18s ease;position:relative;transition:border-color .15s}
+.ds-card:hover{border-color:var(--b3)}
+.ds-card.approved{border-color:rgba(0,232,122,.3);background:rgba(0,232,122,.02)}
+.ds-card.rejected{opacity:.35;border-color:rgba(255,61,90,.15)}
+.ds-card.focused{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.06)}
+.ds-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.ds-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.ds-meta{font-size:9px;color:var(--muted);margin-top:3px}
+.ds-content{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-size:11px;line-height:1.75}
+.ds-field{margin-bottom:8px}
+.ds-field:last-child{margin-bottom:0}
+.ds-label{font-size:8px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:3px;font-weight:700}
+.ds-val{color:var(--text);white-space:pre-wrap;word-break:break-word}
+.ds-actions{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;align-items:center}
+.ds-src{font-size:9px;color:var(--muted);margin-left:auto}
+.ds-src a{color:var(--accent);text-decoration:none}
+
+/* ══ QUALITY EXPLAIN ══ */
+.q-explain{margin-top:7px;padding:7px 10px;border-radius:var(--r);font-size:9px;line-height:1.9}
+.q-explain.hi{background:rgba(0,232,122,.04);border:1px solid rgba(0,232,122,.15);color:var(--green)}
+.q-explain.med{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);color:var(--yellow)}
+.q-explain.lo{background:rgba(255,61,90,.04);border:1px solid rgba(255,61,90,.15);color:var(--red)}
+
+/* ══ FILTER CHIPS ══ */
+.review-toolbar{display:flex;gap:6px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--b1);margin-bottom:12px;flex-wrap:wrap}
+.chip{padding:4px 12px;border-radius:20px;font-size:10px;cursor:pointer;border:1px solid var(--b2);background:var(--s2);color:var(--muted);transition:all .12s;font-family:var(--mono)}
+.chip:hover{color:var(--text);border-color:var(--b3)}
+.chip.on{background:rgba(0,212,255,.08);color:var(--accent);border-color:rgba(0,212,255,.3)}
+
+/* ══ STATS ══ */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:12px 14px}
+.stat-v{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1}
+.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+
+/* ══ EXPORT ══ */
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.exp-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;text-align:center;transition:border-color .15s}
+.exp-card:hover{border-color:var(--b3)}
+.exp-icon{font-size:26px;margin-bottom:7px}
+.exp-title{font-size:11px;font-weight:600;margin-bottom:4px}
+.exp-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+
+/* ══ QUALITY BARS ══ */
+.q-bar-wrap{background:var(--s3);border-radius:2px;height:4px;flex:1;overflow:hidden}
+.q-bar{height:100%;border-radius:2px;transition:width .6s ease}
+.q-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:10px}
+.q-lbl{color:var(--muted);min-width:90px}
+.q-val{color:var(--text);min-width:32px;text-align:right}
+
+/* ══ SELL ══ */
+.sell-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.sell-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;transition:border-color .15s}
+.sell-card:hover{border-color:var(--b3)}
+.price-tag{display:inline-block;padding:3px 10px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);border-radius:20px;font-size:10px;color:var(--green);margin-bottom:8px;font-weight:700}
+.sell-steps{font-size:10px;color:var(--muted);line-height:2.1}
+.sell-steps .ck{color:var(--green)}
+
+/* ══ GENERATION MODE SELECTOR ══ */
+.gen-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.gen-mode-card{background:var(--s2);border:2px solid var(--b1);border-radius:var(--r2);padding:12px;cursor:pointer;transition:all .15s}
+.gen-mode-card:hover{border-color:var(--b3)}
+.gen-mode-card.sel{border-color:var(--accent);background:rgba(0,212,255,.04)}
+.gm-icon{font-size:20px;margin-bottom:5px}
+.gm-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.gm-desc{font-size:9px;color:var(--muted);line-height:1.6}
+
+/* ══ TOKEN BAR ══ */
+.tok-bar{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:10px;font-size:10px}
+.tok-bar .lbl{color:var(--muted);flex:1}
+.tok-v{color:var(--accent)}
+.tok-c{color:var(--muted);font-size:9px}
+
+/* ══ QUALITY FILTER WARNING ══ */
+.filter-warn{padding:6px 10px;background:rgba(255,61,90,.05);border:1px solid rgba(255,61,90,.15);border-radius:var(--r);font-size:10px;color:var(--red);margin-bottom:8px;display:none}
+.filter-warn.show{display:block}
+
+/* ══ ONBOARDING ══ */
+#onboarding{position:fixed;inset:0;background:rgba(8,10,13,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+#onboarding.hidden{display:none}
+.ob-wrap{max-width:540px;width:100%}
+.ob-logo{font-family:var(--serif);font-size:32px;font-weight:700;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.ob-tag{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.ob-providers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.ob-p{background:var(--s1);border:2px solid var(--b1);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .15s;text-align:center}
+.ob-p:hover,.ob-p.sel{border-color:var(--accent);background:rgba(0,212,255,.04)}
+.ob-p-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.ob-p-sub{font-size:10px;color:var(--muted)}
+.ob-row{display:flex;gap:8px;margin-bottom:12px}
+.ob-skip{text-align:center;font-size:10px;color:var(--muted);cursor:pointer;margin-top:10px}
+.ob-skip:hover{color:var(--text)}
+
+/* ══ SYSTEM PROMPT PICKER ══ */
+.sys-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sys-chip{padding:4px 11px;border-radius:20px;font-size:9px;cursor:pointer;border:1px solid var(--b2);background:var(--s2);color:var(--muted);transition:all .12s;font-family:var(--mono);letter-spacing:.3px}
+.sys-chip:hover{color:var(--text);border-color:var(--b3)}
+.sys-chip.on{background:rgba(6,214,160,.08);color:var(--teal);border-color:rgba(6,214,160,.3)}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.generating .api-dot{animation:pulse 1s infinite}
+
+/* ══ HUMAN SIM ══ */
+.hs-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hs-sl{font-size:10px;color:var(--muted);min-width:120px;font-family:var(--mono)}
+.hs-sv{font-size:10px;color:var(--orange);min-width:130px;font-family:var(--mono)}
+.hs-range{flex:1;accent-color:var(--orange);cursor:pointer}
+.personality-card{background:var(--s2);border:2px solid var(--b1);border-radius:var(--r2);padding:11px;cursor:pointer;transition:all .15s;text-align:center}
+.personality-card:hover{border-color:var(--b3)}
+.personality-card.sel{border-color:var(--orange);background:rgba(255,107,53,.06)}
+.pc-icon{font-size:22px;margin-bottom:5px}
+.pc-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.pc-desc{font-size:9px;color:var(--muted);line-height:1.5}
+.behavior-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:9px}
+.behavior-card:hover{border-color:var(--b3)}
+.behavior-card.sel{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.04)}
+.bc-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--b3);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .12s}
+.behavior-card.sel .bc-check{background:var(--yellow);border-color:var(--yellow);color:#000}
+.bc-body .bc-name{font-size:10px;font-weight:700;color:var(--text);margin-bottom:2px}
+.bc-body .bc-desc{font-size:9px;color:var(--muted);line-height:1.5}
+/* ══ SELL GUIDES ══ */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ ONBOARDING ══ -->
+<div id="onboarding">
+  <div class="ob-wrap">
+    <div class="ob-logo">TrainForge</div>
+    <div class="ob-tag">v3 · Lab-Grade Dataset Builder</div>
+    <div class="ob-providers">
+      <div class="ob-p sel" id="ob-groq" onclick="selProv('groq',this)">
+        <div class="ob-p-name">⚡ Groq</div>
+        <div class="ob-p-sub">Free · Ultra fast · gsk_...</div>
+      </div>
+      <div class="ob-p" id="ob-openai" onclick="selProv('openai',this)">
+        <div class="ob-p-name">🤖 OpenAI</div>
+        <div class="ob-p-sub">GPT-4o / 3.5 · sk-...</div>
+      </div>
+    </div>
+    <div class="ob-row">
+      <input class="inp" id="ob-key" type="password" placeholder="Paste API key here..." style="flex:1"/>
+      <button class="btn btn-p" onclick="obSave()">Start →</button>
+    </div>
+    <div class="rb" id="ob-rb"></div>
+    <div class="ob-skip" onclick="$('onboarding').classList.add('hidden')">Skip — add key later</div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<aside id="sb">
+  <div class="brand">
+    <div class="brand-name">TrainForge</div>
+    <div class="brand-v">Version 3.0</div>
+    <div class="brand-tag">Lab-Grade Dataset Engine</div>
+  </div>
+  <nav>
+    <div class="nav-sec">Pipeline</div>
+    <div class="ni on" data-t="ingest"><span class="ni-icon">⬇</span><span class="ni-lbl">Ingest</span></div>
+    <div class="ni" data-t="generate"><span class="ni-icon">⚙</span><span class="ni-lbl">Generate</span><span class="ni-badge" id="nb-gen">0</span></div>
+    <div class="ni" data-t="review"><span class="ni-icon">👁</span><span class="ni-lbl">Review</span><span class="ni-badge" id="nb-rev">0</span></div>
+    <div class="nav-sec">Dataset</div>
+    <div class="ni" data-t="dataset"><span class="ni-icon">🗃</span><span class="ni-lbl">Dataset</span><span class="ni-badge" id="nb-ds">0</span></div>
+    <div class="ni" data-t="quality"><span class="ni-icon">📊</span><span class="ni-lbl">Quality</span></div>
+    <div class="ni" data-t="export"><span class="ni-icon">📦</span><span class="ni-lbl">Export</span></div>
+    <div class="ni" data-t="sell"><span class="ni-icon">💰</span><span class="ni-lbl">Sell</span></div>
+    <div class="ni" data-t="human"><span class="ni-icon">🧠</span><span class="ni-lbl">Human Sim</span><span class="ni-badge" style="background:rgba(255,107,53,.15);color:var(--orange)">NEW</span></div>
+    <div class="nav-sec">Config</div>
+    <div class="ni" data-t="settings"><span class="ni-icon">⚙</span><span class="ni-lbl">Settings</span></div>
+  </nav>
+  <div class="sb-foot">
+    <div class="api-pill">
+      <div class="api-dot" id="api-dot"></div>
+      <span class="api-txt" id="api-txt">No key</span>
+    </div>
+    <div class="stat-mini">
+      <div class="sm"><div class="sm-v" id="ms-ex">0</div><div class="sm-l">Examples</div></div>
+      <div class="sm"><div class="sm-v" id="ms-ap">0</div><div class="sm-l">Approved</div></div>
+    </div>
+    <div class="kb-legend"><kbd>J</kbd>/<kbd>K</kbd> nav · <kbd>A</kbd> approve<br><kbd>R</kbd> reject · <kbd>Del</kbd> delete · <kbd>G</kbd> regen</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title" id="tb-title">// ingest_data</div>
+      <div class="tb-sub" id="tb-sub">Pull content from any source</div>
+    </div>
+    <div class="tb-right">
+      <span class="provider-tag" id="prov-tag">Groq</span>
+      <input type="password" class="inp" id="api-key" style="width:180px;font-size:10px" placeholder="API key"/>
+      <button class="btn btn-o btn-sm" onclick="verifyKey()">Verify</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ INGEST ══ -->
+    <div class="tab on" id="tab-ingest">
+      <div class="mode-tabs">
+        <button class="mt on" data-m="wiki" onclick="setMode(this)">📖 Wikipedia</button>
+        <button class="mt" data-m="url" onclick="setMode(this)">🌐 URL</button>
+        <button class="mt" data-m="batch" onclick="setMode(this)">⚡ Batch</button>
+        <button class="mt" data-m="paste" onclick="setMode(this)">📋 Paste</button>
+        <button class="mt" data-m="file" onclick="setMode(this)">📄 File</button>
+      </div>
+
+      <div class="mode-pane on" id="pane-wiki">
+        <div class="card">
+          <div class="card-t">Wikipedia Ingest</div>
+          <div class="fg"><label>Topic</label><input class="inp" id="wiki-topic" placeholder="e.g. Transformer architecture, RLHF, Quantum computing..."/></div>
+          <div class="rg">
+            <div class="fg"><label>Language</label>
+              <select class="inp" id="wiki-lang">
+                <option value="en">English</option><option value="hi">Hindi</option>
+                <option value="es">Spanish</option><option value="fr">French</option>
+                <option value="de">German</option><option value="ar">Arabic</option>
+              </select>
+            </div>
+            <div class="fg"><label>Depth</label>
+              <select class="inp" id="wiki-depth">
+                <option value="summary">Summary</option>
+                <option value="full" selected>Full article</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-p" onclick="ingestWiki()">⬇ Fetch</button>
+            <button class="btn btn-o btn-sm" onclick="clearIngest()">Clear</button>
+          </div>
+          <div class="rb" id="wiki-rb"></div>
+        </div>
+      </div>
+
+      <div class="mode-pane" id="pane-url">
+        <div class="card">
+          <div class="card-t">Web URL Scraper</div>
+          <div class="fg"><label>URL</label><input class="inp" id="url-inp" placeholder="https://..."/></div>
+          <button class="btn btn-p" onclick="ingestURL()">⬇ Scrape</button>
+          <div class="rb" id="url-rb"></div>
+        </div>
+      </div>
+
+      <div class="mode-pane" id="pane-batch">
+        <div class="card">
+          <div class="card-t">Batch URL Ingest</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Scrape multiple URLs and combine into one source. Max 10 URLs.</div>
+          <div id="batch-list">
+            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
+            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
+            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-o btn-sm" onclick="addBatchRow()">+ Row</button>
+            <button class="btn btn-p" onclick="ingestBatch()">⬇ Scrape All</button>
+          </div>
+          <div class="rb" id="batch-rb"></div>
+        </div>
+      </div>
+
+      <div class="mode-pane" id="pane-paste">
+        <div class="card">
+          <div class="card-t">Paste Text</div>
+          <div class="fg"><label>Source Title</label><input class="inp" id="paste-title" placeholder="e.g. My Research Notes"/></div>
+          <div class="fg">
+            <label>Content</label>
+            <textarea class="inp" id="paste-text" rows="9" placeholder="Paste any text — articles, papers, documentation, transcripts..." oninput="updatePasteMeta()"></textarea>
+          </div>
+          <div id="paste-meta" style="font-size:9px;color:var(--muted);margin-bottom:8px"></div>
+          <button class="btn btn-p" onclick="ingestPaste()">Process</button>
+          <div class="rb" id="paste-rb"></div>
+        </div>
+      </div>
+
+      <div class="mode-pane" id="pane-file">
+        <div class="card">
+          <div class="card-t">Upload File</div>
+          <div id="drop-zone" onclick="$('file-inp').click()" ondragover="dragOver(event)" ondrop="dropFile(event)"
+            style="border:2px dashed var(--b2);border-radius:var(--r2);padding:30px;text-align:center;cursor:pointer;transition:border-color .15s">
+            <div style="font-size:28px;margin-bottom:8px">📄</div>
+            <div style="font-size:11px;color:var(--text);margin-bottom:3px">Drop file or click to browse</div>
+            <div style="font-size:10px;color:var(--muted)">.txt · .md · .json · .csv · .jsonl</div>
+            <input type="file" id="file-inp" style="display:none" accept=".txt,.md,.json,.csv,.jsonl" onchange="ingestFile(this.files[0])"/>
+          </div>
+          <div class="rb" id="file-rb"></div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="ingest-preview" style="display:none">
+        <div class="card card-accent">
+          <div class="card-t">Ingested Content</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <span class="badge" id="ingest-badge"></span>
+            <span style="font-size:10px;color:var(--muted)" id="ingest-meta"></span>
+            <button class="btn btn-o btn-xs" style="margin-left:auto" onclick="clearIngest()">✕ Clear</button>
+          </div>
+          <div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px;font-size:10px;color:var(--muted);line-height:1.7;max-height:130px;overflow-y:auto;white-space:pre-wrap" id="ingest-preview-text"></div>
+          <div class="tok-bar" style="margin-top:10px">
+            <span class="lbl">Source tokens estimate</span>
+            <span class="tok-v" id="tok-src">—</span>
+            <span class="tok-c" id="tok-src-note"></span>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-p" onclick="goGenerate()">⚙ Generate Training Data →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GENERATE ══ -->
+    <div class="tab" id="tab-generate">
+      <!-- Generation Mode -->
+      <div class="card">
+        <div class="card-t">Generation Mode</div>
+        <div class="gen-modes" id="gen-modes">
+          <div class="gen-mode-card sel" data-mode="standard" onclick="selMode(this)">
+            <div class="gm-icon">📝</div>
+            <div class="gm-name">Standard</div>
+            <div class="gm-desc">Clean Q&A pairs. Fast, reliable. Good for general datasets.</div>
+          </div>
+          <div class="gen-mode-card" data-mode="lab" onclick="selMode(this)">
+            <div class="gm-icon">🔬</div>
+            <div class="gm-name">Lab Quality</div>
+            <div class="gm-desc">3-stage pipeline. Strict quality criteria. Closest to what big labs want.</div>
+          </div>
+          <div class="gen-mode-card" data-mode="adversarial" onclick="selMode(this)">
+            <div class="gm-icon">⚔️</div>
+            <div class="gm-name">Adversarial</div>
+            <div class="gm-desc">Hard examples, trick questions, refusals, corrections. Makes models robust.</div>
+          </div>
+          <div class="gen-mode-card" data-mode="conversational" onclick="selMode(this)">
+            <div class="gm-icon">💬</div>
+            <div class="gm-name">Conversational</div>
+            <div class="gm-desc">Realistic multi-turn with vague questions, friction, pushback.</div>
+          </div>
+          <div class="gen-mode-card" data-mode="persona" onclick="selMode(this)">
+            <div class="gm-icon">🎭</div>
+            <div class="gm-name">Persona Mix</div>
+            <div class="gm-desc">Generates across 10 system prompts. Flexible, generalizable models.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Prompt (Persona mode) -->
+      <div class="card" id="persona-card" style="display:none">
+        <div class="card-t">System Prompt Personas</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Select which personas to generate examples for. Each produces examples with a different assistant style.</div>
+        <div class="sys-chips" id="sys-chips"></div>
+      </div>
+
+      <!-- Config -->
+      <div class="card">
+        <div class="card-t">Config</div>
+        <div class="rg" style="margin-bottom:12px">
+          <div class="fg"><label>Format</label>
+            <select class="inp" id="fmt-select">
+              <option value="all" selected>All formats</option>
+              <option value="instruction">Instruction pairs</option>
+              <option value="conversation">Conversations</option>
+              <option value="preference">Preference pairs</option>
+            </select>
+          </div>
+          <div class="fg"><label>Difficulty</label>
+            <select class="inp" id="diff-select">
+              <option value="mixed" selected>Mixed distribution</option>
+              <option value="beginner">Beginner focus</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="expert">Expert only</option>
+            </select>
+          </div>
+          <div class="fg"><label>Count</label>
+            <select class="inp" id="count-select" onchange="updateTokEstimate()">
+              <option value="5">5 examples</option>
+              <option value="10" selected>10 examples</option>
+              <option value="15">15 examples</option>
+              <option value="20">20 examples</option>
+              <option value="30">30 examples</option>
+              <option value="50">50 examples</option>
+            </select>
+          </div>
+          <div class="fg"><label>Language</label>
+            <select class="inp" id="out-lang">
+              <option value="English" selected>English</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="Arabic">Arabic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tok-bar">
+          <span class="lbl">Est. API tokens for this run</span>
+          <span class="tok-v" id="tok-gen">—</span>
+          <span class="tok-c" id="tok-gen-cost"></span>
+        </div>
+
+        <!-- Quality filters -->
+        <div class="card" style="background:var(--s2);margin-bottom:12px">
+          <div class="card-t">Auto-Quality Filters</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-syco" checked style="accent-color:var(--accent)"/> Reject sycophantic openers</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-self" checked style="accent-color:var(--accent)"/> Reject "as an AI" phrases</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-ctx" checked style="accent-color:var(--accent)"/> Reject context-dependent instructions</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-repeat" checked style="accent-color:var(--accent)"/> Reject high repetition (&gt;40%)</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="opt-dedup" checked style="accent-color:var(--accent)"/> Auto-deduplicate</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="opt-chunk" checked style="accent-color:var(--accent)"/> Smart chunking</label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p btn-lg" id="gen-btn" onclick="startGeneration()">⚙ Generate</button>
+          <span style="font-size:10px;color:var(--muted)" id="gen-hint"></span>
+        </div>
+        <div class="rb" id="gen-rb"></div>
+      </div>
+
+      <div class="card" id="gen-log-card" style="display:none">
+        <div class="card-t">Pipeline Log</div>
+        <div class="pw"><div class="pb pb-c" id="gen-pb" style="width:0%"></div></div>
+        <div class="tlog" id="gen-log"></div>
+      </div>
+
+      <div id="gen-preview" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:10px;color:var(--muted)">Generated <span style="color:var(--accent)" id="gen-count">0</span> examples · <span id="gen-filtered" style="color:var(--red)"></span></div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-g btn-sm" onclick="approveAll()">✓ Approve All</button>
+            <button class="btn btn-o btn-sm" onclick="goReview()">→ Review</button>
+          </div>
+        </div>
+        <div class="ds-grid" id="gen-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══ REVIEW ══ -->
+    <div class="tab" id="tab-review">
+      <div class="review-toolbar">
+        <button class="chip on" data-f="all" onclick="setFilter(this)">All</button>
+        <button class="chip" data-f="pending" onclick="setFilter(this)">Pending</button>
+        <button class="chip" data-f="approved" onclick="setFilter(this)">Approved</button>
+        <button class="chip" data-f="rejected" onclick="setFilter(this)">Rejected</button>
+        <button class="chip" data-f="instruction" onclick="setFilter(this)">Instruction</button>
+        <button class="chip" data-f="conversation" onclick="setFilter(this)">Conv</button>
+        <button class="chip" data-f="preference" onclick="setFilter(this)">Pref</button>
+        <button class="chip" data-f="adversarial" onclick="setFilter(this)">Adversarial</button>
+        <div style="margin-left:auto;display:flex;gap:5px">
+          <button class="btn btn-o btn-xs" onclick="approveAll()">✓ All</button>
+          <button class="btn btn-r btn-xs" onclick="rejectAll()">✕ All</button>
+        </div>
+      </div>
+      <div class="ds-grid" id="review-grid">
+        <div style="text-align:center;padding:40px;color:var(--muted);font-size:11px">
+          <div style="font-size:28px;margin-bottom:8px">👁</div>No examples yet
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DATASET ══ -->
+    <div class="tab" id="tab-dataset">
+      <div class="stat-strip">
+        <div class="stat"><div class="stat-v" id="ds-total" style="color:var(--accent)">0</div><div class="stat-l">Total</div></div>
+        <div class="stat"><div class="stat-v" id="ds-appr" style="color:var(--green)">0</div><div class="stat-l">Approved</div></div>
+        <div class="stat"><div class="stat-v" id="ds-inst" style="color:var(--accent)">0</div><div class="stat-l">Instruction</div></div>
+        <div class="stat"><div class="stat-v" id="ds-conv" style="color:var(--purple)">0</div><div class="stat-l">Conv</div></div>
+        <div class="stat"><div class="stat-v" id="ds-pref" style="color:var(--orange)">0</div><div class="stat-l">Pref</div></div>
+        <div class="stat"><div class="stat-v" id="ds-adv" style="color:var(--red)">0</div><div class="stat-l">Adversarial</div></div>
+        <div class="stat"><div class="stat-v" id="ds-avgq" style="color:var(--green)">—</div><div class="stat-l">Avg Quality</div></div>
+      </div>
+      <div class="card">
+        <div class="card-t">All Examples</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <input class="inp" id="ds-search" style="flex:1;min-width:140px" placeholder="Search..." oninput="renderDataset()"/>
+          <button class="btn btn-r btn-sm" onclick="clearDataset()">Clear All</button>
+        </div>
+        <div id="ds-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ QUALITY ══ -->
+    <div class="tab" id="tab-quality">
+      <div class="card"><div class="card-t">Overview</div><div id="q-overview"></div></div>
+      <div class="card"><div class="card-t">By Type</div><div id="q-breakdown"></div></div>
+      <div class="card"><div class="card-t">Improvement Recommendations</div><div id="q-tips"></div></div>
+      <div class="card"><div class="card-t">Quality Filter Log</div><div id="q-filter-log" style="font-size:10px;color:var(--muted);line-height:2">No filter events yet.</div></div>
+    </div>
+
+    <!-- ══ EXPORT ══ -->
+    <div class="tab" id="tab-export">
+      <div class="card">
+        <div class="card-t">Export Options</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="exp-appr" checked style="accent-color:var(--accent)"/> Approved only</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="exp-hq" style="accent-color:var(--accent)"/> High quality only (≥0.7)</label>
+          <span style="font-size:10px;color:var(--muted)" id="exp-count-lbl"></span>
+        </div>
+        <div class="exp-grid">
+          <div class="exp-card"><div class="exp-icon">📄</div><div class="exp-title">OpenAI JSONL</div><div class="exp-desc">Fine-tune GPT-3.5/4o</div><button class="btn btn-p btn-sm" onclick="exportFmt('openai')">Export .jsonl</button></div>
+          <div class="exp-card"><div class="exp-icon">🤗</div><div class="exp-title">HuggingFace JSON</div><div class="exp-desc">push_to_hub() ready</div><button class="btn btn-p btn-sm" onclick="exportFmt('hf')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">🦙</div><div class="exp-title">Alpaca Format</div><div class="exp-desc">LLaMA / Alpaca training</div><button class="btn btn-p btn-sm" onclick="exportFmt('alpaca')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">⚡</div><div class="exp-title">ShareGPT</div><div class="exp-desc">Vicuna / multi-turn</div><button class="btn btn-p btn-sm" onclick="exportFmt('sharegpt')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">🏆</div><div class="exp-title">DPO / RLHF</div><div class="exp-desc">Preference pair training</div><button class="btn btn-p btn-sm" onclick="exportFmt('dpo')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">📊</div><div class="exp-title">CSV</div><div class="exp-desc">Excel / Sheets review</div><button class="btn btn-o btn-sm" onclick="exportFmt('csv')">Export .csv</button></div>
+          <div class="exp-card"><div class="exp-icon">🗂</div><div class="exp-title">Full Backup</div><div class="exp-desc">All metadata included</div><button class="btn btn-g btn-sm" onclick="exportFmt('full')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">📋</div><div class="exp-title">Dataset Card</div><div class="exp-desc">HuggingFace README.md</div><button class="btn btn-o btn-sm" onclick="exportDatasetCard()">Export .md</button></div>
+        </div>
+        <div class="rb" id="exp-rb"></div>
+      </div>
+    </div>
+
+    <!-- ══ SELL ══ -->
+    <div class="tab" id="tab-sell">
+      <div class="card">
+        <div class="card-t">💰 Monetize Your Dataset</div>
+        <div class="sell-grid">
+          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🤗</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">HuggingFace Hub</div><div class="price-tag">Free to list</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Publish publicly or gated. Build ML community reputation.</div><div class="sell-steps"><div><span class="ck">✓</span> Export HF JSON + README.md</div><div><span class="ck">✓</span> datasets.push_to_hub()</div><div><span class="ck">✓</span> Set gated for paid access</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('hf')">Guide →</button></div>
+          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🛒</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Gumroad</div><div class="price-tag">$10–$500</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Sell directly. Best for niche domain datasets.</div><div class="sell-steps"><div><span class="ck">✓</span> Export Full Backup + README</div><div><span class="ck">✓</span> ZIP and list on Gumroad</div><div><span class="ck">✓</span> Post in AI communities</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('gumroad')">Guide →</button></div>
+          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">💼</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Fiverr / Upwork</div><div class="price-tag">$100–$2,000</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Custom dataset creation as a service. Use TrainForge to fulfil fast.</div><div class="sell-steps"><div><span class="ck">✓</span> Set up gig: custom AI datasets</div><div><span class="ck">✓</span> Use Lab Quality mode</div><div><span class="ck">✓</span> Deliver in client's format</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('fiverr')">Guide →</button></div>
+          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🏢</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Direct / B2B</div><div class="price-tag">$500–$10,000+</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Pitch AI startups and research labs directly. Highest value.</div><div class="sell-steps"><div><span class="ck">✓</span> Build niche expertise</div><div><span class="ck">✓</span> Create 1-page data spec</div><div><span class="ck">✓</span> Outreach on LinkedIn</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('b2b')">Guide →</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-t">✍ Auto-Generate Listing Copy</div>
+        <div class="rg">
+          <div class="fg"><label>Platform</label>
+            <select class="inp" id="sell-plat"><option value="gumroad">Gumroad</option><option value="hf">HuggingFace</option><option value="fiverr">Fiverr</option><option value="upwork">Upwork</option></select>
+          </div>
+          <div class="fg"><label>Price ($)</label><input class="inp" id="sell-price" type="number" placeholder="49" min="1"/></div>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="genListing()">✨ Generate Listing</button>
+        <div class="rb" id="sell-rb"></div>
+        <div id="sell-out" style="display:none;margin-top:12px">
+          <div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto" id="sell-text"></div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn btn-g btn-sm" onclick="copySell()">📋 Copy</button>
+            <button class="btn btn-o btn-sm" onclick="dlSell()">⬇ .txt</button>
+          </div>
+        </div>
+      </div>
+      <div id="sell-guide-box" style="display:none">
+        <div class="card">
+          <div class="card-t" id="sell-guide-title"></div>
+          <div id="sell-guide-body" style="font-size:11px;color:var(--muted);line-height:2.1;white-space:pre-wrap"></div>
+          <button class="btn btn-o btn-sm" style="margin-top:10px" onclick="$('sell-guide-box').style.display='none'">← Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HUMAN SIMULATION ══ -->
+    <div class="tab" id="tab-human">
+
+      <!-- Header banner -->
+      <div style="background:linear-gradient(135deg,rgba(255,107,53,.08),rgba(255,209,102,.06));border:1px solid rgba(255,107,53,.25);border-radius:var(--r2);padding:18px 20px;margin-bottom:16px">
+        <div style="font-family:var(--serif);font-size:18px;font-weight:700;color:var(--orange);margin-bottom:5px">🧠 Synthetic Human Conversation Simulation</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">Generate conversations that behave like real humans — emotional, vague, interrupted, confused, and correcting themselves.<br>Companies pay <strong style="color:var(--orange)">3–5× more</strong> for realistic conversation data than plain Q&A.</div>
+      </div>
+
+      <!-- Personality Profiles -->
+      <div class="card">
+        <div class="card-t">Human Personality Profiles</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Each profile defines how the simulated human behaves. Mix multiple profiles for diverse datasets.</div>
+        <div id="personality-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:4px"></div>
+      </div>
+
+      <!-- Behavior Injectors -->
+      <div class="card">
+        <div class="card-t">Behavior Injectors</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Force specific realistic behaviors into conversations. These are what make data genuinely hard and valuable.</div>
+        <div id="behavior-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px"></div>
+      </div>
+
+      <!-- Config -->
+      <div class="card">
+        <div class="card-t">Simulation Config</div>
+        <div class="rg" style="margin-bottom:12px">
+          <div class="fg"><label>Number of conversations</label>
+            <select class="inp" id="hs-count">
+              <option value="3">3 conversations</option>
+              <option value="5" selected>5 conversations</option>
+              <option value="10">10 conversations</option>
+              <option value="15">15 conversations</option>
+              <option value="20">20 conversations</option>
+            </select>
+          </div>
+          <div class="fg"><label>Turns per conversation</label>
+            <select class="inp" id="hs-turns">
+              <option value="4">4 turns (short)</option>
+              <option value="6" selected>6 turns (medium)</option>
+              <option value="8">8 turns (long)</option>
+              <option value="12">12 turns (very long)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Emotional intensity</label>
+            <select class="inp" id="hs-intensity">
+              <option value="low">Low — mostly calm</option>
+              <option value="medium" selected>Medium — occasional emotion</option>
+              <option value="high">High — frequent emotional moments</option>
+            </select>
+          </div>
+          <div class="fg"><label>Domain / Topic</label>
+            <select class="inp" id="hs-domain">
+              <option value="auto">Auto (from ingested content)</option>
+              <option value="customer_support">Customer Support</option>
+              <option value="medical">Medical / Health</option>
+              <option value="technical">Technical / Coding</option>
+              <option value="education">Education / Learning</option>
+              <option value="legal">Legal Advice</option>
+              <option value="mental_health">Mental Health Support</option>
+              <option value="ecommerce">E-commerce / Shopping</option>
+              <option value="general">General Chat</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Realism sliders -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600">Realism Controls</div>
+          <div class="hs-slider-row">
+            <span class="hs-sl">Typo frequency</span>
+            <input type="range" id="sl-typo" min="0" max="3" value="1" class="hs-range" oninput="updateSliderLabel(this,'sl-typo-v',['None','Occasional','Moderate','Frequent'])"/>
+            <span class="hs-sv" id="sl-typo-v">Occasional</span>
+          </div>
+          <div class="hs-slider-row">
+            <span class="hs-sl">Vagueness level</span>
+            <input type="range" id="sl-vague" min="0" max="3" value="2" class="hs-range" oninput="updateSliderLabel(this,'sl-vague-v',['Very clear','Slightly vague','Moderately vague','Very vague'])"/>
+            <span class="hs-sv" id="sl-vague-v">Moderately vague</span>
+          </div>
+          <div class="hs-slider-row">
+            <span class="hs-sl">Topic drift</span>
+            <input type="range" id="sl-drift" min="0" max="3" value="1" class="hs-range" oninput="updateSliderLabel(this,'sl-drift-v',['Stays on topic','Minor drift','Moderate drift','Frequent tangents'])"/>
+            <span class="hs-sv" id="sl-drift-v">Minor drift</span>
+          </div>
+          <div class="hs-slider-row">
+            <span class="hs-sl">Interruption rate</span>
+            <input type="range" id="sl-interrupt" min="0" max="3" value="1" class="hs-range" oninput="updateSliderLabel(this,'sl-interrupt-v',['None','Rare','Occasional','Frequent'])"/>
+            <span class="hs-sv" id="sl-interrupt-v">Rare</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-lg" id="hs-btn" onclick="runHumanSim()" style="background:var(--orange);color:#000;border-color:var(--orange);font-weight:700">🧠 Simulate Humans</button>
+          <span style="font-size:10px;color:var(--muted)" id="hs-hint">Select personalities and behaviors above</span>
+        </div>
+        <div class="rb" id="hs-rb"></div>
+      </div>
+
+      <!-- Log -->
+      <div class="card" id="hs-log-card" style="display:none">
+        <div class="card-t">Simulation Log</div>
+        <div class="pw"><div class="pb" id="hs-pb" style="width:0%;background:var(--orange)"></div></div>
+        <div class="tlog" id="hs-log"></div>
+      </div>
+
+      <!-- Results -->
+      <div id="hs-results" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:10px;color:var(--muted)">Generated <span style="color:var(--orange)" id="hs-count-out">0</span> human simulations</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-g btn-sm" onclick="approveAllHs()">✓ Approve All</button>
+            <button class="btn btn-o btn-sm" onclick="goReview()">→ Review</button>
+          </div>
+        </div>
+        <div class="ds-grid" id="hs-grid"></div>
+      </div>
+
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="tab" id="tab-settings">
+      <div class="card">
+        <div class="card-t">API Configuration</div>
+        <div class="fg"><label>Provider</label>
+          <select class="inp" id="set-provider" onchange="onProvChange()">
+            <option value="groq">Groq (Free, Fast)</option>
+            <option value="openai">OpenAI</option>
+          </select>
+        </div>
+        <div class="fg"><label>API Key</label><input type="password" class="inp" id="set-key" placeholder="gsk_... or sk-..."/></div>
+        <div class="fg"><label>Model</label><select class="inp" id="set-model">
+          <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B</option>
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+        </select></div>
+        <button class="btn btn-p btn-sm" onclick="saveSettings()">Save</button>
+        <div class="rb" id="set-rb"></div>
+      </div>
+      <div class="card">
+        <div class="card-t">Dataset Info</div>
+        <div class="fg"><label>Name</label><input class="inp" id="ds-name" placeholder="my-training-dataset"/></div>
+        <div class="fg"><label>Description</label><textarea class="inp" id="ds-desc" rows="3" placeholder="A high-quality training dataset..."></textarea></div>
+        <div class="fg"><label>Author</label><input class="inp" id="ds-author" placeholder="your-name"/></div>
+        <div class="fg"><label>License</label>
+          <select class="inp" id="ds-license">
+            <option value="cc-by-4.0">CC BY 4.0</option><option value="cc-by-sa-4.0">CC BY-SA 4.0</option>
+            <option value="apache-2.0">Apache 2.0</option><option value="mit">MIT</option><option value="cc0-1.0">CC0 (Public Domain)</option>
+          </select>
+        </div>
+        <div class="fg"><label>Tags</label><input class="inp" id="ds-tags" placeholder="instruction-tuning, nlp"/></div>
+        <button class="btn btn-o btn-sm" onclick="saveDsInfo()">Save</button>
+        <div class="rb" id="dsinfo-rb"></div>
+      </div>
+      <div class="card">
+        <div class="card-t">🌐 Hosting Guide</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Deploy TrainForge publicly. Everything you need to go live.</div>
+        <button class="btn btn-o btn-sm" onclick="showHostingGuide()">📋 View Hosting Guide</button>
+        <div id="hosting-guide-out" style="display:none;margin-top:12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;font-size:10px;color:var(--muted);line-height:2;white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
+      </div>
+      <div class="card">
+        <div class="card-t">Data Management</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-o btn-sm" onclick="importBackup()">📥 Import</button>
+          <button class="btn btn-r btn-sm" onclick="nukeAll()">🗑 Reset All</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(this.files[0])"/>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════════
+const LS=()=>{try{return JSON.parse(localStorage.getItem('tf_v3')||'{}')}catch{return{}}};
+const SS=p=>localStorage.setItem('tf_v3',JSON.stringify({...LS(),...p}));
+const getEx=()=>LS().examples||[];
+const getSt=()=>LS().settings||{};
+const getDI=()=>LS().dsinfo||{};
+const $=id=>document.getElementById(id);
+
+let ingestedContent=null;
+let genBuffer=[];
+let revFilter='all';
+let revFocusIdx=-1;
+let kbNavActive=false;
+let selProvider='groq';
+let selGenMode='standard';
+let filterLog=[];
+let filteredCount=0;
+
+const CORS='https://api.allorigins.win/raw?url=';
+
+const SYSTEM_PERSONAS=[
+  {id:'helpful',label:'Helpful Assistant',prompt:'You are a helpful, harmless, and honest assistant. Answer clearly and directly.'},
+  {id:'concise',label:'Concise',prompt:'You are a concise assistant. Give the shortest complete answer possible. Never pad your response.'},
+  {id:'socratic',label:'Socratic Tutor',prompt:'You are a Socratic tutor. Guide the user to the answer through questions. Never give the answer directly.'},
+  {id:'expert',label:'Domain Expert',prompt:'You are a leading domain expert. Use precise technical terminology. Assume an expert audience.'},
+  {id:'child',label:'Explain Simply',prompt:'You are explaining to a curious 10-year-old. Use simple words, fun analogies, and short sentences.'},
+  {id:'critical',label:'Critical Thinker',prompt:'You are a critical thinker. Challenge assumptions, identify weaknesses, and provide counterarguments.'},
+  {id:'step',label:'Step-by-Step',prompt:'You always reason step by step before giving a final answer. Show your work explicitly.'},
+  {id:'cautious',label:'Cautious/Humble',prompt:'You are appropriately cautious. Acknowledge uncertainty, cite limitations, and avoid overconfidence.'},
+  {id:'practical',label:'Practical',prompt:'You focus on practical, actionable advice. Skip theory. Tell the user exactly what to do.'},
+  {id:'devil',label:'Devil\'s Advocate',prompt:'You always present the opposing view or the strongest counterargument to any position.'},
+];
+let selPersonas=new Set(['helpful','concise','expert','step']);
+
+const SELL_GUIDES={
+  hf:{title:'🤗 HuggingFace Hub Guide',body:`STEP 1 — Prepare files
+• Export HuggingFace JSON
+• Export Dataset Card (README.md)
+• Fill Dataset Info in Settings first
+
+STEP 2 — Install and push
+  pip install datasets huggingface_hub
+  huggingface-cli login
+
+  from datasets import Dataset
+  import json
+  with open("hf-dataset.json") as f:
+      data = json.load(f)
+  ds = Dataset.from_list(data["splits"]["train"])
+  ds.push_to_hub("your-username/dataset-name")
+
+STEP 3 — Monetize
+• Set repo to private + gated
+• Use Gumroad for payment
+• Deliver HF access on purchase`},
+  gumroad:{title:'🛒 Gumroad Selling Guide',body:`STEP 1 — Package your dataset
+• Export Full Backup JSON + README.md
+• Create a ZIP file with both
+• Write a usage_guide.txt explaining formats
+
+STEP 2 — Create Gumroad product
+• gumroad.com → New Product → Digital
+• Upload ZIP, set price
+• Suggested pricing:
+  100 examples, general: $10–25
+  500 examples, niche: $50–150
+  1000+ curated: $200–500
+
+STEP 3 — Drive traffic
+• Post on r/MachineLearning, r/LocalLLaMA
+• Twitter/X: AI fine-tuning community
+• HuggingFace Discussions`},
+  fiverr:{title:'💼 Fiverr/Upwork Guide',body:`GIG TITLE
+"I will create a custom AI fine-tuning dataset"
+
+PACKAGES
+Basic ($50): 100 instruction pairs, JSONL
+Standard ($200): 500 mixed examples, all formats
+Premium ($500): 1000+ curated, quality report
+
+DESCRIPTION POINTS
+• Industry-standard formats (OpenAI, Alpaca, DPO)
+• Quality scored and reviewed before delivery
+• 24–48 hour turnaround
+
+FULFILLMENT TIME WITH TRAINFORGE
+• 100 examples: ~10 minutes generation + 20 min review
+• 500 examples: ~40 minutes total
+• You can run $500 gigs in under an hour`},
+  b2b:{title:'🏢 B2B Direct Sales Guide',body:`WHO TO TARGET
+• AI startups building domain chatbots
+• Research labs needing instruction data
+• Enterprises deploying internal LLMs
+• EdTech / LegalTech / MedTech companies
+
+HOW TO PITCH
+1. Build a niche dataset first (100 free examples)
+2. Create a 1-page data spec:
+   - Dataset topic and scope
+   - Example count and formats
+   - Quality metrics
+   - 5 sample examples
+   - Price
+
+3. LinkedIn outreach:
+   "Hi [name], I build fine-tuning datasets for
+   [domain] LLMs. I have 500 examples ready.
+   Would you like to see a sample?"
+
+PRICING
+• Domain 500 examples: $500–2,000
+• Large multilingual: $2,000–10,000
+• Monthly data contract: $1,000+/mo`}
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════════════════════════════════════
+function selProv(p,el){
+  selProvider=p;
+  document.querySelectorAll('.ob-p').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  $('ob-key').placeholder='Paste your '+p+' API key ('+(p==='groq'?'gsk_...':'sk-...')+')';
+}
+async function obSave(){
+  const key=$('ob-key').value.trim();
+  if(!key){rb('ob-rb','Paste API key first','warn');return;}
+  rb('ob-rb','⏳ Verifying...','info');
+  try{
+    await testKey(key,selProvider);
+    SS({settings:{...getSt(),key,provider:selProvider,model:selProvider==='groq'?'llama-3.3-70b-versatile':'gpt-3.5-turbo'}});
+    $('api-key').value=key;
+    $('api-dot').className='api-dot ok';
+    $('api-txt').textContent=selProvider+' active';
+    updateProvTag();
+    $('onboarding').classList.add('hidden');
+  }catch(e){rb('ob-rb','❌ '+e.message,'err');}
+}
+(function initOb(){
+  const s=getSt();
+  if(s.key){
+    $('onboarding').classList.add('hidden');
+    $('api-key').value=s.key;
+    $('api-dot').className='api-dot ok';
+    $('api-txt').textContent=(s.provider||'groq')+' active';
+    selProvider=s.provider||'groq';
+    updateProvTag();
+  }
+})();
+function updateProvTag(){$('prov-tag').textContent=selProvider==='openai'?'OpenAI':'Groq';}
+
+// ══════════════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════════════
+const PAGE_META={
+  ingest:['// ingest_data','Pull content from Wikipedia · URLs · paste · file upload'],
+  generate:['// generate','Lab-grade pipeline · adversarial · conversational · persona mix'],
+  review:['// review','Approve · reject · regenerate · J/K + A/R keyboard nav'],
+  dataset:['// dataset','Your approved training dataset with full metadata'],
+  quality:['// quality_analysis','Quality metrics · filter log · improvement recommendations'],
+  export:['// export','7 export formats including OpenAI JSONL, DPO, Alpaca, CSV'],
+  sell:['// sell_dataset','Monetize · auto-generate listing copy · platform guides'],
+  human:['// human_simulation','Synthetic human conversations · emotional · vague · interrupted · realistic'],
+  settings:['// settings','API config · provider selection · dataset metadata'],
+};
+document.querySelectorAll('.ni[data-t]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    el.classList.add('on');
+    $('tab-'+el.dataset.t).classList.add('on');
+    const m=PAGE_META[el.dataset.t];
+    if(m){$('tb-title').textContent=m[0];$('tb-sub').textContent=m[1];}
+    const t=el.dataset.t;
+    if(t==='review'){renderReview();kbNavActive=true;}else{kbNavActive=false;}
+    if(t==='dataset'){renderDataset();updateDsStats();}
+    if(t==='quality')renderQuality();
+    if(t==='export')updateExpCount();
+    if(t==='settings')loadSettings();
+    if(t==='generate')updateTokEstimate();
+    if(t==='human')initHumanSim();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════════
+function esc(t){return !t?'':String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function rb(id,msg,t){const e=$(id);if(!e)return;e.textContent=msg;e.className='rb show '+t;}
+function hb(id){const e=$(id);if(e)e.className='rb';}
+function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
+function apiKey(){return $('api-key').value.trim()||getSt().key||'';}
+function mdl(){return getSt().model||'llama-3.3-70b-versatile';}
+function getProv(){return getSt().provider||selProvider||'groq';}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function estTok(text){return Math.ceil((text||'').length/4);}
+
+function updateSidebar(){
+  const ex=getEx();
+  const ap=ex.filter(e=>e.status==='approved').length;
+  $('ms-ex').textContent=ex.length;
+  $('ms-ap').textContent=ap;
+  $('nb-gen').textContent=genBuffer.length;
+  $('nb-rev').textContent=ex.length;
+  $('nb-ds').textContent=ap;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  API
+// ══════════════════════════════════════════════════════════════════
+async function callLLM(sys,usr,maxTok=1400){
+  const prov=getProv();
+  const key=apiKey();
+  const url=prov==='openai'?'https://api.openai.com/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const model=prov==='openai'?(mdl().startsWith('gpt')?mdl():'gpt-3.5-turbo'):mdl();
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,temperature:0.7,max_tokens:maxTok,messages:[{role:'system',content:sys},{role:'user',content:usr}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+  return (await r.json()).choices[0].message.content.trim();
+}
+async function testKey(key,prov){
+  const url=prov==='openai'?'https://api.openai.com/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const model=prov==='openai'?'gpt-3.5-turbo':'llama-3.1-8b-instant';
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,max_tokens:5,messages:[{role:'user',content:'Hi'}]})});
+  if(!r.ok)throw new Error('Key rejected');
+  return true;
+}
+async function verifyKey(){
+  try{
+    rb('wiki-rb','⏳ Verifying...','info');
+    await testKey(apiKey(),getProv());
+    rb('wiki-rb','✅ Key verified — '+getProv()+' active','ok');
+    $('api-dot').className='api-dot ok';
+    $('api-txt').textContent=getProv()+' active';
+    SS({settings:{...getSt(),key:apiKey()}});
+  }catch(e){
+    rb('wiki-rb','❌ '+e.message,'err');
+    $('api-dot').className='api-dot err';
+    $('api-txt').textContent='Key error';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  TOKEN ESTIMATE
+// ══════════════════════════════════════════════════════════════════
+function updateTokEstimate(){
+  const count=parseInt(($('count-select')||{value:'10'}).value||'10');
+  const src=ingestedContent?estTok(ingestedContent.text):0;
+  const total=src+200+(count*500);
+  const prov=getProv();
+  const cost=prov==='openai'?(total/1000000*0.5).toFixed(4):0;
+  if($('tok-gen')){
+    $('tok-gen').textContent='~'+total.toLocaleString()+' tokens';
+    $('tok-gen-cost').textContent=prov==='openai'?'≈ $'+cost:'Free on Groq';
+    $('tok-gen').style.color=total>80000?'var(--yellow)':'var(--accent)';
+  }
+}
+function updatePasteMeta(){
+  const t=$('paste-text').value;
+  $('paste-meta').textContent=t.length+' chars · ~'+estTok(t)+' tokens';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  INGEST
+// ══════════════════════════════════════════════════════════════════
+function setMode(btn){
+  document.querySelectorAll('.mt').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.mode-pane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  $('pane-'+btn.dataset.m).classList.add('on');
+}
+async function ingestWiki(){
+  const topic=$('wiki-topic').value.trim(),lang=$('wiki-lang').value,depth=$('wiki-depth').value;
+  if(!topic){rb('wiki-rb','Enter a topic','warn');return;}
+  rb('wiki-rb','⏳ Fetching Wikipedia...','info');
+  try{
+    const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+    if(!r.ok)throw new Error('Article not found');
+    const s=await r.json();
+    let text=s.extract||'';
+    if(depth==='full'){
+      const sr=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(topic)}`).catch(()=>null);
+      if(sr&&sr.ok){const sd=await sr.json();const secs=(sd.remaining?.sections||[]).slice(0,6);const extra=secs.map(x=>{const d=document.createElement('div');d.innerHTML=x.text||'';return(x.line?x.line+'\n':'')+d.textContent.slice(0,600);}).join('\n\n');text+='\n\n'+extra;}
+    }
+    setIngest({text:text.slice(0,7000),title:s.title||topic,source:s.content_urls?.desktop?.page||'',source_type:'wikipedia'});
+    rb('wiki-rb','✅ Fetched "'+s.title+'" — '+text.length+' chars','ok');
+  }catch(e){rb('wiki-rb','❌ '+e.message,'err');}
+}
+async function ingestURL(){
+  const url=$('url-inp').value.trim();
+  if(!url){rb('url-rb','Enter a URL','warn');return;}
+  rb('url-rb','⏳ Scraping...','info');
+  try{
+    const r=await fetch(CORS+encodeURIComponent(url));
+    if(!r.ok)throw new Error('Could not fetch URL');
+    const html=await r.text();
+    const d=document.createElement('div');
+    d.innerHTML=html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<nav[\s\S]*?<\/nav>/gi,'').replace(/<footer[\s\S]*?<\/footer>/gi,'');
+    const text=d.textContent.replace(/\s+/g,' ').trim().slice(0,7000);
+    const tm=html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    setIngest({text,title:tm?.[1]?.trim()||url,source:url,source_type:'web'});
+    rb('url-rb','✅ Scraped: '+text.length+' chars','ok');
+  }catch(e){rb('url-rb','❌ '+e.message,'err');}
+}
+function addBatchRow(){
+  const list=$('batch-list');
+  if(list.children.length>=10){rb('batch-rb','Max 10 URLs','warn');return;}
+  const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;margin-bottom:5px';
+  d.innerHTML='<input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span>';
+  list.appendChild(d);
+}
+async function ingestBatch(){
+  const rows=$('batch-list').children;
+  const urls=Array.from(rows).map(r=>r.querySelector('input').value.trim()).filter(Boolean);
+  const spans=Array.from($('batch-list').querySelectorAll('span'));
+  if(!urls.length){rb('batch-rb','Add URLs first','warn');return;}
+  rb('batch-rb','⏳ Fetching '+urls.length+' URLs...','info');
+  let all='',ok=0;
+  for(let i=0;i<urls.length;i++){
+    if(spans[i])spans[i].textContent='⏳';
+    try{
+      const r=await fetch(CORS+encodeURIComponent(urls[i]));
+      if(!r.ok)throw new Error();
+      const html=await r.text();
+      const d=document.createElement('div');
+      d.innerHTML=html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'');
+      all+='\n\n=== Source '+i+': '+urls[i]+' ===\n'+d.textContent.replace(/\s+/g,' ').trim().slice(0,1800);
+      ok++;if(spans[i]){spans[i].textContent='✓';spans[i].style.color='var(--green)';}
+    }catch{if(spans[i]){spans[i].textContent='✗';spans[i].style.color='var(--red)';}}
+    await new Promise(r=>setTimeout(r,300));
+  }
+  if(!all){rb('batch-rb','❌ All URLs failed','err');return;}
+  setIngest({text:all.slice(0,9000),title:'Batch ('+ok+' URLs)',source:'Multiple',source_type:'web'});
+  rb('batch-rb','✅ Scraped '+ok+'/'+urls.length+' URLs','ok');
+}
+function ingestPaste(){
+  const text=$('paste-text').value.trim(),title=$('paste-title').value.trim()||'Pasted Content';
+  if(!text){rb('paste-rb','Paste text first','warn');return;}
+  setIngest({text:text.slice(0,7000),title,source:'User input',source_type:'paste'});
+  rb('paste-rb','✅ '+text.length+' chars ready','ok');
+}
+function ingestFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let text=e.target.result;
+    if(file.name.match(/\.(json|jsonl)$/)){try{const lines=text.split('\n').filter(Boolean);const parsed=lines.map(l=>{try{return JSON.parse(l);}catch{return null;}}).filter(Boolean);text=parsed.map(p=>p.text||p.content||p.input||p.instruction||JSON.stringify(p)).join('\n\n');}catch{}}
+    setIngest({text:text.slice(0,7000),title:file.name,source:'File: '+file.name,source_type:'file'});
+    rb('file-rb','✅ '+file.name+' ('+text.length+' chars)','ok');
+  };
+  reader.readAsText(file);
+}
+function dragOver(e){e.preventDefault();$('drop-zone').style.borderColor='var(--accent)';}
+function dropFile(e){e.preventDefault();$('drop-zone').style.borderColor='';const f=e.dataTransfer.files[0];if(f)ingestFile(f);}
+
+function setIngest(c){
+  ingestedContent=c;
+  $('ingest-preview').style.display='block';
+  const tm={wikipedia:'b-wiki',web:'b-web',paste:'b-paste',file:'b-file'};
+  const lm={wikipedia:'Wikipedia',web:'Web',paste:'Pasted',file:'File'};
+  $('ingest-badge').className='badge '+(tm[c.source_type]||'');
+  $('ingest-badge').textContent=lm[c.source_type]||c.source_type;
+  $('ingest-meta').textContent='"'+c.title.slice(0,55)+'" · '+c.text.length+' chars';
+  $('ingest-preview-text').textContent=c.text.slice(0,350)+'...';
+  $('tok-src').textContent='~'+estTok(c.text).toLocaleString();
+  $('tok-src-note').textContent='est. input tokens';
+}
+function clearIngest(){ingestedContent=null;$('ingest-preview').style.display='none';}
+function goGenerate(){document.querySelector('.ni[data-t="generate"]').click();$('gen-hint').textContent=ingestedContent?'Ready: "'+ingestedContent.title.slice(0,40)+'"':'No content ingested';updateTokEstimate();}
+function goReview(){document.querySelector('.ni[data-t="review"]').click();}
+
+// ══════════════════════════════════════════════════════════════════
+//  GEN MODE + PERSONA SELECTOR
+// ══════════════════════════════════════════════════════════════════
+function selMode(el){
+  document.querySelectorAll('.gen-mode-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selGenMode=el.dataset.mode;
+  $('persona-card').style.display=selGenMode==='persona'?'block':'none';
+  if(selGenMode==='persona')renderPersonaChips();
+}
+function renderPersonaChips(){
+  $('sys-chips').innerHTML=SYSTEM_PERSONAS.map(p=>`<div class="sys-chip${selPersonas.has(p.id)?' on':''}" onclick="togglePersona('${p.id}',this)">${p.label}</div>`).join('');
+}
+function togglePersona(id,el){
+  if(selPersonas.has(id)){if(selPersonas.size>1)selPersonas.delete(id);}else{selPersonas.add(id);}
+  el.classList.toggle('on',selPersonas.has(id));
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  AUTO QUALITY FILTERS — The key v3 upgrade
+// ══════════════════════════════════════════════════════════════════
+const SYCO_PATTERNS=[/^certainly[,!]/i,/^sure[,!]/i,/^of course[,!]/i,/^great question[,!]/i,/^absolutely[,!]/i,/^definitely[,!]/i,/^i'd be happy to/i,/^i'm glad you asked/i,/^what a (great|wonderful|fantastic)/i];
+const SELF_PATTERNS=[/as an ai language model/i,/as an ai,/i,/i am an ai/i,/i'm an ai/i,/as a large language model/i];
+const CTX_PATTERNS=[/in the text above/i,/in the passage above/i,/according to the above/i,/from the context provided/i,/as mentioned in the text/i,/based on the passage/i];
+
+function applyQualityFilters(examples){
+  const doSyco=$('flt-syco')?.checked;
+  const doSelf=$('flt-self')?.checked;
+  const doCtx=$('flt-ctx')?.checked;
+  const doRepeat=$('flt-repeat')?.checked;
+  const kept=[];const removed=[];
+  examples.forEach(ex=>{
+    const reasons=[];
+    const resp=ex.data.response||ex.data.chosen||ex.data.messages?.find(m=>m.role==='assistant')?.content||'';
+    const prompt=ex.data.prompt||ex.data.instruction||ex.data.messages?.find(m=>m.role==='user')?.content||'';
+    if(doSyco&&SYCO_PATTERNS.some(p=>p.test(resp.trim())))reasons.push('Sycophantic opener');
+    if(doSelf&&SELF_PATTERNS.some(p=>p.test(resp)))reasons.push('"As an AI" phrase');
+    if(doCtx&&CTX_PATTERNS.some(p=>p.test(prompt)))reasons.push('Context-dependent instruction');
+    if(doRepeat&&prompt.length>20){
+      const pWords=prompt.toLowerCase().split(/\s+/);
+      const rWords=resp.toLowerCase().split(/\s+/);
+      const shared=pWords.filter(w=>w.length>4&&rWords.includes(w)).length;
+      const ratio=shared/Math.max(pWords.length,1);
+      if(ratio>0.4)reasons.push('High repetition ('+Math.round(ratio*100)+'%)');
+    }
+    if(reasons.length){removed.push({id:ex.id,reasons});filterLog.push('Filtered ['+ex.id+']: '+reasons.join(' · '));}
+    else kept.push(ex);
+  });
+  filteredCount+=removed.length;
+  return kept;
+}
+
+function scoreQuality(ex){
+  let score=0;
+  if(ex.type==='instruction'){
+    const p=ex.data.prompt||'',r=ex.data.response||'';
+    const words=r.split(' ').length;
+    const lenOk=words>15&&words<400;
+    const hasContent=p.length>10&&r.length>20;
+    const notRepeat=!r.toLowerCase().includes(p.toLowerCase().slice(0,20));
+    const notSyco=!SYCO_PATTERNS.some(pt=>pt.test(r.trim()));
+    const notSelf=!SELF_PATTERNS.some(pt=>pt.test(r));
+    score=(lenOk?.28:0)+(hasContent?.25:0)+(notRepeat?.20:0)+(notSyco?.15:0)+(notSelf?.12:0);
+  }else if(ex.type==='conversation'){
+    const msgs=ex.data.messages||[];
+    const turns=msgs.length;
+    const hasAssist=msgs.some(m=>m.role==='assistant'&&m.content.length>30);
+    const hasFriction=msgs.some(m=>m.role==='user'&&(m.content.includes('?')||m.content.length<50));
+    score=(turns>=4?.35:turns>=2?.2:0)+(hasAssist?.35:0)+(hasFriction?.15:0)+.15;
+  }else if(ex.type==='preference'){
+    const chosen=ex.data.chosen||'',rejected=ex.data.rejected||'';
+    const diff=Math.abs(chosen.length-rejected.length)>30;
+    const both=chosen.length>30&&rejected.length>30;
+    const notSyco=!SYCO_PATTERNS.some(p=>p.test(chosen.trim()));
+    score=(diff?.30:0)+(both?.35:0)+(notSyco?.20:0)+.15;
+  }else if(ex.type==='adversarial'){
+    const r=ex.data.response||'';
+    const hasReasoning=r.includes('because')||r.includes('however')||r.includes('actually');
+    score=hasReasoning?.8:.5;
+  }
+  return Math.min(1,Math.max(0,score));
+}
+function qualLabel(s){if(s>=0.75)return{cls:'b-hi',lbl:'High'};if(s>=0.45)return{cls:'b-med',lbl:'Medium'};return{cls:'b-lo',lbl:'Low'};}
+function qualExplain(ex){
+  const issues=[];const tips=[];const q=ex.quality||0;
+  if(ex.type==='instruction'){
+    const p=ex.data.prompt||'',r=ex.data.response||'';
+    const words=r.split(' ').length;
+    if(words<15)issues.push('Response too short ('+words+' words — aim for 15+)');
+    if(words>400)issues.push('Response very long — consider splitting into multiple examples');
+    if(SYCO_PATTERNS.some(pt=>pt.test(r.trim())))issues.push('Sycophantic opener detected — use ⟳ Regen');
+    if(SELF_PATTERNS.some(pt=>pt.test(r)))issues.push('"As an AI" phrase — use ⟳ Regen');
+    if(CTX_PATTERNS.some(pt=>pt.test(p)))issues.push('Instruction is context-dependent — not standalone');
+    if(!issues.length){tips.push('✓ Good length');tips.push('✓ Standalone instruction');tips.push('✓ No sycophancy');}
+  }else if(ex.type==='conversation'){
+    const msgs=ex.data.messages||[];
+    if(msgs.length<4)issues.push('Only '+msgs.length+' turns — aim for 4+ for richer signal');
+    const shortAssist=msgs.filter(m=>m.role==='assistant'&&m.content.length<30);
+    if(shortAssist.length)issues.push(shortAssist.length+' assistant turns are very short');
+    if(!issues.length){tips.push('✓ Good turn count');tips.push('✓ Substantive responses');}
+  }else if(ex.type==='preference'){
+    const c=ex.data.chosen||'',r=ex.data.rejected||'';
+    if(Math.abs(c.length-r.length)<30)issues.push('Chosen/rejected too similar in length — contrast needs to be clearer');
+    if(c.length<30)issues.push('Chosen response too short');
+    if(!issues.length){tips.push('✓ Good chosen/rejected contrast');}
+  }
+  const cls=q>=0.75?'hi':q>=0.45?'med':'lo';
+  return{issues,tips,cls};
+}
+function parseJSON(raw){
+  try{return JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  catch{const m=raw.match(/\[[\s\S]*\]/);return m?JSON.parse(m[0]):[];}
+}
+</script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  GENERATION ENGINE — 5 MODES
+// ══════════════════════════════════════════════════════════════════
+let generating=false;
+function tlog(msg,cls=''){const e=$('gen-log');e.innerHTML+=`<span class="${cls}">${esc(msg)}</span>\n`;e.scrollTop=e.scrollHeight;}
+function gprog(p){$('gen-pb').style.width=p+'%';}
+
+async function startGeneration(){
+  if(generating)return;
+  if(!apiKey()){rb('gen-rb','Set API key first','warn');return;}
+  if(!ingestedContent){rb('gen-rb','Ingest content first','warn');return;}
+
+  const fmt=$('fmt-select').value;
+  const diff=$('diff-select').value;
+  const count=parseInt($('count-select').value);
+  const lang=$('out-lang').value;
+  const dedup=$('opt-dedup').checked;
+  const chunk=$('opt-chunk').checked;
+
+  generating=true;genBuffer=[];filteredCount=0;filterLog=[];
+  hb('gen-rb');
+  $('gen-btn').disabled=true;
+  $('gen-log-card').style.display='block';
+  $('gen-preview').style.display='none';
+  $('gen-log').innerHTML='';gprog(0);
+
+  tlog('[TRAINFORGE v3] Mode: '+selGenMode.toUpperCase()+' · '+count+' examples','hl');
+  tlog('Source: "'+ingestedContent.title.slice(0,45)+'" ('+ingestedContent.text.length+' chars)','info');
+  tlog('Provider: '+getProv()+' · Model: '+mdl(),'info');
+  tlog('─'.repeat(50));
+
+  let chunks=[ingestedContent.text];
+  if(chunk&&ingestedContent.text.length>1000){
+    const words=ingestedContent.text.split(/\s+/);
+    const sz=Math.ceil(words.length/3);
+    chunks=[0,1,2].map(i=>words.slice(i*sz,(i+1)*sz).join(' ')).filter(c=>c.length>100);
+    tlog('Smart chunking: '+chunks.length+' passages','info');
+  }
+
+  try{
+    if(selGenMode==='standard') await runStandard(fmt,diff,count,lang,chunks,dedup);
+    else if(selGenMode==='lab') await runLabQuality(fmt,diff,count,lang,chunks,dedup);
+    else if(selGenMode==='adversarial') await runAdversarial(count,lang,chunks,dedup);
+    else if(selGenMode==='conversational') await runConversational(count,lang,chunks,dedup);
+    else if(selGenMode==='persona') await runPersonaMix(fmt,count,lang,chunks,dedup);
+  }catch(e){tlog('Fatal error: '+e.message,'err');}
+
+  gprog(100);
+  tlog('\n'+'═'.repeat(50));
+  tlog('[DONE] '+genBuffer.length+' examples · '+filteredCount+' auto-filtered','hl');
+  $('gen-count').textContent=genBuffer.length;
+  $('gen-filtered').textContent=filteredCount?filteredCount+' filtered out':'';
+  $('gen-preview').style.display='block';
+  renderGenPreview();
+  $('gen-btn').disabled=false;
+  generating=false;
+  updateSidebar();
+}
+
+// ── STANDARD MODE ──
+async function runStandard(fmt,diff,count,lang,chunks,dedup){
+  const formats=fmt==='all'?['instruction','conversation','preference']:[fmt];
+  const perFmt=Math.ceil(count/formats.length);
+  let step=0;const total=formats.length*chunks.length;
+  for(const format of formats){
+    tlog('\n['+format.toUpperCase()+'] Standard generation...','info');
+    let all=[];
+    for(let ci=0;ci<chunks.length&&all.length<perFmt;ci++){
+      const need=Math.ceil(perFmt/chunks.length);
+      tlog('  Chunk '+(ci+1)+'/'+chunks.length+'...','');
+      try{
+        let exx=[];
+        if(format==='instruction')exx=await genInstruction(chunks[ci],need,diff,lang);
+        else if(format==='conversation')exx=await genConversation(chunks[ci],need,lang);
+        else if(format==='preference')exx=await genPreference(chunks[ci],need,lang);
+        tlog('    ✓ '+exx.length+' examples','ok');
+        all.push(...exx);
+      }catch(e){tlog('    ✗ '+e.message,'err');}
+      step++;gprog(Math.round(step/total*85));
+      await delay(400);
+    }
+    let final=dedup?deduplicate(all):all;
+    final=applyQualityFilters(final).slice(0,perFmt).map(e=>({...e,quality:scoreQuality(e)}));
+    genBuffer.push(...final);
+  }
+}
+
+// ── LAB QUALITY MODE — 3-stage pipeline ──
+async function runLabQuality(fmt,diff,count,lang,chunks,dedup){
+  const formats=fmt==='all'?['instruction','conversation','preference']:[fmt];
+  const perFmt=Math.ceil(count/formats.length);
+
+  for(const format of formats){
+    tlog('\n[LAB] '+format+' — Stage 1: Topic extraction','stage');
+    let all=[];
+    for(const chunk of chunks){
+      if(all.length>=perFmt)break;
+      const need=Math.ceil(perFmt/chunks.length);
+      try{
+        // STAGE 1: Extract key concepts
+        tlog('  → Extracting key concepts...','info');
+        const concepts=await extractConcepts(chunk);
+        tlog('    Found: '+concepts.slice(0,3).join(', ')+'...','ok');
+
+        // STAGE 2: Generate targeted examples per concept
+        tlog('  → Stage 2: Targeted generation per concept','stage');
+        let staged=[];
+        const perConcept=Math.max(1,Math.ceil(need/Math.max(concepts.length,1)));
+        for(const concept of concepts.slice(0,Math.ceil(need/perConcept))){
+          try{
+            let exx=[];
+            if(format==='instruction')exx=await genLabInstruction(chunk,concept,perConcept,diff,lang);
+            else if(format==='conversation')exx=await genLabConversation(chunk,concept,perConcept,lang);
+            else if(format==='preference')exx=await genLabPreference(chunk,concept,perConcept,lang);
+            staged.push(...exx);
+          }catch(e){tlog('    concept error: '+e.message,'err');}
+          await delay(300);
+        }
+
+        // STAGE 3: Quality polish pass
+        tlog('  → Stage 3: Quality polish pass','stage');
+        const polished=await polishExamples(staged.slice(0,need),format,lang);
+        tlog('    ✓ '+polished.length+' polished examples','ok');
+        all.push(...polished);
+      }catch(e){tlog('  ✗ '+e.message,'err');}
+    }
+    let final=dedup?deduplicate(all):all;
+    final=applyQualityFilters(final).slice(0,perFmt).map(e=>({...e,quality:scoreQuality(e)}));
+    tlog('  Lab result: '+final.length+' high-quality examples','hl');
+    genBuffer.push(...final);
+    gprog(Math.round(genBuffer.length/count*85));
+  }
+}
+
+// ── ADVERSARIAL MODE ──
+async function runAdversarial(count,lang,chunks,dedup){
+  tlog('\n[ADVERSARIAL] Generating hard examples...','stage');
+  const types=[
+    {name:'trick',share:.3,desc:'Trick questions where the obvious answer is wrong'},
+    {name:'refusal',share:.25,desc:'Questions the assistant should decline or push back on, with explanation'},
+    {name:'correction',share:.25,desc:'User states something incorrect — assistant corrects politely but firmly'},
+    {name:'ambiguous',share:.2,desc:'Vague questions — assistant asks for clarification before answering'},
+  ];
+  for(const t of types){
+    const need=Math.max(1,Math.round(count*t.share));
+    const chunk=chunks[0];
+    tlog('  ['+t.name.toUpperCase()+'] Generating '+need+' examples...','info');
+    try{
+      const exx=await genAdversarial(chunk,t.name,t.desc,need,lang);
+      const final=applyQualityFilters(exx).map(e=>({...e,quality:scoreQuality(e)}));
+      genBuffer.push(...final);
+      tlog('    ✓ '+final.length,'ok');
+    }catch(e){tlog('    ✗ '+e.message,'err');}
+    gprog(Math.round(genBuffer.length/count*85));
+    await delay(400);
+  }
+}
+
+// ── CONVERSATIONAL MODE ──
+async function runConversational(count,lang,chunks,dedup){
+  tlog('\n[CONVERSATIONAL] Generating realistic multi-turn conversations...','stage');
+  const styles=[
+    {name:'vague-start',desc:'User starts with a vague question, assistant asks for clarification, user clarifies, then gets help'},
+    {name:'pushback',desc:'User receives answer, pushes back or disagrees, assistant either updates or holds position with reasoning'},
+    {name:'followup-chain',desc:'Natural learning conversation: basic question, follow-up, deeper follow-up, practical application'},
+    {name:'correction',desc:'User has a misconception, asks a question based on it, assistant gently corrects and explains'},
+  ];
+  const perStyle=Math.max(1,Math.round(count/styles.length));
+  for(const style of styles){
+    const chunk=chunks[Math.floor(Math.random()*chunks.length)];
+    tlog('  ['+style.name+'] Generating '+perStyle+'...','info');
+    try{
+      const exx=await genRealisticConv(chunk,style.name,style.desc,perStyle,lang);
+      const final=applyQualityFilters(exx).map(e=>({...e,quality:scoreQuality(e)}));
+      genBuffer.push(...final);
+      tlog('    ✓ '+final.length,'ok');
+    }catch(e){tlog('    ✗ '+e.message,'err');}
+    gprog(Math.round(genBuffer.length/count*85));
+    await delay(400);
+  }
+}
+
+// ── PERSONA MIX MODE ──
+async function runPersonaMix(fmt,count,lang,chunks,dedup){
+  tlog('\n[PERSONA MIX] Generating across '+selPersonas.size+' system prompts...','stage');
+  const personas=SYSTEM_PERSONAS.filter(p=>selPersonas.has(p.id));
+  const perPersona=Math.max(1,Math.round(count/personas.length));
+  for(const persona of personas){
+    const chunk=chunks[Math.floor(Math.random()*chunks.length)];
+    tlog('  ['+persona.label+'] Generating '+perPersona+'...','info');
+    try{
+      const format=fmt==='all'?['instruction','conversation','preference'][Math.floor(Math.random()*3)]:fmt;
+      const exx=await genWithPersona(chunk,persona,format,perPersona,lang);
+      const final=applyQualityFilters(exx).map(e=>({...e,quality:scoreQuality(e),persona:persona.label,system_prompt:persona.prompt}));
+      genBuffer.push(...final);
+      tlog('    ✓ '+final.length+' ['+persona.label+']','ok');
+    }catch(e){tlog('    ✗ '+e.message,'err');}
+    gprog(Math.round(genBuffer.length/count*85));
+    await delay(400);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  PROMPT LIBRARY — Lab-grade prompts
+// ══════════════════════════════════════════════════════════════════
+function diffGuide(diff){return({mixed:'Distribute difficulty: 30% beginner (simple definitions), 40% intermediate (explanations/applications), 30% expert (nuanced analysis)',beginner:'Focus on simple, concrete questions a complete beginner would ask',intermediate:'Focus on practical, applied questions — how things work and why they matter',expert:'Focus on deep technical analysis, nuanced distinctions, and expert-level evaluation'})[diff]||'';}
+
+async function extractConcepts(text){
+  const sys='You extract key concepts from text. Output ONLY a JSON array of strings. No markdown.';
+  const usr='Extract the 6 most important distinct concepts from this text. Each should be specific enough to generate a good question about.\n\nText: '+text.slice(0,1500)+'\n\nOutput: ["concept1","concept2",...]';
+  const raw=await callLLM(sys,usr,300);
+  try{return parseJSON(raw).filter(s=>typeof s==='string').slice(0,6);}catch{return[text.slice(0,30)];}
+}
+
+// Lab-grade instruction prompt with strict quality rules
+async function genLabInstruction(text,concept,count,diff,lang){
+  const sys=`You are a senior data curator at a top AI lab. Generate training data that meets strict quality standards.
+
+CRITICAL RULES — any violation = rejection:
+1. NEVER start response with: "Certainly", "Sure", "Of course", "Great question", "Absolutely", "I'd be happy", "I'm glad"
+2. NEVER include "as an AI", "as a language model", "I'm an AI" in any response
+3. Instructions MUST be fully standalone — no "in the text", "the passage", "as mentioned above"
+4. Lead with the answer, NOT with acknowledgment
+5. Match response length to complexity: 1 sentence for simple facts, 3-5 sentences for explanations
+6. If something is uncertain, say so explicitly
+7. Use concrete examples when explaining abstract concepts
+
+Language: ${lang}`;
+
+  const usr=`Source text: ${text.slice(0,1800)}
+Focus concept: "${concept}"
+Difficulty: ${diffGuide(diff)}
+
+Generate ${count} instruction-response pairs about this concept. Cover these question types:
+- 1 factual recall (direct "what is X")
+- 1 explanation (how/why does X work)
+- 1 application (how would you use X)
+- 1 edge case or nuance (what if X, limitations of X)
+(Use only as many as needed for count=${count})
+
+Output ONLY valid JSON, no markdown:
+[{"instruction":"...","response":"...","difficulty":"beginner|intermediate|expert","question_type":"factual|explanation|application|edge_case"}]`;
+
+  const raw=await callLLM(sys,usr,1600);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>p.instruction&&p.response).map(p=>({
+    id:uid(),type:'instruction',status:'pending',
+    data:{prompt:p.instruction,response:p.response,difficulty:p.difficulty||'intermediate',question_type:p.question_type},
+    source_title:ingestedContent?.title,source_url:ingestedContent?.source,
+    added:new Date().toISOString()
+  }));
+}
+
+async function genInstruction(text,count,diff,lang){return genLabInstruction(text,'the main topic',count,diff,lang);}
+
+async function genLabConversation(text,concept,count,lang){
+  const sys=`You generate multi-turn training conversations for LLM fine-tuning. Language: ${lang}.
+
+Quality requirements:
+- Conversations must feel like real humans talking, not scripted interviews
+- User messages can be incomplete, slightly vague, or casual
+- Assistant must NEVER start with sycophantic openers
+- Include at least one follow-up or clarifying exchange
+- Assistant shows reasoning when needed, not just answers`;
+
+  const usr=`Source: ${text.slice(0,1600)}
+Focus: "${concept}"
+
+Generate ${count} multi-turn conversations (4-6 turns). Each should follow a natural learning arc.
+
+Output ONLY JSON:
+[{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},{"role":"user","content":"..."},{"role":"assistant","content":"..."}]}]`;
+
+  const raw=await callLLM(sys,usr,1800);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>p.messages?.length>=4).map(p=>({
+    id:uid(),type:'conversation',status:'pending',data:{messages:p.messages},
+    source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
+  }));
+}
+async function genConversation(text,count,lang){return genLabConversation(text,'the main topic',count,lang);}
+
+async function genLabPreference(text,concept,count,lang){
+  const sys=`You generate DPO/RLHF preference pairs for AI alignment training. Language: ${lang}.
+
+The "chosen" response must be:
+- Accurate and complete
+- Direct — no sycophantic opener
+- Appropriately confident or uncertain
+- Well-structured
+
+The "rejected" response must be noticeably worse:
+- Vague or incomplete, OR
+- Starts with sycophantic opener, OR  
+- Contains "as an AI" language, OR
+- Confidently wrong about something, OR
+- Much shorter than appropriate
+Make the contrast clear enough to provide training signal.`;
+
+  const usr=`Source: ${text.slice(0,1600)}
+Focus: "${concept}"
+
+Generate ${count} preference pairs. Each needs a prompt, a clearly better "chosen" response, and a clearly worse "rejected" response.
+
+Output ONLY JSON:
+[{"prompt":"...","chosen":"...","rejected":"...","rejection_reason":"sycophantic|incomplete|ai_phrase|wrong|too_short"}]`;
+
+  const raw=await callLLM(sys,usr,1700);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>p.prompt&&p.chosen&&p.rejected).map(p=>({
+    id:uid(),type:'preference',status:'pending',
+    data:{prompt:p.prompt,chosen:p.chosen,rejected:p.rejected,rejection_reason:p.rejection_reason},
+    source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
+  }));
+}
+async function genPreference(text,count,lang){return genLabPreference(text,'the main topic',count,lang);}
+
+// STAGE 3: Polish pass
+async function polishExamples(examples,format,lang){
+  if(!examples.length)return[];
+  const sys=`You are a data quality reviewer at an AI lab. Fix examples that violate quality standards.
+
+Fix these issues if found:
+1. Sycophantic openers → remove entirely, start with the answer
+2. "As an AI" phrases → remove and rephrase naturally
+3. Responses that are too short → expand with concrete detail
+4. Responses that repeat the question → rephrase to be independent
+5. Vague hedging without substance → either commit or state uncertainty clearly
+
+Return the same JSON structure with fixed content. Language: ${lang}.`;
+
+  const usr=`Review and fix these ${format} training examples. Return them as valid JSON array with the same structure:\n\n${JSON.stringify(examples.slice(0,5),null,1)}`;
+  try{
+    const raw=await callLLM(sys,usr,1800);
+    const polished=parseJSON(raw);
+    if(polished.length)return polished.map((p,i)=>({...examples[i],...p,id:examples[i]?.id||uid()}));
+  }catch{}
+  return examples;
+}
+
+// ADVERSARIAL generators
+async function genAdversarial(text,type,desc,count,lang){
+  const typePrompts={
+    trick:`Generate ${count} trick questions where the obvious/intuitive answer is WRONG. The correct answer should be surprising but verifiable from the source. The response must explain why the obvious answer is wrong and what the right answer actually is.`,
+    refusal:`Generate ${count} examples where a question should be declined or pushed back on — because it's based on a false premise, asks for something harmful, or is unanswerable from the source. The response should decline clearly and explain why, offering what CAN be said instead.`,
+    correction:`Generate ${count} examples where the user states something factually incorrect as part of their question. The response must politely but firmly correct the misconception, explain why it's wrong, and provide the accurate information.`,
+    ambiguous:`Generate ${count} examples where the user's question is genuinely ambiguous. The response should identify the ambiguity, explain the different interpretations, and ask a clarifying question before attempting to answer.`
+  };
+  const sys=`You generate adversarial training examples for AI robustness. These teach models to handle edge cases well. Language: ${lang}.\n\nCRITICAL: NEVER start responses with sycophantic openers. NEVER use "as an AI" phrases.`;
+  const usr=`Source text: ${text.slice(0,1600)}\n\nTask: ${desc}\n${typePrompts[type]}\n\nOutput ONLY JSON:\n[{"instruction":"...","response":"...","adversarial_type":"${type}"}]`;
+  const raw=await callLLM(sys,usr,1600);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>p.instruction&&p.response).map(p=>({
+    id:uid(),type:'adversarial',status:'pending',
+    data:{prompt:p.instruction,response:p.response,adversarial_type:p.adversarial_type||type},
+    source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
+  }));
+}
+
+// REALISTIC CONVERSATION generators
+async function genRealisticConv(text,styleName,styleDesc,count,lang){
+  const sys=`You generate realistic training conversations that teach LLMs how real humans talk. Language: ${lang}.
+
+Quality requirements:
+- User messages should feel genuinely human: sometimes vague, sometimes casual, sometimes slightly wrong
+- Assistant must NEVER use sycophantic openers
+- The conversation should have realistic friction, not clean Q&A
+- Show the assistant's reasoning when appropriate
+- Assistant can and should ask for clarification when needed`;
+
+  const usr=`Source: ${text.slice(0,1600)}\n\nConversation style: ${styleDesc}\n\nGenerate ${count} conversations in this style.\n\nOutput ONLY JSON:\n[{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},...]}]`;
+  const raw=await callLLM(sys,usr,1900);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>p.messages?.length>=4).map(p=>({
+    id:uid(),type:'conversation',status:'pending',
+    data:{messages:p.messages,conv_style:styleName},
+    source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
+  }));
+}
+
+// PERSONA MIX generator
+async function genWithPersona(text,persona,format,count,lang){
+  const sys=`${persona.prompt}\n\nYou are generating fine-tuning training data. Language: ${lang}.\nCRITICAL: NEVER start with sycophantic openers. NEVER use "as an AI" phrases.`;
+  let usr='';
+  if(format==='instruction'){
+    usr=`Source: ${text.slice(0,1500)}\n\nGenerate ${count} instruction-response pairs in the style defined by your system prompt. The response style should reflect your persona clearly.\n\nOutput ONLY JSON:\n[{"instruction":"...","response":"..."}]`;
+  }else if(format==='conversation'){
+    usr=`Source: ${text.slice(0,1500)}\n\nGenerate ${count} multi-turn conversations (4+ turns) where your assistant persona is clearly reflected in the responses.\n\nOutput ONLY JSON:\n[{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},...]}]`;
+  }else{
+    usr=`Source: ${text.slice(0,1500)}\n\nGenerate ${count} preference pairs where the "chosen" response clearly reflects your persona and the "rejected" is a generic, lower-quality response.\n\nOutput ONLY JSON:\n[{"prompt":"...","chosen":"...","rejected":"..."}]`;
+  }
+  const raw=await callLLM(sys,usr,1600);
+  const parsed=parseJSON(raw);
+  return parsed.filter(p=>(p.instruction&&p.response)||(p.messages?.length>=2)||(p.prompt&&p.chosen)).map(p=>{
+    if(p.instruction)return{id:uid(),type:'instruction',status:'pending',data:{prompt:p.instruction,response:p.response},source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()};
+    if(p.messages)return{id:uid(),type:'conversation',status:'pending',data:{messages:p.messages},source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()};
+    return{id:uid(),type:'preference',status:'pending',data:{prompt:p.prompt,chosen:p.chosen,rejected:p.rejected},source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()};
+  });
+}
+
+// Regen single example
+async function regenEx(id){
+  if(!apiKey()){alert('Set API key first');return;}
+  const examples=getEx();
+  const inBuf=genBuffer.findIndex(e=>e.id===id);
+  const inDB=examples.findIndex(e=>e.id===id);
+  const ex=inBuf>=0?genBuffer[inBuf]:examples[inDB];
+  if(!ex||!ingestedContent){alert('No source content. Ingest content first.');return;}
+  const card=$('card-'+id);
+  if(card){const b=card.querySelector('.regen-btn');if(b){b.textContent='⟳...';b.disabled=true;}}
+  try{
+    let newEx=[];
+    const chunk=ingestedContent.text;
+    if(ex.type==='instruction')newEx=await genLabInstruction(chunk,ex.data.prompt?.slice(0,30)||'main topic',1,'mixed','English');
+    else if(ex.type==='conversation')newEx=await genLabConversation(chunk,'main topic',1,'English');
+    else if(ex.type==='preference')newEx=await genLabPreference(chunk,'main topic',1,'English');
+    else if(ex.type==='adversarial')newEx=await genAdversarial(chunk,ex.data.adversarial_type||'trick','',1,'English');
+    if(newEx.length){
+      const n={...newEx[0],id,status:ex.status,quality:scoreQuality(newEx[0])};
+      if(inBuf>=0)genBuffer[inBuf]=n;
+      if(inDB>=0){examples[inDB]=n;SS({examples});}
+      if(card)card.outerHTML=renderCard(n);
+    }
+  }catch(e){alert('Regen failed: '+e.message);}
+  const b2=$('card-'+id)?.querySelector('.regen-btn');if(b2){b2.textContent='⟳ Regen';b2.disabled=false;}
+}
+
+function deduplicate(examples){
+  const seen=new Set();
+  return examples.filter(e=>{
+    const key=JSON.stringify(e.data).slice(0,80).toLowerCase();
+    if(seen.has(key))return false;seen.add(key);return true;
+  });
+}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+</script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  RENDER EXAMPLE CARD
+// ══════════════════════════════════════════════════════════════════
+const FMT_BADGE={instruction:'b-inst',conversation:'b-conv',preference:'b-pref',adversarial:'b-adv'};
+const FMT_LABEL={instruction:'Instruction',conversation:'Conversation',preference:'Preference',adversarial:'Adversarial'};
+
+function renderCard(ex,actions=true){
+  const q=ex.quality!=null?ex.quality:null;
+  const ql=q!=null?qualLabel(q):null;
+  const diff=ex.data?.difficulty?`<span class="badge" style="background:var(--s3);color:var(--muted);border:1px solid var(--b2)">${esc(ex.data.difficulty)}</span>`:'';
+  const persona=ex.persona?`<span class="badge b-sys">${esc(ex.persona)}</span>`:'';
+  const advType=ex.data?.adversarial_type?`<span class="badge b-adv">${esc(ex.data.adversarial_type)}</span>`:'';
+  const qType=ex.data?.question_type?`<span class="badge" style="background:var(--s3);color:var(--dim);border:1px solid var(--b1)">${esc(ex.data.question_type)}</span>`:'';
+
+  let content='';
+  if(ex.type==='instruction'){
+    content=`<div class="ds-field"><div class="ds-label">Instruction</div><div class="ds-val">${esc(ex.data.prompt||'')}</div></div>
+    <div class="ds-field"><div class="ds-label">Response</div><div class="ds-val">${esc(ex.data.response||'')}</div></div>`;
+  }else if(ex.type==='adversarial'){
+    content=`<div class="ds-field"><div class="ds-label">Challenge Prompt</div><div class="ds-val">${esc(ex.data.prompt||'')}</div></div>
+    <div class="ds-field"><div class="ds-label">Model Response</div><div class="ds-val">${esc(ex.data.response||'')}</div></div>`;
+  }else if(ex.type==='conversation'){
+    const msgs=(ex.data.messages||[]).map(m=>`<div style="margin-bottom:7px"><span style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:${m.role==='user'?'var(--accent)':'var(--green)'};font-weight:700">${m.role}</span><br><span style="color:var(--text)">${esc(m.content)}</span></div>`).join('');
+    content=`<div class="ds-field"><div class="ds-label">Conversation (${(ex.data.messages||[]).length} turns${ex.data.conv_style?' · '+ex.data.conv_style:''})</div><div class="ds-val">${msgs}</div></div>`;
+  }else if(ex.type==='preference'){
+    content=`<div class="ds-field"><div class="ds-label">Prompt</div><div class="ds-val">${esc(ex.data.prompt||'')}</div></div>
+    <div class="ds-field"><div class="ds-label" style="color:var(--green)">✓ Chosen</div><div class="ds-val">${esc(ex.data.chosen||'')}</div></div>
+    <div class="ds-field"><div class="ds-label" style="color:var(--red)">✗ Rejected${ex.data.rejection_reason?' ('+ex.data.rejection_reason+')':''}</div><div class="ds-val">${esc(ex.data.rejected||'')}</div></div>`;
+  }
+
+  const exp=qualExplain(ex);
+  const explainLines=[...exp.issues.map(i=>'⚠ '+i),...exp.tips].join('\n');
+  const explainHtml=q!=null&&explainLines?`<div class="q-explain ${exp.cls}">${esc(explainLines)}</div>`:'';
+
+  const statusCls=ex.status==='approved'?'approved':ex.status==='rejected'?'rejected':'';
+  const actHtml=actions?`<div class="ds-actions">
+    <button class="btn btn-xs" style="background:rgba(0,232,122,.08);color:var(--green);border-color:rgba(0,232,122,.2)" onclick="setStatus('${ex.id}','approved')">✓ Approve</button>
+    <button class="btn btn-xs" style="background:rgba(255,61,90,.08);color:var(--red);border-color:rgba(255,61,90,.2)" onclick="setStatus('${ex.id}','rejected')">✕ Reject</button>
+    <button class="btn btn-xs btn-o regen-btn" onclick="regenEx('${ex.id}')">⟳ Regen</button>
+    <button class="btn btn-xs btn-o" onclick="delEx('${ex.id}')">🗑</button>
+    <div class="ds-src">${esc((ex.source_title||'').slice(0,28))} · <a href="${esc(ex.source_url||'#')}" target="_blank">src</a></div>
+  </div>`:'';
+
+  return `<div class="ds-card ${statusCls}" id="card-${ex.id}">
+    <div class="ds-header">
+      <div>
+        <div class="ds-badges">
+          <span class="badge ${FMT_BADGE[ex.type]||''}">${FMT_LABEL[ex.type]||ex.type}</span>
+          ${diff}${persona}${advType}${qType}
+          ${ql?`<span class="badge ${ql.cls}">${ql.lbl} ${(q*100).toFixed(0)}%</span>`:''}
+          ${ex.status==='approved'?'<span class="badge b-hi">✓</span>':ex.status==='rejected'?'<span class="badge b-lo">✕</span>':''}
+        </div>
+        <div class="ds-meta">id:${ex.id} · ${new Date(ex.added||Date.now()).toLocaleDateString()}</div>
+      </div>
+    </div>
+    <div class="ds-content">${content}</div>
+    ${explainHtml}
+    ${actHtml}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  REVIEW
+// ══════════════════════════════════════════════════════════════════
+function setFilter(btn){
+  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  revFilter=btn.dataset.f;
+  revFocusIdx=-1;
+  renderReview();
+}
+
+function renderReview(){
+  let ex=getEx();
+  if(genBuffer.length&&!ex.length)ex=[...genBuffer];
+  const f=revFilter;
+  if(f==='all'){}
+  else if(['approved','rejected','pending'].includes(f))ex=ex.filter(e=>e.status===f);
+  else ex=ex.filter(e=>e.type===f);
+  const grid=$('review-grid');
+  if(!ex.length){
+    grid.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-size:11px"><div style="font-size:28px;margin-bottom:8px">👁</div>No examples match this filter</div>`;
+    return;
+  }
+  grid.innerHTML=ex.map(e=>renderCard(e)).join('');
+}
+
+function renderGenPreview(){$('gen-grid').innerHTML=genBuffer.map(e=>renderCard(e)).join('');}
+
+function setStatus(id,status){
+  let examples=getEx();
+  const inBuf=genBuffer.findIndex(e=>e.id===id);
+  const inDB=examples.findIndex(e=>e.id===id);
+  if(inBuf>=0){
+    genBuffer[inBuf].status=status;
+    if(inDB<0)examples.push(genBuffer[inBuf]);
+    else examples[inDB]=genBuffer[inBuf];
+  }else if(inDB>=0){examples[inDB].status=status;}
+  SS({examples});
+  const card=$('card-'+id);
+  if(card)card.className=`ds-card ${status==='approved'?'approved':status==='rejected'?'rejected':''}`;
+  updateSidebar();updateDsStats();
+}
+
+function setStatusById(id,status){setStatus(id,status);}
+
+function delEx(id){
+  genBuffer=genBuffer.filter(e=>e.id!==id);
+  SS({examples:getEx().filter(e=>e.id!==id)});
+  const card=$('card-'+id);if(card)card.remove();
+  updateSidebar();updateDsStats();
+}
+
+function approveAll(){
+  genBuffer=genBuffer.map(e=>({...e,status:'approved'}));
+  const existing=getEx();
+  const ids=new Set(existing.map(e=>e.id));
+  const merged=[...existing.map(e=>{const b=genBuffer.find(x=>x.id===e.id);return b||e;}),...genBuffer.filter(e=>!ids.has(e.id))];
+  SS({examples:merged});
+  renderReview();updateSidebar();updateDsStats();
+  rb('gen-rb','✅ Approved all '+genBuffer.length+' examples → Dataset','ok');
+}
+
+function rejectAll(){
+  SS({examples:getEx().map(e=>({...e,status:'rejected'}))});
+  renderReview();updateSidebar();
+}
+
+// ── KEYBOARD NAV ──
+document.addEventListener('keydown',function(e){
+  if(!kbNavActive)return;
+  const activeTab=document.querySelector('.tab.on');
+  if(!activeTab||activeTab.id!=='tab-review')return;
+  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='TEXTAREA')return;
+  const cards=document.querySelectorAll('#review-grid .ds-card');
+  if(!cards.length)return;
+  if(e.key==='j'||e.key==='J'||e.key==='ArrowDown'){e.preventDefault();revFocusIdx=Math.min(revFocusIdx+1,cards.length-1);focusCard(cards);}
+  else if(e.key==='k'||e.key==='K'||e.key==='ArrowUp'){e.preventDefault();revFocusIdx=Math.max(revFocusIdx-1,0);focusCard(cards);}
+  else if((e.key==='a'||e.key==='A')&&revFocusIdx>=0){const c=cards[revFocusIdx];if(c)setStatusById(c.id.replace('card-',''),'approved');}
+  else if((e.key==='r'||e.key==='R')&&revFocusIdx>=0){const c=cards[revFocusIdx];if(c)setStatusById(c.id.replace('card-',''),'rejected');}
+  else if(e.key==='Delete'&&revFocusIdx>=0){const c=cards[revFocusIdx];if(c){delEx(c.id.replace('card-',''));revFocusIdx=Math.max(0,revFocusIdx-1);}}
+  else if((e.key==='g'||e.key==='G')&&revFocusIdx>=0){const c=cards[revFocusIdx];if(c)regenEx(c.id.replace('card-',''));}
+});
+
+function focusCard(cards){
+  cards.forEach(c=>c.classList.remove('focused'));
+  if(revFocusIdx>=0&&cards[revFocusIdx]){
+    cards[revFocusIdx].classList.add('focused');
+    cards[revFocusIdx].scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DATASET
+// ══════════════════════════════════════════════════════════════════
+function renderDataset(){
+  const q=($('ds-search')?.value||'').toLowerCase();
+  let ex=getEx();
+  if(q)ex=ex.filter(e=>JSON.stringify(e.data).toLowerCase().includes(q));
+  const list=$('ds-list');
+  if(!ex.length){list.innerHTML=`<div style="text-align:center;padding:36px;color:var(--muted);font-size:11px"><div style="font-size:28px;margin-bottom:8px">🗃</div>No examples yet</div>`;return;}
+  list.innerHTML=ex.slice().reverse().map(e=>renderCard(e)).join('');
+}
+
+function updateDsStats(){
+  const ex=getEx();
+  const ap=ex.filter(e=>e.status==='approved');
+  $('ds-total').textContent=ex.length;
+  $('ds-appr').textContent=ap.length;
+  $('ds-inst').textContent=ex.filter(e=>e.type==='instruction').length;
+  $('ds-conv').textContent=ex.filter(e=>e.type==='conversation').length;
+  $('ds-pref').textContent=ex.filter(e=>e.type==='preference').length;
+  $('ds-adv').textContent=ex.filter(e=>e.type==='adversarial').length;
+  const scored=ex.filter(e=>e.quality!=null);
+  $('ds-avgq').textContent=scored.length?(scored.reduce((a,e)=>a+e.quality,0)/scored.length*100).toFixed(0)+'%':'—';
+  updateSidebar();
+}
+
+function clearDataset(){
+  if(!confirm('Delete all examples? This cannot be undone.'))return;
+  SS({examples:[]});genBuffer=[];
+  renderDataset();updateDsStats();updateSidebar();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  QUALITY TAB
+// ══════════════════════════════════════════════════════════════════
+function renderQuality(){
+  const ex=getEx();
+  if(!ex.length){
+    $('q-overview').innerHTML=`<div style="text-align:center;padding:28px;color:var(--muted);font-size:11px">No data yet</div>`;
+    $('q-breakdown').innerHTML=`<div style="font-size:10px;color:var(--muted);padding:12px">Generate examples first</div>`;
+    $('q-tips').innerHTML=`<div style="font-size:10px;color:var(--muted);padding:12px">Generate examples first</div>`;
+    return;
+  }
+  const scored=ex.filter(e=>e.quality!=null);
+  const hi=scored.filter(e=>e.quality>=0.75).length;
+  const med=scored.filter(e=>e.quality>=0.45&&e.quality<0.75).length;
+  const lo=scored.filter(e=>e.quality<0.45).length;
+  const avg=scored.length?scored.reduce((a,e)=>a+e.quality,0)/scored.length:0;
+
+  $('q-overview').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px">
+      <div class="stat"><div class="stat-v" style="color:var(--green)">${hi}</div><div class="stat-l">High (≥75%)</div></div>
+      <div class="stat"><div class="stat-v" style="color:var(--yellow)">${med}</div><div class="stat-l">Medium</div></div>
+      <div class="stat"><div class="stat-v" style="color:var(--red)">${lo}</div><div class="stat-l">Low (&lt;45%)</div></div>
+      <div class="stat"><div class="stat-v" style="color:var(--accent)">${(avg*100).toFixed(0)}%</div><div class="stat-l">Average</div></div>
+      <div class="stat"><div class="stat-v" style="color:var(--red)">${filteredCount}</div><div class="stat-l">Auto-Filtered</div></div>
+    </div>`;
+
+  const types=['instruction','conversation','preference','adversarial'];
+  const colors={instruction:'var(--accent)',conversation:'var(--purple)',preference:'var(--orange)',adversarial:'var(--red)'};
+  $('q-breakdown').innerHTML=types.map(t=>{
+    const tEx=ex.filter(e=>e.type===t&&e.quality!=null);
+    const tAvg=tEx.length?tEx.reduce((a,e)=>a+e.quality,0)/tEx.length:0;
+    return `<div class="q-row">
+      <div class="q-lbl">${FMT_LABEL[t]}</div>
+      <div class="q-bar-wrap"><div class="q-bar" style="width:${tAvg*100}%;background:${colors[t]}"></div></div>
+      <div class="q-val">${(tAvg*100).toFixed(0)}%</div>
+      <div style="font-size:9px;color:var(--muted);min-width:40px">(${tEx.length})</div>
+    </div>`;
+  }).join('');
+
+  const tips=[];
+  if(lo>0)tips.push(`⚠ ${lo} low-quality examples — select them in Review and use ⟳ Regen`);
+  if(avg<0.5)tips.push('⚠ Average quality is low — try Lab Quality mode with longer source content (3000+ chars)');
+  if(filteredCount>0)tips.push(`ℹ ${filteredCount} examples were auto-filtered (sycophancy, "as an AI", context-dependence)`);
+  if(ex.filter(e=>e.type==='adversarial').length<3)tips.push('→ Add adversarial examples — they make models significantly more robust');
+  if(ex.filter(e=>e.type==='preference').length<5)tips.push('→ Add more preference pairs — essential for alignment and RLHF training');
+  if(ex.filter(e=>e.type==='conversation').length<5)tips.push('→ Add conversational examples — they improve real-world dialogue quality');
+  if(ex.length<50)tips.push('→ Aim for 100+ examples before publishing. More data = more value.');
+  const personas=new Set(ex.filter(e=>e.persona).map(e=>e.persona));
+  if(personas.size<3&&ex.length>20)tips.push('→ Try Persona Mix mode — diverse system prompts produce more generalizable models');
+  if(!tips.length)tips.push('✓ Dataset looks strong! Consider adding adversarial examples for extra robustness.');
+
+  $('q-tips').innerHTML=tips.map(t=>`<div style="font-size:10px;color:var(--muted);line-height:2;border-left:2px solid var(--b2);padding-left:12px;margin-bottom:5px">${esc(t)}</div>`).join('');
+  $('q-filter-log').innerHTML=filterLog.length?filterLog.map(l=>`<div style="color:var(--red);opacity:.7">${esc(l)}</div>`).join(''):'<div style="color:var(--muted2)">No filters fired this session.</div>';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════════════════════════════
+function getExpSet(){
+  let ex=getEx();
+  if($('exp-appr')?.checked)ex=ex.filter(e=>e.status==='approved');
+  if($('exp-hq')?.checked)ex=ex.filter(e=>e.quality==null||e.quality>=0.7);
+  return ex;
+}
+function updateExpCount(){const n=getExpSet().length;const el=$('exp-count-lbl');if(el)el.textContent=n+' examples will be exported';}
+
+function exportFmt(fmt){
+  const ex=getExpSet();
+  if(!ex.length){rb('exp-rb','No examples to export. Approve some first.','warn');return;}
+  const info=getDI();
+  let content='',fname='',type='application/json';
+  if(fmt==='openai'){
+    const lines=ex.flatMap(e=>{
+      if(e.type==='instruction'||e.type==='adversarial')return[JSON.stringify({messages:[{role:'system',content:'You are a helpful assistant.'},{role:'user',content:e.data.prompt},{role:'assistant',content:e.data.response}]})];
+      if(e.type==='conversation')return[JSON.stringify({messages:e.data.messages})];
+      if(e.type==='preference')return[JSON.stringify({messages:[{role:'user',content:e.data.prompt},{role:'assistant',content:e.data.chosen}]})];
+      return[];
+    });
+    content=lines.join('\n');fname='openai-finetune.jsonl';type='application/jsonl';
+  }else if(fmt==='hf'){
+    content=JSON.stringify({dataset_info:{name:info.name||'my-dataset',description:info.description||'',license:info.license||'cc-by-4.0',author:info.author||'',generated_with:'TrainForge v3'},splits:{train:ex.map(e=>({id:e.id,type:e.type,data:e.data,quality:e.quality,source:e.source_title,persona:e.persona||null}))},created:new Date().toISOString()},null,2);fname='hf-dataset.json';
+  }else if(fmt==='alpaca'){
+    const a=ex.filter(e=>e.type==='instruction'||e.type==='adversarial').map(e=>({instruction:e.data.prompt,input:'',output:e.data.response}));
+    content=JSON.stringify(a,null,2);fname='alpaca-format.json';
+  }else if(fmt==='sharegpt'){
+    const sg=ex.filter(e=>e.type==='conversation').map(e=>({conversations:e.data.messages.map(m=>({from:m.role==='assistant'?'gpt':'human',value:m.content}))}));
+    content=JSON.stringify(sg,null,2);fname='sharegpt-format.json';
+  }else if(fmt==='dpo'){
+    const dpo=ex.filter(e=>e.type==='preference').map(e=>({prompt:e.data.prompt,chosen:e.data.chosen,rejected:e.data.rejected}));
+    content=JSON.stringify(dpo,null,2);fname='dpo-format.json';
+  }else if(fmt==='csv'){
+    const rows=['id,type,prompt,response_or_chosen,rejected,quality,persona,source'];
+    ex.forEach(e=>{
+      const p=e.data.prompt||e.data.messages?.[0]?.content||'';
+      const a=e.data.response||e.data.messages?.[1]?.content||e.data.chosen||'';
+      const r=e.data.rejected||'';
+      rows.push([e.id,e.type,`"${p.replace(/"/g,'""')}"`,`"${a.replace(/"/g,'""')}"`,`"${r.replace(/"/g,'""')}"`,e.quality!=null?(e.quality*100).toFixed(0)+'%':'—',e.persona||'',`"${(e.source_title||'').replace(/"/g,'""')}"`].join(','));
+    });
+    content=rows.join('\n');fname='dataset.csv';type='text/csv';
+  }else if(fmt==='full'){
+    content=JSON.stringify({version:'trainforge-v3',metadata:{...getDI(),exported:new Date().toISOString(),total:ex.length,generator:'TrainForge v3'},examples:ex},null,2);fname='trainforge-backup.json';
+  }
+  dl(fname,content,type);
+  rb('exp-rb','✅ Exported '+ex.length+' examples as '+fname,'ok');
+}
+
+function exportDatasetCard(){
+  const ex=getExpSet();const info=getDI();
+  const inst=ex.filter(e=>e.type==='instruction').length;
+  const conv=ex.filter(e=>e.type==='conversation').length;
+  const pref=ex.filter(e=>e.type==='preference').length;
+  const adv=ex.filter(e=>e.type==='adversarial').length;
+  const scored=ex.filter(e=>e.quality!=null);
+  const avgQ=scored.length?(scored.reduce((a,e)=>a+e.quality,0)/scored.length*100).toFixed(0)+'%':'N/A';
+  const personas=[...new Set(ex.filter(e=>e.persona).map(e=>e.persona))];
+  const md=`---
+license: ${info.license||'cc-by-4.0'}
+task_categories:
+- text-generation
+language:
+- en
+tags:
+${(info.tags||'instruction-tuning,nlp').split(',').map(t=>'- '+t.trim()).join('\n')}
+---
+
+# ${info.name||'My Training Dataset'}
+
+${info.description||'A high-quality AI training dataset generated with TrainForge v3.'}
+
+## Dataset Statistics
+
+| Type | Count |
+|------|-------|
+| Instruction pairs | ${inst} |
+| Conversations | ${conv} |
+| Preference pairs (DPO) | ${pref} |
+| Adversarial examples | ${adv} |
+| **Total** | **${ex.length}** |
+| Average quality score | ${avgQ} |
+${personas.length?`| System prompt personas | ${personas.join(', ')} |`:''}
+
+## Quality Notes
+
+This dataset was generated using TrainForge v3's lab-grade pipeline with automatic quality filters:
+- Sycophantic openers removed
+- "As an AI" phrases removed  
+- Context-dependent instructions removed
+- High-repetition examples removed
+- All examples quality-scored and reviewed
+
+## Usage
+
+\`\`\`python
+from datasets import load_dataset
+dataset = load_dataset("${info.author||'your-name'}/${info.name||'my-dataset'}")
+\`\`\`
+
+## Format Examples
+
+### Instruction Pair
+\`\`\`json
+{"instruction": "...", "response": "..."}
+\`\`\`
+
+### Conversation (ShareGPT)
+\`\`\`json
+{"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
+\`\`\`
+
+### Preference Pair (DPO)
+\`\`\`json
+{"prompt": "...", "chosen": "...", "rejected": "..."}
+\`\`\`
+
+## Citation
+
+\`\`\`bibtex
+@dataset{${(info.name||'my_dataset').replace(/-/g,'_')},
+  author    = {${info.author||'Author'}},
+  title     = {${info.name||'My Training Dataset'}},
+  year      = {${new Date().getFullYear()}},
+  publisher = {HuggingFace},
+}
+\`\`\`
+
+---
+*Generated with [TrainForge v3](https://trainforge.io) — Lab-Grade Dataset Builder*
+`;
+  dl('README.md',md,'text/markdown');
+  rb('exp-rb','✅ Dataset card exported as README.md','ok');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SELL
+// ══════════════════════════════════════════════════════════════════
+function showGuide(platform){
+  const g=SELL_GUIDES[platform];if(!g)return;
+  $('sell-guide-title').textContent=g.title;
+  $('sell-guide-body').textContent=g.body;
+  $('sell-guide-box').style.display='block';
+  $('sell-guide-box').scrollIntoView({behavior:'smooth'});
+}
+
+async function genListing(){
+  if(!apiKey()){rb('sell-rb','Set API key first','warn');return;}
+  const ex=getEx().filter(e=>e.status==='approved');
+  if(!ex.length){rb('sell-rb','No approved examples. Approve some first.','warn');return;}
+  const info=getDI();
+  const platform=$('sell-plat').value;
+  const price=$('sell-price').value||'49';
+  const scored=ex.filter(e=>e.quality!=null);
+  const avgQ=scored.length?(scored.reduce((a,e)=>a+e.quality,0)/scored.length*100).toFixed(0)+'%':'N/A';
+  const adv=ex.filter(e=>e.type==='adversarial').length;
+  const platforms={gumroad:'a Gumroad product page (value-focused, bullet points, download contents)',hf:'a HuggingFace dataset card (technical, formats, use cases)',fiverr:'a Fiverr gig description (deliverables, turnaround, credibility)',upwork:'an Upwork proposal (professional, process, expertise)'};
+  rb('sell-rb','✨ Generating listing...','info');
+  $('sell-out').style.display='none';
+  try{
+    const result=await callLLM(
+      `You are a copywriter specialising in AI/ML data products. Write compelling, accurate copy. No fluff. Never start sentences with "Certainly" or similar.`,
+      `Write listing copy for ${platforms[platform]}.\n\nDataset: ${info.name||'AI Training Dataset'}\nDescription: ${info.description||'Curated AI training dataset'}\nTotal examples: ${ex.length}\nInstruction pairs: ${ex.filter(e=>e.type==='instruction').length}\nConversations: ${ex.filter(e=>e.type==='conversation').length}\nPreference pairs: ${ex.filter(e=>e.type==='preference').length}\nAdversarial examples: ${adv}\nAvg quality: ${avgQ}\nTopics: ${info.tags||'general'}\nFormats: OpenAI JSONL, HuggingFace JSON, Alpaca, ShareGPT, DPO, CSV\nGenerated with: TrainForge v3 lab-grade pipeline\nPrice: $${price}\n\nWrite a complete, specific listing.`,
+      900
+    );
+    $('sell-text').textContent=result;
+    $('sell-out').style.display='block';
+    hb('sell-rb');
+  }catch(e){rb('sell-rb','❌ '+e.message,'err');}
+}
+function copySell(){navigator.clipboard.writeText($('sell-text').textContent).then(()=>alert('✅ Copied!')).catch(()=>alert('Copy failed — select text manually'));}
+function dlSell(){dl('dataset-listing.txt',$('sell-text').textContent,'text/plain');}
+
+// ══════════════════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════════════════
+function loadSettings(){
+  const s=getSt();const i=getDI();
+  if(s.key)$('set-key').value=s.key;
+  if(s.provider){$('set-provider').value=s.provider;selProvider=s.provider;onProvChange();updateProvTag();}
+  if(s.model)$('set-model').value=s.model;
+  if(i.name)$('ds-name').value=i.name;
+  if(i.description)$('ds-desc').value=i.description;
+  if(i.author)$('ds-author').value=i.author;
+  if(i.license)$('ds-license').value=i.license;
+  if(i.tags)$('ds-tags').value=i.tags;
+}
+function onProvChange(){
+  const p=$('set-provider').value;
+  $('set-model').innerHTML=p==='openai'
+    ?`<option value="gpt-3.5-turbo">GPT-3.5 Turbo</option><option value="gpt-4o-mini">GPT-4o Mini</option><option value="gpt-4o">GPT-4o</option>`
+    :`<option value="llama-3.3-70b-versatile">Llama 3.3 70B</option><option value="llama-3.1-8b-instant">Llama 3.1 8B</option><option value="mixtral-8x7b-32768">Mixtral 8x7B</option>`;
+}
+function saveSettings(){
+  const key=$('set-key').value.trim();
+  const model=$('set-model').value;
+  const provider=$('set-provider').value;
+  selProvider=provider;
+  SS({settings:{key,model,provider}});
+  if(key){$('api-key').value=key;$('api-dot').className='api-dot ok';$('api-txt').textContent=provider+' active';}
+  updateProvTag();
+  rb('set-rb','✅ Saved','ok');
+}
+function saveDsInfo(){
+  SS({dsinfo:{name:$('ds-name').value,description:$('ds-desc').value,author:$('ds-author').value,license:$('ds-license').value,tags:$('ds-tags').value}});
+  rb('dsinfo-rb','✅ Saved','ok');
+}
+function importBackup(){$('import-file').click();}
+function doImport(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.examples){SS({examples:d.examples});alert('✅ Imported '+d.examples.length+' examples');}
+      else if(Array.isArray(d)){SS({examples:d});alert('✅ Imported '+d.length+' examples');}
+      updateSidebar();
+    }catch(err){alert('❌ Invalid file: '+err.message);}
+  };
+  r.readAsText(file);
+}
+function nukeAll(){
+  if(!confirm('Delete everything? Cannot be undone.'))return;
+  localStorage.removeItem('tf_v3');
+  location.reload();
+}
+function showHostingGuide(){
+  const out=$('hosting-guide-out');
+  out.style.display=out.style.display==='none'?'block':'none';
+  out.textContent=HOSTING_GUIDE;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  HUMAN SIMULATION ENGINE
+// ══════════════════════════════════════════════════════════════════
+const PERSONALITIES=[
+  {id:'frustrated',icon:'😤',name:'Frustrated User',desc:'Short sentences, caps lock, repeats themselves when ignored',color:'var(--red)'},
+  {id:'confused',icon:'😕',name:'Confused User',desc:'Asks the same thing multiple ways, misunderstands answers',color:'var(--yellow)'},
+  {id:'anxious',icon:'😰',name:'Anxious User',desc:'Over-explains, second-guesses, apologizes a lot',color:'var(--purple)'},
+  {id:'impatient',icon:'⚡',name:'Impatient User',desc:'Short messages, wants answers fast, cuts off explanations',color:'var(--orange)'},
+  {id:'curious',icon:'🤔',name:'Curious Explorer',desc:'Asks follow-up questions, goes on tangents, enthusiastic',color:'var(--accent)'},
+  {id:'technical',icon:'💻',name:'Tech-Savvy User',desc:'Uses jargon, challenges answers, wants specifics',color:'var(--teal)'},
+  {id:'elderly',icon:'👴',name:'Non-Tech User',desc:'Unfamiliar with tech, needs simple language, easily lost',color:'var(--green)'},
+  {id:'emotional',icon:'😢',name:'Emotional User',desc:'Shares feelings, needs empathy before information',color:'var(--orange)'},
+];
+
+const BEHAVIORS=[
+  {id:'typos',name:'Typos & autocorrect fails',desc:'realy? taht doesnt make snese to me',icon:'⌨️'},
+  {id:'vague',name:'Vague opening questions',desc:'"it just doesnt work" without context',icon:'🌫️'},
+  {id:'interrupt',name:'Mid-response interruptions',desc:'User sends new message before assistant finishes',icon:'✋'},
+  {id:'contradict',name:'Self-contradictions',desc:'User changes what they want mid-conversation',icon:'🔄'},
+  {id:'emotion',name:'Emotional outbursts',desc:'Sudden frustration, relief, or excitement',icon:'💥'},
+  {id:'clarify',name:'Misunderstands answers',desc:'Takes the answer the wrong way, needs re-explanation',icon:'❓'},
+  {id:'context_dump',name:'Late context dump',desc:'Reveals key info only after assistant guesses wrong',icon:'📦'},
+  {id:'tangent',name:'Off-topic tangents',desc:'Drifts to unrelated topics mid-conversation',icon:'↗️'},
+  {id:'repeat',name:'Repetition when frustrated',desc:'Says the same thing 2-3 times with slight variation',icon:'🔁'},
+  {id:'short_replies',name:'Very short replies',desc:'"ok", "yeah", "idk", "no that doesnt help"',icon:'💬'},
+];
+
+let selPersonalities=new Set(['frustrated','confused']);
+let selBehaviors=new Set(['typos','vague','emotion','clarify']);
+
+function initHumanSim(){
+  renderPersonalityGrid();
+  renderBehaviorGrid();
+}
+
+function renderPersonalityGrid(){
+  $('personality-grid').innerHTML=PERSONALITIES.map(p=>`
+    <div class="personality-card${selPersonalities.has(p.id)?' sel':''}" onclick="togglePersonality('${p.id}',this)">
+      <div class="pc-icon">${p.icon}</div>
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-desc">${p.desc}</div>
+    </div>`).join('');
+}
+
+function renderBehaviorGrid(){
+  $('behavior-grid').innerHTML=BEHAVIORS.map(b=>`
+    <div class="behavior-card${selBehaviors.has(b.id)?' sel':''}" onclick="toggleBehavior('${b.id}',this)">
+      <div class="bc-check">${selBehaviors.has(b.id)?'✓':''}</div>
+      <div class="bc-body">
+        <div class="bc-name">${b.icon} ${b.name}</div>
+        <div class="bc-desc">${b.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+function togglePersonality(id,el){
+  if(selPersonalities.has(id)){if(selPersonalities.size>1)selPersonalities.delete(id);}
+  else selPersonalities.add(id);
+  el.classList.toggle('sel',selPersonalities.has(id));
+}
+
+function toggleBehavior(id,el){
+  if(selBehaviors.has(id))selBehaviors.delete(id);
+  else selBehaviors.add(id);
+  el.classList.toggle('sel',selBehaviors.has(id));
+  const check=el.querySelector('.bc-check');
+  if(check)check.textContent=selBehaviors.has(id)?'✓':'';
+}
+
+function updateSliderLabel(input,labelId,labels){
+  $(labelId).textContent=labels[parseInt(input.value)];
+}
+
+async function runHumanSim(){
+  if(!apiKey()){rb('hs-rb','Set API key first','warn');return;}
+  if(!ingestedContent&&$('hs-domain').value==='auto'){rb('hs-rb','Ingest content first or select a domain manually','warn');return;}
+
+  const count=parseInt($('hs-count').value);
+  const turns=parseInt($('hs-turns').value);
+  const intensity=$('hs-intensity').value;
+  const domain=$('hs-domain').value;
+  const typoLevel=['None','Occasional','Moderate','Frequent'][parseInt($('sl-typo').value)];
+  const vagueLevel=['Very clear','Slightly vague','Moderately vague','Very vague'][parseInt($('sl-vague').value)];
+  const driftLevel=['Stays on topic','Minor drift','Moderate drift','Frequent tangents'][parseInt($('sl-drift').value)];
+  const interruptLevel=['None','Rare','Occasional','Frequent'][parseInt($('sl-interrupt').value)];
+
+  const personalities=PERSONALITIES.filter(p=>selPersonalities.has(p.id));
+  const behaviors=BEHAVIORS.filter(b=>selBehaviors.has(b.id));
+
+  $('hs-btn').disabled=true;
+  $('hs-log-card').style.display='block';
+  $('hs-results').style.display='none';
+  $('hs-log').innerHTML='';
+  $('hs-pb').style.width='0%';
+  hb('hs-rb');
+
+  hslog('[HUMAN SIM] Starting simulation...','hl');
+  hslog('Personalities: '+personalities.map(p=>p.name).join(', '),'info');
+  hslog('Behaviors: '+behaviors.map(b=>b.name).join(', '),'info');
+  hslog('Turns: '+turns+' · Intensity: '+intensity+' · Domain: '+domain,'info');
+  hslog('─'.repeat(50));
+
+  const results=[];
+  for(let i=0;i<count;i++){
+    const personality=personalities[i%personalities.length];
+    hslog('\n[Conv '+(i+1)+'/'+count+'] Persona: '+personality.icon+' '+personality.name,'stage');
+
+    try{
+      const conv=await generateHumanConv({
+        personality,behaviors,turns,intensity,domain,
+        typoLevel,vagueLevel,driftLevel,interruptLevel,
+        sourceText:ingestedContent?.text||'',
+        sourceTopic:ingestedContent?.title||domain
+      });
+      results.push(conv);
+      hslog('  ✓ '+conv.data.messages.length+' turns generated','ok');
+    }catch(e){
+      hslog('  ✗ '+e.message,'err');
+    }
+    $('hs-pb').style.width=Math.round((i+1)/count*100)+'%';
+    await delay(500);
+  }
+
+  $('hs-count-out').textContent=results.length;
+  $('hs-results').style.display='block';
+  $('hs-grid').innerHTML=results.map(e=>renderHsCard(e)).join('');
+  $('hs-btn').disabled=false;
+  hslog('\n[DONE] '+results.length+' human simulations ready','hl');
+  updateSidebar();
+}
+
+async function generateHumanConv({personality,behaviors,turns,intensity,domain,typoLevel,vagueLevel,driftLevel,interruptLevel,sourceText,sourceTopic}){
+  const behaviorDesc=behaviors.map(b=>`- ${b.name}: ${b.desc}`).join('\n');
+  const intensityGuide={low:'Keep emotions subtle — a hint of frustration or confusion, not dramatic',medium:'Include 1-2 genuine emotional moments that feel natural and unscripted',high:'Include multiple emotional moments — frustration boiling over, relief, anxiety peaks'}[intensity];
+
+  const sys=`You are simulating a REAL human having a conversation with an AI assistant. You play BOTH roles: the human user and the AI assistant.
+
+HUMAN PERSONA: ${personality.name}
+Behavior style: ${personality.desc}
+
+REALISM RULES — follow all of these:
+- Typos: ${typoLevel} (e.g. "teh", "doesnt", "cna you")
+- Vagueness: ${vagueLevel} (user messages should feel this unclear)
+- Topic drift: ${driftLevel}
+- Interruptions: ${interruptLevel} (user sends a new message mid-thought)
+- Emotional intensity: ${intensityGuide}
+
+BEHAVIORS TO INJECT (use at least 3):
+${behaviorDesc}
+
+ASSISTANT RULES:
+- NEVER start with sycophantic openers
+- Must handle the human's imperfect messages gracefully
+- Ask for clarification when genuinely needed
+- Show empathy when the human is emotional
+- Do not be robotic — match the conversational energy
+
+CRITICAL: This must feel like a REAL conversation screenshot, not a training exercise. The human should be believably imperfect.`;
+
+  const usr=`Domain: ${domain==='auto'?sourceTopic:domain}
+${sourceText?'Context: '+sourceText.slice(0,800):''}
+
+Generate a ${turns}-turn conversation in this format.
+The conversation should start with the human asking something ${vagueLevel.toLowerCase()} about the domain.
+
+Output ONLY valid JSON:
+{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},...]}
+
+Inject these realistic behaviors naturally throughout — don't announce them, just do them.`;
+
+  const raw=await callLLM(sys,usr,2000);
+  let parsed;
+  try{
+    const clean=raw.replace(/```json|```/g,'').trim();
+    parsed=JSON.parse(clean);
+  }catch{
+    const m=raw.match(/\{[\s\S]*\}/);
+    parsed=m?JSON.parse(m[0]):{messages:[]};
+  }
+
+  const detectedBehaviors=detectBehaviorsInConv(parsed.messages||[]);
+
+  return {
+    id:uid(),
+    type:'conversation',
+    status:'pending',
+    subtype:'human_simulation',
+    data:{
+      messages:parsed.messages||[],
+      personality:personality.name,
+      personality_icon:personality.icon,
+      behaviors_injected:detectedBehaviors,
+      domain:domain==='auto'?sourceTopic:domain,
+    },
+    source_title:ingestedContent?.title||domain,
+    source_url:ingestedContent?.source||'',
+    added:new Date().toISOString(),
+    quality:null,
+  };
+}
+
+function detectBehaviorsInConv(messages){
+  const found=[];
+  const userMsgs=messages.filter(m=>m.role==='user').map(m=>m.content||'');
+  const allText=userMsgs.join(' ');
+  if(/[A-Z]{3,}/.test(allText))found.push('caps/frustration');
+  if(/\b(sorry|apologize|oops)\b/i.test(allText))found.push('apologetic');
+  if(/\b(wait|actually|nvm|nevermind|no wait)\b/i.test(allText))found.push('self-correction');
+  if(userMsgs.some(m=>m.length<15))found.push('short replies');
+  if(/[a-z]{2,}[a-z]ing\b/.test(allText.replace(/\s/g,'')))found.push('possible typos');
+  if(userMsgs.some(m=>m.split(' ').length<4))found.push('vague messages');
+  if(/\?\s*\?/.test(allText)||userMsgs.filter(m=>m.includes('?')).length>2)found.push('repeated questions');
+  return found;
+}
+
+function renderHsCard(ex){
+  const msgs=(ex.data.messages||[]).map(m=>{
+    const isUser=m.role==='user';
+    const hasTypo=/[a-z]{2,}[a-z]/.test((m.content||'').replace(/\s/g,'').slice(0,30));
+    const hasCaps=/[A-Z]{3,}/.test(m.content||'');
+    const isShort=(m.content||'').length<30;
+    const indicators=(hasTypo?'<span style="font-size:8px;color:var(--yellow);margin-left:4px">typo</span>':'')+(hasCaps?'<span style="font-size:8px;color:var(--red);margin-left:4px">CAPS</span>':'')+(isShort&&isUser?'<span style="font-size:8px;color:var(--muted);margin-left:4px">short</span>':'');
+    return `<div style="margin-bottom:9px;${isUser?'':'padding-left:12px;border-left:2px solid rgba(0,212,255,.2)'}">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <span style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:${isUser?'var(--orange)':'var(--accent)'};font-weight:700">${isUser?ex.data.personality_icon+' '+ex.data.personality:'🤖 Assistant'}</span>
+        ${indicators}
+      </div>
+      <span style="color:var(--text);font-size:11px">${esc(m.content||'')}</span>
+    </div>`;
+  }).join('');
+
+  const behaviors=ex.data.behaviors_injected||[];
+  const behaviorTags=behaviors.map(b=>`<span class="badge" style="background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.2)">${esc(b)}</span>`).join(' ');
+
+  return `<div class="ds-card" id="card-${ex.id}" style="border-color:rgba(255,107,53,.2)">
+    <div class="ds-header">
+      <div>
+        <div class="ds-badges">
+          <span class="badge" style="background:rgba(255,107,53,.12);color:var(--orange);border:1px solid rgba(255,107,53,.25)">🧠 Human Sim</span>
+          <span class="badge b-conv">${ex.data.personality_icon} ${esc(ex.data.personality||'')}</span>
+          <span class="badge" style="background:var(--s3);color:var(--muted);border:1px solid var(--b2)">${(ex.data.messages||[]).length} turns</span>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${behaviorTags}</div>
+        <div class="ds-meta">Domain: ${esc(ex.data.domain||'')} · id:${ex.id}</div>
+      </div>
+    </div>
+    <div class="ds-content" style="max-height:320px;overflow-y:auto">${msgs}</div>
+    <div class="ds-actions">
+      <button class="btn btn-xs" style="background:rgba(0,232,122,.08);color:var(--green);border-color:rgba(0,232,122,.2)" onclick="hsApprove('${ex.id}')">✓ Approve</button>
+      <button class="btn btn-xs" style="background:rgba(255,61,90,.08);color:var(--red);border-color:rgba(255,61,90,.2)" onclick="hsReject('${ex.id}')">✕ Reject</button>
+      <button class="btn btn-xs btn-o" onclick="delEx('${ex.id}')">🗑</button>
+      <div class="ds-src">Human Simulation · ${esc(ex.data.personality||'')}</div>
+    </div>
+  </div>`;
+}
+
+function hsApprove(id){
+  const card=$('card-'+id);
+  if(card)card.classList.add('approved');
+  const existing=getEx();
+  const found=genBuffer.find(e=>e.id===id);
+  const ex=found||{id,type:'conversation',subtype:'human_simulation',status:'approved',data:{messages:[]},added:new Date().toISOString()};
+  ex.status='approved';
+  if(!existing.find(e=>e.id===id))existing.push(ex);
+  else existing.find(e=>e.id===id).status='approved';
+  SS({examples:existing});
+  updateSidebar();updateDsStats();
+}
+
+function hsReject(id){
+  const card=$('card-'+id);
+  if(card)card.classList.add('rejected');
+  const existing=getEx();
+  const found=existing.find(e=>e.id===id);
+  if(found)found.status='rejected';
+  SS({examples:existing});
+  updateSidebar();
+}
+
+function approveAllHs(){
+  document.querySelectorAll('#hs-grid .ds-card').forEach(card=>{
+    const id=card.id.replace('card-','');
+    hsApprove(id);
+  });
+  rb('hs-rb','✅ All human simulations approved → Dataset','ok');
+}
+
+function hslog(msg,cls=''){
+  const e=$('hs-log');
+  e.innerHTML+=`<span class="${cls}">${esc(msg)}</span>\n`;
+  e.scrollTop=e.scrollHeight;
+}
+// ══════════════════════════════════════════════════════════════════
+//  HOSTING PREP — injected as data for the hosting guide
+// ══════════════════════════════════════════════════════════════════
+const HOSTING_GUIDE=`
+TRAINFORGE v3 — PUBLIC HOSTING GUIDE
+=====================================
+
+OPTION 1: GitHub Pages (FREE — Best for starting)
+──────────────────────────────────────────────────
+1. Create account at github.com
+2. New repository → name it "trainforge" → Public
+3. Upload trainforge-v3.html
+4. Rename it to index.html
+5. Settings → Pages → Source: main branch
+6. Your site goes live at: your-username.github.io/trainforge
+   Takes 2-3 minutes. Free forever.
+
+OPTION 2: Netlify (FREE — Easier, custom domain)
+─────────────────────────────────────────────────
+1. Go to netlify.com → Sign up free
+2. Drag and drop trainforge-v3.html onto the deploy area
+3. Instant live URL like: random-name.netlify.app
+4. To use custom domain: Site settings → Domain management
+   Add domain you bought (e.g. trainforge.io)
+   Netlify gives you free SSL certificate automatically
+
+OPTION 3: Vercel (FREE — Fastest)
+───────────────────────────────────
+1. vercel.com → Sign up with GitHub
+2. New Project → upload your HTML file
+3. Deploy → live in 30 seconds
+4. Add custom domain in project settings
+
+BUYING A DOMAIN
+───────────────
+Best registrars (cheapest):
+• Namecheap.com — ~$10/year for .com
+• Porkbun.com — often $8-9/year
+• Cloudflare.com/registrar — at cost price
+
+Good domain ideas:
+• trainforge.io
+• dataforge.ai
+• syntheticdata.io
+• llmdata.io
+
+MAKING IT LOOK PROFESSIONAL
+─────────────────────────────
+Before going public, update in the HTML:
+1. Change <title> to your domain name
+2. Add meta description tag in <head>:
+   <meta name="description" content="Build lab-grade AI training datasets in minutes"/>
+3. Add Open Graph tags for social sharing
+4. Add your contact email somewhere visible
+
+SEO (GET FOUND ON GOOGLE)
+──────────────────────────
+Add these in your <head> tag:
+<meta name="keywords" content="AI training data, fine-tuning dataset, RLHF data, instruction tuning"/>
+<meta property="og:title" content="TrainForge — AI Dataset Builder"/>
+<meta property="og:description" content="Build lab-grade fine-tuning datasets in minutes"/>
+
+ANALYTICS (FREE — See who visits)
+───────────────────────────────────
+Add Google Analytics or Plausible.io
+Plausible is privacy-friendly and easier
+Add one line of script to your <head>
+
+COST SUMMARY
+─────────────
+• GitHub Pages hosting: FREE
+• Netlify hosting: FREE  
+• Domain name: ~$10/year
+• SSL certificate: FREE (included everywhere)
+• Total first year: ~$10
+`;
+
+updateSidebar();
+updateExpCount();
+const _sk=getSt().key;
+if(_sk){$('api-key').value=_sk;$('api-dot').className='api-dot ok';$('api-txt').textContent=(getSt().provider||'groq')+' active';}
+</script>
+</body>
+</html>

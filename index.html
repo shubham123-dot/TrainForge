@@ -3,288 +3,336 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>TrainForge v3 — Lab-Grade Dataset Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,300;0,500;0,700;1,300;1,500&display=swap" rel="stylesheet"/>
+<title>TrainForge — Dataset Workspace</title>
+<meta name="description" content="Build AI training datasets from any source. For ML engineers and researchers who fine-tune models."/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080a0d;--s1:#0c0f13;--s2:#111419;--s3:#181c22;--s4:#1e242c;
-  --b1:#1a2030;--b2:#243040;--b3:#2e3d50;
-  --text:#e2e8f4;--muted:#5a6b80;--muted2:#2e3d50;--dim:#3a4a5c;
-  --accent:#00d4ff;--accent2:#ff6b35;--green:#00e87a;--red:#ff3d5a;
-  --yellow:#ffd166;--purple:#c77dff;--orange:#ff9f1c;--teal:#06d6a0;
-  --grad1:linear-gradient(135deg,#00d4ff,#00e87a);
-  --grad2:linear-gradient(135deg,#ff6b35,#ffd166);
-  --mono:'IBM Plex Mono',monospace;--serif:'Fraunces',serif;
+  --bg:#f8f7f4;
+  --surface:#ffffff;
+  --surface2:#f2f1ee;
+  --surface3:#e9e8e4;
+  --border:#e0ded9;
+  --border2:#d0cec8;
+  --text:#1a1917;
+  --text2:#4a4845;
+  --text3:#8a8784;
+  --text4:#b5b3af;
+  --accent:#1a6b3c;
+  --accent-bg:#edf7f1;
+  --accent-border:#b5dfc6;
+  --blue:#1d4ed8;
+  --blue-bg:#eff6ff;
+  --red:#c0392b;
+  --red-bg:#fef2f2;
+  --red-border:#fecaca;
+  --yellow:#92400e;
+  --yellow-bg:#fffbeb;
+  --yellow-border:#fde68a;
+  --purple:#5b21b6;
+  --purple-bg:#f5f3ff;
+  --orange:#c2410c;
+  --orange-bg:#fff7ed;
+  --sans:'Geist',system-ui,sans-serif;
+  --mono:'Geist Mono',ui-monospace,monospace;
   --r:6px;--r2:10px;--r3:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow2:0 4px 12px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.04);
 }
 html,body{height:100%}
-body{font-family:var(--mono);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:12px;line-height:1.5}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
-/* ══ SIDEBAR ══ */
-#sb{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;position:relative}
-#sb::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent,var(--accent),transparent);opacity:.3}
-.brand{padding:20px 16px 16px;border-bottom:1px solid var(--b1)}
-.brand-name{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.5px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.brand-v{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
-.brand-tag{font-size:10px;color:var(--dim);margin-top:4px;font-family:var(--mono)}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 
-nav{flex:1;padding:8px;overflow-y:auto}
-.nav-sec{font-size:9px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;padding:14px 8px 5px}
-.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);color:var(--muted);cursor:pointer;transition:all .12s;margin-bottom:2px;border:1px solid transparent;user-select:none;position:relative}
-.ni:hover{background:var(--s2);color:var(--text)}
-.ni.on{background:var(--s2);color:var(--accent);border-color:rgba(0,212,255,.15)}
-.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:60%;background:var(--accent);border-radius:0 2px 2px 0}
-.ni-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
-.ni-lbl{font-size:11px;font-weight:500}
-.ni-badge{margin-left:auto;font-size:9px;padding:2px 7px;border-radius:10px;background:var(--s3);color:var(--muted)}
-.ni.on .ni-badge{background:rgba(0,212,255,.12);color:var(--accent)}
+/* ── SIDEBAR ── */
+#sb{width:228px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.brand{padding:20px 18px 18px;border-bottom:1px solid var(--border)}
+.brand-name{font-size:17px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+.brand-tagline{font-size:11px;color:var(--text3);margin-top:2px;font-weight:400}
 
-.sb-foot{padding:10px;border-top:1px solid var(--b1)}
-.api-pill{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:var(--r2);background:var(--s2);border:1px solid var(--b1);margin-bottom:8px}
-.api-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:all .4s}
-.api-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(0,232,122,.5)}
-.api-dot.err{background:var(--red);box-shadow:0 0 6px rgba(255,61,90,.4)}
-.api-txt{font-size:10px;color:var(--muted)}
-.stat-mini{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.sm{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px;text-align:center}
-.sm-v{font-size:16px;font-weight:700;color:var(--accent);font-family:var(--serif)}
-.sm-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-.kb-legend{font-size:9px;color:var(--muted2);padding:8px 10px;margin-top:6px;line-height:2}
-.kb-legend kbd{background:var(--s3);border:1px solid var(--b2);border-radius:3px;padding:0 5px;font-size:9px;color:var(--dim)}
+nav{flex:1;padding:10px 10px;overflow-y:auto}
+.nav-sec{font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:1px;padding:16px 8px 6px}
+.nav-sec:first-child{padding-top:4px}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--r);color:var(--text2);cursor:pointer;transition:all .1s;margin-bottom:1px;border:1px solid transparent;user-select:none}
+.ni:hover{background:var(--surface2);color:var(--text)}
+.ni.on{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+.ni-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;opacity:.7}
+.ni.on .ni-icon{opacity:1}
+.ni-lbl{font-size:13px;font-weight:500}
+.ni-badge{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:10px;background:var(--surface3);color:var(--text3);font-weight:500;font-family:var(--mono)}
+.ni.on .ni-badge{background:var(--accent-border);color:var(--accent)}
 
-/* ══ MAIN ══ */
+.sb-foot{padding:12px;border-top:1px solid var(--border)}
+.api-pill{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r2);background:var(--surface2);border:1px solid var(--border);margin-bottom:10px}
+.api-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:all .3s}
+.api-dot.ok{background:var(--accent)}
+.api-dot.err{background:var(--red)}
+.api-txt{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.stat-mini{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sm{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px}
+.sm-v{font-size:18px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1}
+.sm-l{font-size:10px;color:var(--text3);margin-top:3px;font-weight:500}
+.kb-legend{display:none} /* hide keyboard shortcut legend — it's available but not cluttering the UI */
+
+/* ── MAIN ── */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:50px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;flex-shrink:0}
 .tb-left{flex:1}
-.tb-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.5px}
-.tb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tb-title{font-size:14px;font-weight:600;color:var(--text)}
+.tb-sub{font-size:12px;color:var(--text3);margin-top:1px}
 .tb-right{display:flex;gap:8px;align-items:center}
-.provider-tag{font-size:9px;padding:3px 10px;border-radius:20px;background:var(--s2);border:1px solid var(--b1);color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.provider-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);font-weight:500}
 
-.content{flex:1;overflow-y:auto;padding:22px 24px}
+.content{flex:1;overflow-y:auto;padding:28px 32px}
 .tab{display:none}.tab.on{display:block}
 
-/* ══ CARDS ══ */
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:18px;margin-bottom:14px;transition:border-color .15s}
-.card-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.card-t::after{content:'';flex:1;height:1px;background:var(--b1)}
-.card-accent{border-color:rgba(0,212,255,.2)}
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-accent{border-color:var(--accent-border);background:var(--accent-bg)}
+.card-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:16px}
 
-/* ══ FORMS ══ */
-.fg{margin-bottom:10px}
-.fg label{display:block;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.inp{width:100%;padding:8px 11px;border:1px solid var(--b1);border-radius:var(--r);font-size:11px;font-family:var(--mono);background:var(--s2);color:var(--text);outline:none;transition:border-color .15s}
-.inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.06)}
-.inp::placeholder{color:var(--muted2)}
-textarea.inp{resize:vertical;line-height:1.6}
+/* ── FORMS ── */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.inp{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:var(--sans);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,107,60,.08)}
+.inp::placeholder{color:var(--text4)}
+textarea.inp{resize:vertical;line-height:1.6;font-family:var(--sans)}
 select.inp{cursor:pointer}
-.rg{display:flex;gap:8px;flex-wrap:wrap}
+.rg{display:flex;gap:10px;flex-wrap:wrap}
 .rg>.fg{flex:1;min-width:130px;margin-bottom:0}
 
-/* ══ BUTTONS ══ */
-.btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--b2);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .12s;display:inline-flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
-.btn-p{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
-.btn-p:hover:not(:disabled){background:#33dcff;border-color:#33dcff}
-.btn-g{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
-.btn-g:hover:not(:disabled){opacity:.85}
-.btn-o{background:transparent;color:var(--text);border-color:var(--b2)}
-.btn-o:hover:not(:disabled){background:var(--s2);border-color:var(--b3)}
-.btn-r{background:transparent;color:var(--red);border-color:rgba(255,61,90,.3)}
-.btn-r:hover:not(:disabled){background:rgba(255,61,90,.08)}
-.btn-warn{background:transparent;color:var(--yellow);border-color:rgba(255,209,102,.3)}
-.btn-xs{padding:3px 9px;font-size:9px;border-radius:4px}
-.btn-sm{padding:6px 12px;font-size:10px}
-.btn-lg{padding:11px 22px;font-size:12px}
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:var(--r);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-p:hover:not(:disabled){background:#155c33;border-color:#155c33}
+.btn-g{background:#1a6b3c;color:#fff;border-color:#1a6b3c}
+.btn-g:hover:not(:disabled){background:#155c33}
+.btn-o{background:var(--surface);color:var(--text2);border-color:var(--border)}
+.btn-o:hover:not(:disabled){background:var(--surface2);border-color:var(--border2)}
+.btn-r{background:var(--surface);color:var(--red);border-color:var(--red-border)}
+.btn-r:hover:not(:disabled){background:var(--red-bg)}
+.btn-warn{background:var(--surface);color:var(--yellow);border-color:var(--yellow-border)}
+.btn-xs{padding:3px 9px;font-size:11px;border-radius:4px;box-shadow:none}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-lg{padding:11px 22px;font-size:14px;font-weight:700}
 
-/* ══ RESULT BOXES ══ */
-.rb{margin-top:8px;padding:8px 12px;border-radius:var(--r);font-size:10px;display:none;line-height:1.7}
+/* ── RESULT BOXES ── */
+.rb{margin-top:10px;padding:9px 13px;border-radius:var(--r);font-size:12px;display:none;line-height:1.6}
 .rb.show{display:block}
-.rb.ok{background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);color:var(--green)}
-.rb.err{background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);color:var(--red)}
-.rb.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--accent)}
-.rb.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);color:var(--yellow)}
+.rb.ok{background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent)}
+.rb.err{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.rb.info{background:var(--blue-bg);border:1px solid #bfdbfe;color:var(--blue)}
+.rb.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);color:var(--yellow)}
 
-/* ══ BADGES ══ */
-.badge{font-size:9px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:600;letter-spacing:.3px}
-.b-inst{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2)}
-.b-conv{background:rgba(199,125,255,.1);color:var(--purple);border:1px solid rgba(199,125,255,.2)}
-.b-pref{background:rgba(255,107,53,.1);color:var(--orange);border:1px solid rgba(255,107,53,.2)}
-.b-adv{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
-.b-sys{background:rgba(6,214,160,.1);color:var(--teal);border:1px solid rgba(6,214,160,.2)}
-.b-hi{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2)}
-.b-med{background:rgba(255,209,102,.1);color:var(--yellow);border:1px solid rgba(255,209,102,.2)}
-.b-lo{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+/* ── BADGES ── */
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:500}
+.b-inst{background:var(--blue-bg);color:var(--blue);border:1px solid #bfdbfe}
+.b-conv{background:var(--purple-bg);color:var(--purple);border:1px solid #ddd6fe}
+.b-pref{background:var(--orange-bg);color:var(--orange);border:1px solid #fed7aa}
+.b-adv{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.b-sys{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.b-hi{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.b-med{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+.b-lo{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 
-/* ══ TERMINAL ══ */
-.tlog{background:#020305;border:1px solid var(--b1);border-radius:var(--r);padding:12px;font-size:10px;line-height:1.9;min-height:80px;max-height:240px;overflow-y:auto;color:#3a4a5c;position:relative}
-.tlog::before{content:'> terminal';position:absolute;top:8px;right:12px;font-size:8px;color:var(--muted2);letter-spacing:1px}
-.tlog .ok{color:var(--green)}
-.tlog .info{color:var(--accent)}
-.tlog .warn{color:var(--yellow)}
-.tlog .err{color:var(--red)}
-.tlog .hl{color:var(--text);font-weight:600}
-.tlog .stage{color:var(--purple)}
+/* ── TERMINAL / LOG ── */
+.tlog{background:#1a1917;border:1px solid #2d2c29;border-radius:var(--r);padding:14px;font-size:11px;font-family:var(--mono);line-height:2;min-height:80px;max-height:240px;overflow-y:auto;color:#6b7280}
+.tlog .ok{color:#86efac}
+.tlog .info{color:#93c5fd}
+.tlog .warn{color:#fcd34d}
+.tlog .err{color:#fca5a5}
+.tlog .hl{color:#f9fafb;font-weight:500}
+.tlog .stage{color:#c4b5fd}
 
-/* ══ PROGRESS ══ */
-.pw{background:#020305;border-radius:2px;height:2px;overflow:hidden;margin:8px 0}
+/* ── PROGRESS ── */
+.pw{background:var(--surface3);border-radius:2px;height:3px;overflow:hidden;margin:10px 0}
 .pb{height:100%;border-radius:2px;transition:width .5s ease}
-.pb-c{background:var(--grad1)}
-.pb-w{background:var(--grad2)}
+.pb-c{background:var(--accent)}
+.pb-w{background:var(--orange)}
 
-/* ══ MODE TABS ══ */
-.mode-tabs{display:flex;gap:3px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:4px;margin-bottom:14px;flex-wrap:wrap}
-.mt{flex:1;min-width:90px;padding:7px 10px;border-radius:var(--r);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--mono);text-align:center;color:var(--muted);transition:all .12s;border:none;background:none;text-transform:uppercase;letter-spacing:.6px}
+/* ── MODE TABS ── */
+.mode-tabs{display:flex;gap:2px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:3px;margin-bottom:16px;flex-wrap:wrap}
+.mt{flex:1;min-width:80px;padding:7px 12px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);text-align:center;color:var(--text3);transition:all .1s;border:none;background:none}
 .mt:hover{color:var(--text)}
-.mt.on{background:var(--s3);color:var(--accent);border:1px solid var(--b2)}
+.mt.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow);font-weight:600}
 .mode-pane{display:none}.mode-pane.on{display:block}
 
-/* ══ EXAMPLE CARDS ══ */
-.ds-grid{display:grid;gap:8px}
-.ds-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:13px;animation:fu .18s ease;position:relative;transition:border-color .15s}
-.ds-card:hover{border-color:var(--b3)}
-.ds-card.approved{border-color:rgba(0,232,122,.3);background:rgba(0,232,122,.02)}
-.ds-card.rejected{opacity:.35;border-color:rgba(255,61,90,.15)}
-.ds-card.focused{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.06)}
-.ds-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
-.ds-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.ds-meta{font-size:9px;color:var(--muted);margin-top:3px}
-.ds-content{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-size:11px;line-height:1.75}
-.ds-field{margin-bottom:8px}
+/* ── EXAMPLE CARDS ── */
+.ds-grid{display:grid;gap:10px}
+.ds-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;animation:fu .18s ease;box-shadow:var(--shadow)}
+.ds-card:hover{border-color:var(--border2)}
+.ds-card.approved{border-color:var(--accent-border);background:var(--accent-bg)}
+.ds-card.rejected{opacity:.4}
+.ds-card.focused{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,107,60,.08)}
+.ds-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.ds-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ds-meta{font-size:10px;color:var(--text4);margin-top:4px;font-family:var(--mono)}
+.ds-content{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:12px;line-height:1.75}
+.ds-field{margin-bottom:10px}
 .ds-field:last-child{margin-bottom:0}
-.ds-label{font-size:8px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:3px;font-weight:700}
-.ds-val{color:var(--text);white-space:pre-wrap;word-break:break-word}
-.ds-actions{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;align-items:center}
-.ds-src{font-size:9px;color:var(--muted);margin-left:auto}
-.ds-src a{color:var(--accent);text-decoration:none}
+.ds-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:4px;font-weight:700}
+.ds-val{color:var(--text);white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.65}
+.ds-actions{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.ds-src{font-size:10px;color:var(--text4);margin-left:auto}
+.ds-src a{color:var(--blue);text-decoration:none}
 
-/* ══ QUALITY EXPLAIN ══ */
-.q-explain{margin-top:7px;padding:7px 10px;border-radius:var(--r);font-size:9px;line-height:1.9}
-.q-explain.hi{background:rgba(0,232,122,.04);border:1px solid rgba(0,232,122,.15);color:var(--green)}
-.q-explain.med{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);color:var(--yellow)}
-.q-explain.lo{background:rgba(255,61,90,.04);border:1px solid rgba(255,61,90,.15);color:var(--red)}
+/* ── QUALITY EXPLAIN ── */
+.q-explain{margin-top:8px;padding:8px 11px;border-radius:var(--r);font-size:11px;line-height:1.8}
+.q-explain.hi{background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent)}
+.q-explain.med{background:var(--yellow-bg);border:1px solid var(--yellow-border);color:var(--yellow)}
+.q-explain.lo{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
 
-/* ══ FILTER CHIPS ══ */
-.review-toolbar{display:flex;gap:6px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--b1);margin-bottom:12px;flex-wrap:wrap}
-.chip{padding:4px 12px;border-radius:20px;font-size:10px;cursor:pointer;border:1px solid var(--b2);background:var(--s2);color:var(--muted);transition:all .12s;font-family:var(--mono)}
-.chip:hover{color:var(--text);border-color:var(--b3)}
-.chip.on{background:rgba(0,212,255,.08);color:var(--accent);border-color:rgba(0,212,255,.3)}
+/* ── FILTER CHIPS ── */
+.review-toolbar{display:flex;gap:6px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .1s;font-family:var(--sans);font-weight:500}
+.chip:hover{color:var(--text);border-color:var(--border2)}
+.chip.on{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 
-/* ══ STATS ══ */
-.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
-.stat{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:12px 14px}
-.stat-v{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1}
-.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+/* ── STATS ── */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow)}
+.stat-v{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1;color:var(--text)}
+.stat-l{font-size:11px;color:var(--text3);margin-top:5px;font-weight:500}
 
-/* ══ EXPORT ══ */
-.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.exp-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;text-align:center;transition:border-color .15s}
-.exp-card:hover{border-color:var(--b3)}
-.exp-icon{font-size:26px;margin-bottom:7px}
-.exp-title{font-size:11px;font-weight:600;margin-bottom:4px}
-.exp-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+/* ── EXPORT ── */
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.exp-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;text-align:center;transition:border-color .1s}
+.exp-card:hover{border-color:var(--border2);background:var(--surface)}
+.exp-icon{font-size:28px;margin-bottom:8px}
+.exp-title{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.exp-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:12px}
 
-/* ══ QUALITY BARS ══ */
-.q-bar-wrap{background:var(--s3);border-radius:2px;height:4px;flex:1;overflow:hidden}
+/* ── QUALITY BARS ── */
+.q-bar-wrap{background:var(--surface3);border-radius:2px;height:5px;flex:1;overflow:hidden}
 .q-bar{height:100%;border-radius:2px;transition:width .6s ease}
-.q-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:10px}
-.q-lbl{color:var(--muted);min-width:90px}
-.q-val{color:var(--text);min-width:32px;text-align:right}
+.q-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:13px}
+.q-lbl{color:var(--text2);min-width:100px;font-weight:500}
+.q-val{color:var(--text);min-width:36px;text-align:right;font-weight:600;font-family:var(--mono)}
 
-/* ══ SELL ══ */
-.sell-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
-.sell-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;transition:border-color .15s}
-.sell-card:hover{border-color:var(--b3)}
-.price-tag{display:inline-block;padding:3px 10px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);border-radius:20px;font-size:10px;color:var(--green);margin-bottom:8px;font-weight:700}
-.sell-steps{font-size:10px;color:var(--muted);line-height:2.1}
-.sell-steps .ck{color:var(--green)}
+/* ── SELL ── */
+.sell-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:18px}
+.sell-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;transition:border-color .1s}
+.sell-card:hover{border-color:var(--border2);background:var(--surface)}
+.price-tag{display:inline-block;padding:3px 10px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:20px;font-size:11px;color:var(--accent);margin-bottom:10px;font-weight:700}
+.sell-steps{font-size:12px;color:var(--text3);line-height:2.1}
+.sell-steps .ck{color:var(--accent)}
 
-/* ══ GENERATION MODE SELECTOR ══ */
-.gen-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
-.gen-mode-card{background:var(--s2);border:2px solid var(--b1);border-radius:var(--r2);padding:12px;cursor:pointer;transition:all .15s}
-.gen-mode-card:hover{border-color:var(--b3)}
-.gen-mode-card.sel{border-color:var(--accent);background:rgba(0,212,255,.04)}
-.gm-icon{font-size:20px;margin-bottom:5px}
-.gm-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
-.gm-desc{font-size:9px;color:var(--muted);line-height:1.6}
+/* ── GENERATION MODE SELECTOR ── */
+.gen-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.gen-mode-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .15s}
+.gen-mode-card:hover{border-color:var(--border2);background:var(--surface)}
+.gen-mode-card.sel{border-color:var(--accent);background:var(--accent-bg)}
+.gm-icon{font-size:22px;margin-bottom:6px}
+.gm-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.gm-desc{font-size:11px;color:var(--text3);line-height:1.6}
 
-/* ══ TOKEN BAR ══ */
-.tok-bar{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:10px;font-size:10px}
-.tok-bar .lbl{color:var(--muted);flex:1}
-.tok-v{color:var(--accent)}
-.tok-c{color:var(--muted);font-size:9px}
+/* ── TOKEN BAR ── */
+.tok-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;font-size:12px}
+.tok-bar .lbl{color:var(--text3);flex:1}
+.tok-v{color:var(--accent);font-weight:600;font-family:var(--mono)}
+.tok-c{color:var(--text3);font-size:11px;font-family:var(--mono)}
 
-/* ══ QUALITY FILTER WARNING ══ */
-.filter-warn{padding:6px 10px;background:rgba(255,61,90,.05);border:1px solid rgba(255,61,90,.15);border-radius:var(--r);font-size:10px;color:var(--red);margin-bottom:8px;display:none}
+/* ── QUALITY FILTER WARNING ── */
+.filter-warn{padding:7px 11px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--r);font-size:12px;color:var(--red);margin-bottom:10px;display:none}
 .filter-warn.show{display:block}
 
-/* ══ ONBOARDING ══ */
-#onboarding{position:fixed;inset:0;background:rgba(8,10,13,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+/* ── ONBOARDING ── */
+#onboarding{position:fixed;inset:0;background:rgba(248,247,244,.97);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
 #onboarding.hidden{display:none}
-.ob-wrap{max-width:540px;width:100%}
-.ob-logo{font-family:var(--serif);font-size:32px;font-weight:700;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
-.ob-tag{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
-.ob-providers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.ob-p{background:var(--s1);border:2px solid var(--b1);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .15s;text-align:center}
-.ob-p:hover,.ob-p.sel{border-color:var(--accent);background:rgba(0,212,255,.04)}
-.ob-p-name{font-size:13px;font-weight:700;margin-bottom:3px}
-.ob-p-sub{font-size:10px;color:var(--muted)}
+.ob-wrap{max-width:480px;width:100%}
+.ob-logo{font-size:28px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:-.5px}
+.ob-tag{font-size:12px;color:var(--text3);letter-spacing:0;margin-bottom:32px}
+.ob-providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.ob-p{background:var(--surface);border:2px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .15s;text-align:center;box-shadow:var(--shadow)}
+.ob-p:hover,.ob-p.sel{border-color:var(--accent);background:var(--accent-bg)}
+.ob-p-name{font-size:14px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.ob-p-sub{font-size:11px;color:var(--text3);font-family:var(--mono)}
 .ob-row{display:flex;gap:8px;margin-bottom:12px}
-.ob-skip{text-align:center;font-size:10px;color:var(--muted);cursor:pointer;margin-top:10px}
+.ob-skip{text-align:center;font-size:12px;color:var(--text4);cursor:pointer;margin-top:12px}
 .ob-skip:hover{color:var(--text)}
 
-/* ══ SYSTEM PROMPT PICKER ══ */
-.sys-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.sys-chip{padding:4px 11px;border-radius:20px;font-size:9px;cursor:pointer;border:1px solid var(--b2);background:var(--s2);color:var(--muted);transition:all .12s;font-family:var(--mono);letter-spacing:.3px}
-.sys-chip:hover{color:var(--text);border-color:var(--b3)}
-.sys-chip.on{background:rgba(6,214,160,.08);color:var(--teal);border-color:rgba(6,214,160,.3)}
+/* ── SYSTEM PROMPT PICKER ── */
+.sys-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.sys-chip{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text3);transition:all .1s;font-family:var(--sans);font-weight:500}
+.sys-chip:hover{color:var(--text);border-color:var(--border2)}
+.sys-chip.on{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 
-/* ══ ANIMATIONS ══ */
-@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* ── ANIMATIONS ── */
+@keyframes fu{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.generating .api-dot{animation:pulse 1s infinite}
+.generating .api-dot{animation:pulse 1.2s infinite}
 
-/* ══ HUMAN SIM ══ */
-.hs-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.hs-sl{font-size:10px;color:var(--muted);min-width:120px;font-family:var(--mono)}
-.hs-sv{font-size:10px;color:var(--orange);min-width:130px;font-family:var(--mono)}
-.hs-range{flex:1;accent-color:var(--orange);cursor:pointer}
-.personality-card{background:var(--s2);border:2px solid var(--b1);border-radius:var(--r2);padding:11px;cursor:pointer;transition:all .15s;text-align:center}
-.personality-card:hover{border-color:var(--b3)}
-.personality-card.sel{border-color:var(--orange);background:rgba(255,107,53,.06)}
-.pc-icon{font-size:22px;margin-bottom:5px}
-.pc-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
-.pc-desc{font-size:9px;color:var(--muted);line-height:1.5}
-.behavior-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:9px}
-.behavior-card:hover{border-color:var(--b3)}
-.behavior-card.sel{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.04)}
-.bc-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--b3);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .12s}
-.behavior-card.sel .bc-check{background:var(--yellow);border-color:var(--yellow);color:#000}
-.bc-body .bc-name{font-size:10px;font-weight:700;color:var(--text);margin-bottom:2px}
-.bc-body .bc-desc{font-size:9px;color:var(--muted);line-height:1.5}
-/* ══ SELL GUIDES ══ */
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+/* ── HUMAN SIM ── */
+.hs-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hs-sl{font-size:12px;color:var(--text2);min-width:130px;font-family:var(--sans)}
+.hs-sv{font-size:12px;color:var(--orange);min-width:140px;font-family:var(--mono)}
+.hs-range{flex:1;accent-color:var(--accent);cursor:pointer}
+.personality-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--r2);padding:13px;cursor:pointer;transition:all .15s;text-align:center}
+.personality-card:hover{border-color:var(--border2);background:var(--surface)}
+.personality-card.sel{border-color:var(--accent);background:var(--accent-bg)}
+.pc-icon{font-size:24px;margin-bottom:6px}
+.pc-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.pc-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.behavior-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:10px}
+.behavior-card:hover{border-color:var(--border2);background:var(--surface)}
+.behavior-card.sel{border-color:var(--accent-border);background:var(--accent-bg)}
+.bc-check{width:16px;height:16px;border-radius:3px;border:1px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .1s}
+.behavior-card.sel .bc-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.bc-body .bc-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.bc-body .bc-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* ── SECTION DIVIDER LABEL ── */
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* ── ADVANCED TOGGLE ── */
+.adv-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:14px;user-select:none;width:fit-content}
+.adv-toggle:hover{color:var(--text)}
+.adv-arrow{font-size:10px;transition:transform .15s}
+.adv-arrow.open{transform:rotate(90deg)}
+.adv-content{display:none}
+.adv-content.open{display:block}
+
+/* ── STEP INDICATOR ── */
+.step-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.step-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0;transition:all .2s}
+.step-dot.done{background:var(--accent);border-color:var(--accent);color:#fff}
+.step-dot.active{border-color:var(--accent);color:var(--accent)}
+.step-label{font-size:12px;color:var(--text3);font-weight:500}
+.step-sep{flex:1;height:1px;background:var(--border);min-width:16px;max-width:40px}
+
+/* ── HOME/WELCOME STRIP ── */
+.home-strip{background:linear-gradient(135deg,var(--accent-bg),#f0fdf4);border:1px solid var(--accent-border);border-radius:var(--r2);padding:20px 24px;margin-bottom:22px}
+.home-strip h2{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-.2px}
+.home-strip p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* ── COMPACT EMPTY STATE ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state .es-icon{font-size:32px;margin-bottom:10px;opacity:.5}
+.empty-state p{font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
 
-<!-- ══ ONBOARDING ══ -->
+<!-- ── ONBOARDING ── -->
 <div id="onboarding">
   <div class="ob-wrap">
     <div class="ob-logo">TrainForge</div>
-    <div class="ob-tag">v3 · Lab-Grade Dataset Builder</div>
+    <div class="ob-tag">Dataset Workspace · Connect your API key to get started</div>
     <div class="ob-providers">
       <div class="ob-p sel" id="ob-groq" onclick="selProv('groq',this)">
         <div class="ob-p-name">⚡ Groq</div>
-        <div class="ob-p-sub">Free · Ultra fast · gsk_...</div>
+        <div class="ob-p-sub">Free · Fast · gsk_...</div>
       </div>
       <div class="ob-p" id="ob-openai" onclick="selProv('openai',this)">
-        <div class="ob-p-name">🤖 OpenAI</div>
-        <div class="ob-p-sub">GPT-4o / 3.5 · sk-...</div>
+        <div class="ob-p-name">OpenAI</div>
+        <div class="ob-p-sub">GPT-4o · sk-...</div>
       </div>
     </div>
     <div class="ob-row">
@@ -296,87 +344,96 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- ══ SIDEBAR ══ -->
+<!-- ── SIDEBAR ── -->
 <aside id="sb">
   <div class="brand">
     <div class="brand-name">TrainForge</div>
-    <div class="brand-v">Version 3.0</div>
-    <div class="brand-tag">Lab-Grade Dataset Engine</div>
+    <div class="brand-tagline">Dataset workspace for ML engineers</div>
   </div>
   <nav>
-    <div class="nav-sec">Pipeline</div>
-    <div class="ni on" data-t="ingest"><span class="ni-icon">⬇</span><span class="ni-lbl">Ingest</span></div>
+    <div class="nav-sec">Build</div>
+    <div class="ni on" data-t="ingest"><span class="ni-icon">⬇</span><span class="ni-lbl">Add Source</span></div>
     <div class="ni" data-t="generate"><span class="ni-icon">⚙</span><span class="ni-lbl">Generate</span><span class="ni-badge" id="nb-gen">0</span></div>
     <div class="ni" data-t="review"><span class="ni-icon">👁</span><span class="ni-lbl">Review</span><span class="ni-badge" id="nb-rev">0</span></div>
     <div class="nav-sec">Dataset</div>
-    <div class="ni" data-t="dataset"><span class="ni-icon">🗃</span><span class="ni-lbl">Dataset</span><span class="ni-badge" id="nb-ds">0</span></div>
+    <div class="ni" data-t="dataset"><span class="ni-icon">🗂</span><span class="ni-lbl">My Dataset</span><span class="ni-badge" id="nb-ds">0</span></div>
     <div class="ni" data-t="quality"><span class="ni-icon">📊</span><span class="ni-lbl">Quality</span></div>
     <div class="ni" data-t="export"><span class="ni-icon">📦</span><span class="ni-lbl">Export</span></div>
+    <div class="nav-sec">More</div>
     <div class="ni" data-t="sell"><span class="ni-icon">💰</span><span class="ni-lbl">Sell</span></div>
-    <div class="ni" data-t="human"><span class="ni-icon">🧠</span><span class="ni-lbl">Human Sim</span><span class="ni-badge" style="background:rgba(255,107,53,.15);color:var(--orange)">NEW</span></div>
-    <div class="nav-sec">Config</div>
+    <div class="ni" data-t="human"><span class="ni-icon">🧠</span><span class="ni-lbl">Human Sim 🆕</span></div>
     <div class="ni" data-t="settings"><span class="ni-icon">⚙</span><span class="ni-lbl">Settings</span></div>
   </nav>
   <div class="sb-foot">
     <div class="api-pill">
       <div class="api-dot" id="api-dot"></div>
-      <span class="api-txt" id="api-txt">No key</span>
+      <span class="api-txt" id="api-txt">No key connected</span>
     </div>
     <div class="stat-mini">
       <div class="sm"><div class="sm-v" id="ms-ex">0</div><div class="sm-l">Examples</div></div>
       <div class="sm"><div class="sm-v" id="ms-ap">0</div><div class="sm-l">Approved</div></div>
     </div>
+    <!-- hidden but preserved for JS -->
     <div class="kb-legend"><kbd>J</kbd>/<kbd>K</kbd> nav · <kbd>A</kbd> approve<br><kbd>R</kbd> reject · <kbd>Del</kbd> delete · <kbd>G</kbd> regen</div>
   </div>
 </aside>
 
-<!-- ══ MAIN ══ -->
+<!-- ── MAIN ── -->
 <div id="main">
   <div class="topbar">
     <div class="tb-left">
-      <div class="tb-title" id="tb-title">// ingest_data</div>
-      <div class="tb-sub" id="tb-sub">Pull content from any source</div>
+      <div class="tb-title" id="tb-title">Add Source</div>
+      <div class="tb-sub" id="tb-sub">Pull content from Wikipedia, a URL, or paste text</div>
     </div>
     <div class="tb-right">
       <span class="provider-tag" id="prov-tag">Groq</span>
-      <input type="password" class="inp" id="api-key" style="width:180px;font-size:10px" placeholder="API key"/>
+      <input type="password" class="inp" id="api-key" style="width:160px;font-size:12px;font-family:var(--mono)" placeholder="API key"/>
       <button class="btn btn-o btn-sm" onclick="verifyKey()">Verify</button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ══ INGEST ══ -->
+    <!-- ── INGEST ── -->
     <div class="tab on" id="tab-ingest">
+      <div class="home-strip">
+        <h2>Start by adding a source</h2>
+        <p>Paste text, fetch a Wikipedia article, scrape a URL, or upload a file. TrainForge turns it into training data for fine-tuning.</p>
+      </div>
+
       <div class="mode-tabs">
-        <button class="mt on" data-m="wiki" onclick="setMode(this)">📖 Wikipedia</button>
-        <button class="mt" data-m="url" onclick="setMode(this)">🌐 URL</button>
-        <button class="mt" data-m="batch" onclick="setMode(this)">⚡ Batch</button>
-        <button class="mt" data-m="paste" onclick="setMode(this)">📋 Paste</button>
-        <button class="mt" data-m="file" onclick="setMode(this)">📄 File</button>
+        <button class="mt on" data-m="wiki" onclick="setMode(this)">Wikipedia</button>
+        <button class="mt" data-m="url" onclick="setMode(this)">URL</button>
+        <button class="mt" data-m="paste" onclick="setMode(this)">Paste text</button>
+        <button class="mt" data-m="file" onclick="setMode(this)">File</button>
+        <button class="mt" data-m="batch" onclick="setMode(this)">Batch URLs</button>
       </div>
 
       <div class="mode-pane on" id="pane-wiki">
         <div class="card">
-          <div class="card-t">Wikipedia Ingest</div>
-          <div class="fg"><label>Topic</label><input class="inp" id="wiki-topic" placeholder="e.g. Transformer architecture, RLHF, Quantum computing..."/></div>
-          <div class="rg">
-            <div class="fg"><label>Language</label>
-              <select class="inp" id="wiki-lang">
-                <option value="en">English</option><option value="hi">Hindi</option>
-                <option value="es">Spanish</option><option value="fr">French</option>
-                <option value="de">German</option><option value="ar">Arabic</option>
-              </select>
-            </div>
-            <div class="fg"><label>Depth</label>
-              <select class="inp" id="wiki-depth">
-                <option value="summary">Summary</option>
-                <option value="full" selected>Full article</option>
-              </select>
+          <div class="fg"><label>Wikipedia topic</label><input class="inp" id="wiki-topic" placeholder="e.g. Transformer architecture, RLHF, Quantum computing..."/></div>
+          <div class="adv-toggle" onclick="toggleAdv(this,'wiki-adv')">
+            <span class="adv-arrow">›</span> Options
+          </div>
+          <div class="adv-content" id="wiki-adv">
+            <div class="rg" style="margin-bottom:12px">
+              <div class="fg"><label>Language</label>
+                <select class="inp" id="wiki-lang">
+                  <option value="en">English</option><option value="hi">Hindi</option>
+                  <option value="es">Spanish</option><option value="fr">French</option>
+                  <option value="de">German</option><option value="ar">Arabic</option>
+                </select>
+              </div>
+              <div class="fg"><label>Depth</label>
+                <select class="inp" id="wiki-depth">
+                  <option value="summary">Summary only</option>
+                  <option value="full" selected>Full article</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn btn-p" onclick="ingestWiki()">⬇ Fetch</button>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-p" onclick="ingestWiki()">Fetch article</button>
             <button class="btn btn-o btn-sm" onclick="clearIngest()">Clear</button>
           </div>
           <div class="rb" id="wiki-rb"></div>
@@ -385,25 +442,23 @@ select.inp{cursor:pointer}
 
       <div class="mode-pane" id="pane-url">
         <div class="card">
-          <div class="card-t">Web URL Scraper</div>
           <div class="fg"><label>URL</label><input class="inp" id="url-inp" placeholder="https://..."/></div>
-          <button class="btn btn-p" onclick="ingestURL()">⬇ Scrape</button>
+          <button class="btn btn-p" onclick="ingestURL()">Scrape page</button>
           <div class="rb" id="url-rb"></div>
         </div>
       </div>
 
       <div class="mode-pane" id="pane-batch">
         <div class="card">
-          <div class="card-t">Batch URL Ingest</div>
-          <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Scrape multiple URLs and combine into one source. Max 10 URLs.</div>
+          <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Scrape up to 10 URLs and combine into one source.</p>
           <div id="batch-list">
-            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
-            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
-            <div style="display:flex;gap:6px;margin-bottom:5px"><input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span></div>
+            <div style="display:flex;gap:6px;margin-bottom:7px"><input class="inp" placeholder="https://..."/><span style="font-size:11px;color:var(--text3);width:40px;text-align:right;line-height:40px"></span></div>
+            <div style="display:flex;gap:6px;margin-bottom:7px"><input class="inp" placeholder="https://..."/><span style="font-size:11px;color:var(--text3);width:40px;text-align:right;line-height:40px"></span></div>
+            <div style="display:flex;gap:6px;margin-bottom:7px"><input class="inp" placeholder="https://..."/><span style="font-size:11px;color:var(--text3);width:40px;text-align:right;line-height:40px"></span></div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn btn-o btn-sm" onclick="addBatchRow()">+ Row</button>
-            <button class="btn btn-p" onclick="ingestBatch()">⬇ Scrape All</button>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn btn-o btn-sm" onclick="addBatchRow()">+ Add row</button>
+            <button class="btn btn-p" onclick="ingestBatch()">Scrape all</button>
           </div>
           <div class="rb" id="batch-rb"></div>
         </div>
@@ -411,26 +466,24 @@ select.inp{cursor:pointer}
 
       <div class="mode-pane" id="pane-paste">
         <div class="card">
-          <div class="card-t">Paste Text</div>
-          <div class="fg"><label>Source Title</label><input class="inp" id="paste-title" placeholder="e.g. My Research Notes"/></div>
+          <div class="fg"><label>Title (optional)</label><input class="inp" id="paste-title" placeholder="e.g. My Research Notes"/></div>
           <div class="fg">
             <label>Content</label>
             <textarea class="inp" id="paste-text" rows="9" placeholder="Paste any text — articles, papers, documentation, transcripts..." oninput="updatePasteMeta()"></textarea>
           </div>
-          <div id="paste-meta" style="font-size:9px;color:var(--muted);margin-bottom:8px"></div>
-          <button class="btn btn-p" onclick="ingestPaste()">Process</button>
+          <div id="paste-meta" style="font-size:11px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)"></div>
+          <button class="btn btn-p" onclick="ingestPaste()">Use this text</button>
           <div class="rb" id="paste-rb"></div>
         </div>
       </div>
 
       <div class="mode-pane" id="pane-file">
         <div class="card">
-          <div class="card-t">Upload File</div>
           <div id="drop-zone" onclick="$('file-inp').click()" ondragover="dragOver(event)" ondrop="dropFile(event)"
-            style="border:2px dashed var(--b2);border-radius:var(--r2);padding:30px;text-align:center;cursor:pointer;transition:border-color .15s">
-            <div style="font-size:28px;margin-bottom:8px">📄</div>
-            <div style="font-size:11px;color:var(--text);margin-bottom:3px">Drop file or click to browse</div>
-            <div style="font-size:10px;color:var(--muted)">.txt · .md · .json · .csv · .jsonl</div>
+            style="border:2px dashed var(--border2);border-radius:var(--r2);padding:36px;text-align:center;cursor:pointer;transition:border-color .15s;background:var(--surface2)">
+            <div style="font-size:30px;margin-bottom:10px">📄</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:4px;font-weight:500">Drop file or click to browse</div>
+            <div style="font-size:12px;color:var(--text3)">.txt · .md · .json · .csv · .jsonl</div>
             <input type="file" id="file-inp" style="display:none" accept=".txt,.md,.json,.csv,.jsonl" onchange="ingestFile(this.files[0])"/>
           </div>
           <div class="rb" id="file-rb"></div>
@@ -440,55 +493,53 @@ select.inp{cursor:pointer}
       <!-- Preview -->
       <div id="ingest-preview" style="display:none">
         <div class="card card-accent">
-          <div class="card-t">Ingested Content</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
             <span class="badge" id="ingest-badge"></span>
-            <span style="font-size:10px;color:var(--muted)" id="ingest-meta"></span>
-            <button class="btn btn-o btn-xs" style="margin-left:auto" onclick="clearIngest()">✕ Clear</button>
+            <span style="font-size:12px;color:var(--text2)" id="ingest-meta"></span>
+            <button class="btn btn-o btn-xs" style="margin-left:auto" onclick="clearIngest()">✕ Remove</button>
           </div>
-          <div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px;font-size:10px;color:var(--muted);line-height:1.7;max-height:130px;overflow-y:auto;white-space:pre-wrap" id="ingest-preview-text"></div>
-          <div class="tok-bar" style="margin-top:10px">
-            <span class="lbl">Source tokens estimate</span>
+          <div style="background:var(--surface);border:1px solid var(--accent-border);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text3);line-height:1.7;max-height:120px;overflow-y:auto;white-space:pre-wrap;font-family:var(--mono)" id="ingest-preview-text"></div>
+          <div class="tok-bar" style="margin-top:12px">
+            <span class="lbl">Source tokens (estimated)</span>
             <span class="tok-v" id="tok-src">—</span>
             <span class="tok-c" id="tok-src-note"></span>
           </div>
-          <div style="margin-top:10px">
-            <button class="btn btn-p" onclick="goGenerate()">⚙ Generate Training Data →</button>
+          <div style="margin-top:12px">
+            <button class="btn btn-p btn-lg" onclick="goGenerate()">Generate training data →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ══ GENERATE ══ -->
+    <!-- ── GENERATE ── -->
     <div class="tab" id="tab-generate">
-      <!-- Generation Mode -->
       <div class="card">
-        <div class="card-t">Generation Mode</div>
+        <div class="card-t">Generation style</div>
         <div class="gen-modes" id="gen-modes">
           <div class="gen-mode-card sel" data-mode="standard" onclick="selMode(this)">
             <div class="gm-icon">📝</div>
             <div class="gm-name">Standard</div>
-            <div class="gm-desc">Clean Q&A pairs. Fast, reliable. Good for general datasets.</div>
+            <div class="gm-desc">Clean Q&A pairs. Fast, reliable.</div>
           </div>
           <div class="gen-mode-card" data-mode="lab" onclick="selMode(this)">
             <div class="gm-icon">🔬</div>
             <div class="gm-name">Lab Quality</div>
-            <div class="gm-desc">3-stage pipeline. Strict quality criteria. Closest to what big labs want.</div>
+            <div class="gm-desc">3-stage pipeline with strict quality criteria.</div>
           </div>
           <div class="gen-mode-card" data-mode="adversarial" onclick="selMode(this)">
             <div class="gm-icon">⚔️</div>
             <div class="gm-name">Adversarial</div>
-            <div class="gm-desc">Hard examples, trick questions, refusals, corrections. Makes models robust.</div>
+            <div class="gm-desc">Hard examples, trick questions, refusals.</div>
           </div>
           <div class="gen-mode-card" data-mode="conversational" onclick="selMode(this)">
             <div class="gm-icon">💬</div>
             <div class="gm-name">Conversational</div>
-            <div class="gm-desc">Realistic multi-turn with vague questions, friction, pushback.</div>
+            <div class="gm-desc">Realistic multi-turn with friction and pushback.</div>
           </div>
           <div class="gen-mode-card" data-mode="persona" onclick="selMode(this)">
             <div class="gm-icon">🎭</div>
             <div class="gm-name">Persona Mix</div>
-            <div class="gm-desc">Generates across 10 system prompts. Flexible, generalizable models.</div>
+            <div class="gm-desc">Generates across multiple system prompts.</div>
           </div>
         </div>
       </div>
@@ -496,14 +547,14 @@ select.inp{cursor:pointer}
       <!-- System Prompt (Persona mode) -->
       <div class="card" id="persona-card" style="display:none">
         <div class="card-t">System Prompt Personas</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Select which personas to generate examples for. Each produces examples with a different assistant style.</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Each persona produces examples with a different assistant style.</p>
         <div class="sys-chips" id="sys-chips"></div>
       </div>
 
       <!-- Config -->
       <div class="card">
-        <div class="card-t">Config</div>
-        <div class="rg" style="margin-bottom:12px">
+        <div class="card-t">Configuration</div>
+        <div class="rg" style="margin-bottom:14px">
           <div class="fg"><label>Format</label>
             <select class="inp" id="fmt-select">
               <option value="all" selected>All formats</option>
@@ -514,10 +565,10 @@ select.inp{cursor:pointer}
           </div>
           <div class="fg"><label>Difficulty</label>
             <select class="inp" id="diff-select">
-              <option value="mixed" selected>Mixed distribution</option>
-              <option value="beginner">Beginner focus</option>
+              <option value="mixed" selected>Mixed</option>
+              <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
-              <option value="expert">Expert only</option>
+              <option value="expert">Expert</option>
             </select>
           </div>
           <div class="fg"><label>Count</label>
@@ -542,50 +593,51 @@ select.inp{cursor:pointer}
         </div>
 
         <div class="tok-bar">
-          <span class="lbl">Est. API tokens for this run</span>
+          <span class="lbl">Estimated API tokens</span>
           <span class="tok-v" id="tok-gen">—</span>
           <span class="tok-c" id="tok-gen-cost"></span>
         </div>
 
-        <!-- Quality filters -->
-        <div class="card" style="background:var(--s2);margin-bottom:12px">
-          <div class="card-t">Auto-Quality Filters</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-syco" checked style="accent-color:var(--accent)"/> Reject sycophantic openers</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-self" checked style="accent-color:var(--accent)"/> Reject "as an AI" phrases</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-ctx" checked style="accent-color:var(--accent)"/> Reject context-dependent instructions</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="flt-repeat" checked style="accent-color:var(--accent)"/> Reject high repetition (&gt;40%)</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="opt-dedup" checked style="accent-color:var(--accent)"/> Auto-deduplicate</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="opt-chunk" checked style="accent-color:var(--accent)"/> Smart chunking</label>
+        <div class="adv-toggle" onclick="toggleAdv(this,'filter-adv')">
+          <span class="adv-arrow">›</span> Quality filters
+        </div>
+        <div class="adv-content" id="filter-adv">
+          <div style="display:flex;gap:14px;flex-wrap:wrap;padding:12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="flt-syco" checked style="accent-color:var(--accent)"/> Reject sycophantic openers</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="flt-self" checked style="accent-color:var(--accent)"/> Reject "as an AI" phrases</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="flt-ctx" checked style="accent-color:var(--accent)"/> Reject context-dependent instructions</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="flt-repeat" checked style="accent-color:var(--accent)"/> Reject high repetition (&gt;40%)</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="opt-dedup" checked style="accent-color:var(--accent)"/> Auto-deduplicate</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="opt-chunk" checked style="accent-color:var(--accent)"/> Smart chunking</label>
           </div>
         </div>
 
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p btn-lg" id="gen-btn" onclick="startGeneration()">⚙ Generate</button>
-          <span style="font-size:10px;color:var(--muted)" id="gen-hint"></span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p btn-lg" id="gen-btn" onclick="startGeneration()">Generate examples</button>
+          <span style="font-size:12px;color:var(--text3)" id="gen-hint"></span>
         </div>
         <div class="rb" id="gen-rb"></div>
       </div>
 
       <div class="card" id="gen-log-card" style="display:none">
-        <div class="card-t">Pipeline Log</div>
+        <div class="card-t">Generation log</div>
         <div class="pw"><div class="pb pb-c" id="gen-pb" style="width:0%"></div></div>
         <div class="tlog" id="gen-log"></div>
       </div>
 
       <div id="gen-preview" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:10px;color:var(--muted)">Generated <span style="color:var(--accent)" id="gen-count">0</span> examples · <span id="gen-filtered" style="color:var(--red)"></span></div>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-g btn-sm" onclick="approveAll()">✓ Approve All</button>
-            <button class="btn btn-o btn-sm" onclick="goReview()">→ Review</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;color:var(--text2)">Generated <strong id="gen-count">0</strong> examples &nbsp;<span id="gen-filtered" style="color:var(--red)"></span></div>
+          <div style="display:flex;gap:7px">
+            <button class="btn btn-g btn-sm" onclick="approveAll()">✓ Approve all</button>
+            <button class="btn btn-o btn-sm" onclick="goReview()">Review →</button>
           </div>
         </div>
         <div class="ds-grid" id="gen-grid"></div>
       </div>
     </div>
 
-    <!-- ══ REVIEW ══ -->
+    <!-- ── REVIEW ── -->
     <div class="tab" id="tab-review">
       <div class="review-toolbar">
         <button class="chip on" data-f="all" onclick="setFilter(this)">All</button>
@@ -593,63 +645,60 @@ select.inp{cursor:pointer}
         <button class="chip" data-f="approved" onclick="setFilter(this)">Approved</button>
         <button class="chip" data-f="rejected" onclick="setFilter(this)">Rejected</button>
         <button class="chip" data-f="instruction" onclick="setFilter(this)">Instruction</button>
-        <button class="chip" data-f="conversation" onclick="setFilter(this)">Conv</button>
-        <button class="chip" data-f="preference" onclick="setFilter(this)">Pref</button>
+        <button class="chip" data-f="conversation" onclick="setFilter(this)">Conversation</button>
+        <button class="chip" data-f="preference" onclick="setFilter(this)">Preference</button>
         <button class="chip" data-f="adversarial" onclick="setFilter(this)">Adversarial</button>
-        <div style="margin-left:auto;display:flex;gap:5px">
+        <div style="margin-left:auto;display:flex;gap:6px">
           <button class="btn btn-o btn-xs" onclick="approveAll()">✓ All</button>
           <button class="btn btn-r btn-xs" onclick="rejectAll()">✕ All</button>
         </div>
       </div>
       <div class="ds-grid" id="review-grid">
-        <div style="text-align:center;padding:40px;color:var(--muted);font-size:11px">
-          <div style="font-size:28px;margin-bottom:8px">👁</div>No examples yet
-        </div>
+        <div class="empty-state"><div class="es-icon">👁</div><p>No examples yet</p></div>
       </div>
     </div>
 
-    <!-- ══ DATASET ══ -->
+    <!-- ── DATASET ── -->
     <div class="tab" id="tab-dataset">
       <div class="stat-strip">
-        <div class="stat"><div class="stat-v" id="ds-total" style="color:var(--accent)">0</div><div class="stat-l">Total</div></div>
-        <div class="stat"><div class="stat-v" id="ds-appr" style="color:var(--green)">0</div><div class="stat-l">Approved</div></div>
-        <div class="stat"><div class="stat-v" id="ds-inst" style="color:var(--accent)">0</div><div class="stat-l">Instruction</div></div>
-        <div class="stat"><div class="stat-v" id="ds-conv" style="color:var(--purple)">0</div><div class="stat-l">Conv</div></div>
-        <div class="stat"><div class="stat-v" id="ds-pref" style="color:var(--orange)">0</div><div class="stat-l">Pref</div></div>
-        <div class="stat"><div class="stat-v" id="ds-adv" style="color:var(--red)">0</div><div class="stat-l">Adversarial</div></div>
-        <div class="stat"><div class="stat-v" id="ds-avgq" style="color:var(--green)">—</div><div class="stat-l">Avg Quality</div></div>
+        <div class="stat"><div class="stat-v" id="ds-total">0</div><div class="stat-l">Total</div></div>
+        <div class="stat"><div class="stat-v" id="ds-appr" style="color:var(--accent)">0</div><div class="stat-l">Approved</div></div>
+        <div class="stat"><div class="stat-v" id="ds-inst">0</div><div class="stat-l">Instruction</div></div>
+        <div class="stat"><div class="stat-v" id="ds-conv">0</div><div class="stat-l">Conversation</div></div>
+        <div class="stat"><div class="stat-v" id="ds-pref">0</div><div class="stat-l">Preference</div></div>
+        <div class="stat"><div class="stat-v" id="ds-adv">0</div><div class="stat-l">Adversarial</div></div>
+        <div class="stat"><div class="stat-v" id="ds-avgq">—</div><div class="stat-l">Avg Quality</div></div>
       </div>
       <div class="card">
-        <div class="card-t">All Examples</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <input class="inp" id="ds-search" style="flex:1;min-width:140px" placeholder="Search..." oninput="renderDataset()"/>
-          <button class="btn btn-r btn-sm" onclick="clearDataset()">Clear All</button>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <input class="inp" id="ds-search" style="flex:1;min-width:140px" placeholder="Search examples..." oninput="renderDataset()"/>
+          <button class="btn btn-r btn-sm" onclick="clearDataset()">Clear all</button>
         </div>
         <div id="ds-list"></div>
       </div>
     </div>
 
-    <!-- ══ QUALITY ══ -->
+    <!-- ── QUALITY ── -->
     <div class="tab" id="tab-quality">
       <div class="card"><div class="card-t">Overview</div><div id="q-overview"></div></div>
-      <div class="card"><div class="card-t">By Type</div><div id="q-breakdown"></div></div>
-      <div class="card"><div class="card-t">Improvement Recommendations</div><div id="q-tips"></div></div>
-      <div class="card"><div class="card-t">Quality Filter Log</div><div id="q-filter-log" style="font-size:10px;color:var(--muted);line-height:2">No filter events yet.</div></div>
+      <div class="card"><div class="card-t">By type</div><div id="q-breakdown"></div></div>
+      <div class="card"><div class="card-t">Recommendations</div><div id="q-tips"></div></div>
+      <div class="card"><div class="card-t">Filter log</div><div id="q-filter-log" style="font-size:12px;color:var(--text3);line-height:2;font-family:var(--mono)">No filter events this session.</div></div>
     </div>
 
-    <!-- ══ EXPORT ══ -->
+    <!-- ── EXPORT ── -->
     <div class="tab" id="tab-export">
       <div class="card">
-        <div class="card-t">Export Options</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="exp-appr" checked style="accent-color:var(--accent)"/> Approved only</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);cursor:pointer"><input type="checkbox" id="exp-hq" style="accent-color:var(--accent)"/> High quality only (≥0.7)</label>
-          <span style="font-size:10px;color:var(--muted)" id="exp-count-lbl"></span>
+        <div class="card-t">Export options</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer"><input type="checkbox" id="exp-appr" checked style="accent-color:var(--accent)"/> Approved only</label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer"><input type="checkbox" id="exp-hq" style="accent-color:var(--accent)"/> High quality only (≥70%)</label>
+          <span style="font-size:12px;color:var(--text3);margin-left:auto;align-self:center" id="exp-count-lbl"></span>
         </div>
         <div class="exp-grid">
-          <div class="exp-card"><div class="exp-icon">📄</div><div class="exp-title">OpenAI JSONL</div><div class="exp-desc">Fine-tune GPT-3.5/4o</div><button class="btn btn-p btn-sm" onclick="exportFmt('openai')">Export .jsonl</button></div>
-          <div class="exp-card"><div class="exp-icon">🤗</div><div class="exp-title">HuggingFace JSON</div><div class="exp-desc">push_to_hub() ready</div><button class="btn btn-p btn-sm" onclick="exportFmt('hf')">Export .json</button></div>
-          <div class="exp-card"><div class="exp-icon">🦙</div><div class="exp-title">Alpaca Format</div><div class="exp-desc">LLaMA / Alpaca training</div><button class="btn btn-p btn-sm" onclick="exportFmt('alpaca')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">📄</div><div class="exp-title">OpenAI JSONL</div><div class="exp-desc">Fine-tune GPT-3.5 / GPT-4o</div><button class="btn btn-p btn-sm" onclick="exportFmt('openai')">Export .jsonl</button></div>
+          <div class="exp-card"><div class="exp-icon">🤗</div><div class="exp-title">HuggingFace</div><div class="exp-desc">push_to_hub() ready</div><button class="btn btn-p btn-sm" onclick="exportFmt('hf')">Export .json</button></div>
+          <div class="exp-card"><div class="exp-icon">🦙</div><div class="exp-title">Alpaca</div><div class="exp-desc">LLaMA / Alpaca training</div><button class="btn btn-p btn-sm" onclick="exportFmt('alpaca')">Export .json</button></div>
           <div class="exp-card"><div class="exp-icon">⚡</div><div class="exp-title">ShareGPT</div><div class="exp-desc">Vicuna / multi-turn</div><button class="btn btn-p btn-sm" onclick="exportFmt('sharegpt')">Export .json</button></div>
           <div class="exp-card"><div class="exp-icon">🏆</div><div class="exp-title">DPO / RLHF</div><div class="exp-desc">Preference pair training</div><button class="btn btn-p btn-sm" onclick="exportFmt('dpo')">Export .json</button></div>
           <div class="exp-card"><div class="exp-icon">📊</div><div class="exp-title">CSV</div><div class="exp-desc">Excel / Sheets review</div><button class="btn btn-o btn-sm" onclick="exportFmt('csv')">Export .csv</button></div>
@@ -660,72 +709,67 @@ select.inp{cursor:pointer}
       </div>
     </div>
 
-    <!-- ══ SELL ══ -->
+    <!-- ── SELL ── -->
     <div class="tab" id="tab-sell">
       <div class="card">
-        <div class="card-t">💰 Monetize Your Dataset</div>
+        <div class="card-t">Where to sell</div>
         <div class="sell-grid">
-          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🤗</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">HuggingFace Hub</div><div class="price-tag">Free to list</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Publish publicly or gated. Build ML community reputation.</div><div class="sell-steps"><div><span class="ck">✓</span> Export HF JSON + README.md</div><div><span class="ck">✓</span> datasets.push_to_hub()</div><div><span class="ck">✓</span> Set gated for paid access</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('hf')">Guide →</button></div>
-          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🛒</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Gumroad</div><div class="price-tag">$10–$500</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Sell directly. Best for niche domain datasets.</div><div class="sell-steps"><div><span class="ck">✓</span> Export Full Backup + README</div><div><span class="ck">✓</span> ZIP and list on Gumroad</div><div><span class="ck">✓</span> Post in AI communities</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('gumroad')">Guide →</button></div>
-          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">💼</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Fiverr / Upwork</div><div class="price-tag">$100–$2,000</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Custom dataset creation as a service. Use TrainForge to fulfil fast.</div><div class="sell-steps"><div><span class="ck">✓</span> Set up gig: custom AI datasets</div><div><span class="ck">✓</span> Use Lab Quality mode</div><div><span class="ck">✓</span> Deliver in client's format</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('fiverr')">Guide →</button></div>
-          <div class="sell-card"><div style="font-size:22px;margin-bottom:6px">🏢</div><div style="font-size:11px;font-weight:700;margin-bottom:4px">Direct / B2B</div><div class="price-tag">$500–$10,000+</div><div style="font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:10px">Pitch AI startups and research labs directly. Highest value.</div><div class="sell-steps"><div><span class="ck">✓</span> Build niche expertise</div><div><span class="ck">✓</span> Create 1-page data spec</div><div><span class="ck">✓</span> Outreach on LinkedIn</div></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="showGuide('b2b')">Guide →</button></div>
+          <div class="sell-card"><div style="font-size:24px;margin-bottom:8px">🤗</div><div style="font-size:13px;font-weight:700;margin-bottom:5px;color:var(--text)">HuggingFace Hub</div><div class="price-tag">Free to list</div><div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:12px">Publish publicly or gated. Builds your ML reputation.</div><div class="sell-steps"><div><span class="ck">✓</span> Export HF JSON + README.md</div><div><span class="ck">✓</span> datasets.push_to_hub()</div><div><span class="ck">✓</span> Set gated for paid access</div></div><button class="btn btn-o btn-sm" style="margin-top:12px;width:100%" onclick="showGuide('hf')">Step-by-step guide →</button></div>
+          <div class="sell-card"><div style="font-size:24px;margin-bottom:8px">🛒</div><div style="font-size:13px;font-weight:700;margin-bottom:5px;color:var(--text)">Gumroad</div><div class="price-tag">$10–$500</div><div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:12px">Sell directly. Best for niche domain datasets.</div><div class="sell-steps"><div><span class="ck">✓</span> Export Full Backup + README</div><div><span class="ck">✓</span> ZIP and list on Gumroad</div><div><span class="ck">✓</span> Post in AI communities</div></div><button class="btn btn-o btn-sm" style="margin-top:12px;width:100%" onclick="showGuide('gumroad')">Step-by-step guide →</button></div>
+          <div class="sell-card"><div style="font-size:24px;margin-bottom:8px">💼</div><div style="font-size:13px;font-weight:700;margin-bottom:5px;color:var(--text)">Fiverr / Upwork</div><div class="price-tag">$100–$2,000</div><div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:12px">Custom dataset creation as a service.</div><div class="sell-steps"><div><span class="ck">✓</span> Set up gig: custom AI datasets</div><div><span class="ck">✓</span> Use Lab Quality mode</div><div><span class="ck">✓</span> Deliver in client's format</div></div><button class="btn btn-o btn-sm" style="margin-top:12px;width:100%" onclick="showGuide('fiverr')">Step-by-step guide →</button></div>
+          <div class="sell-card"><div style="font-size:24px;margin-bottom:8px">🏢</div><div style="font-size:13px;font-weight:700;margin-bottom:5px;color:var(--text)">Direct / B2B</div><div class="price-tag">$500–$10,000+</div><div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:12px">Pitch AI startups and research labs directly.</div><div class="sell-steps"><div><span class="ck">✓</span> Build niche expertise</div><div><span class="ck">✓</span> Create 1-page data spec</div><div><span class="ck">✓</span> Outreach on LinkedIn</div></div><button class="btn btn-o btn-sm" style="margin-top:12px;width:100%" onclick="showGuide('b2b')">Step-by-step guide →</button></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-t">✍ Auto-Generate Listing Copy</div>
+        <div class="card-t">Generate listing copy</div>
         <div class="rg">
           <div class="fg"><label>Platform</label>
             <select class="inp" id="sell-plat"><option value="gumroad">Gumroad</option><option value="hf">HuggingFace</option><option value="fiverr">Fiverr</option><option value="upwork">Upwork</option></select>
           </div>
           <div class="fg"><label>Price ($)</label><input class="inp" id="sell-price" type="number" placeholder="49" min="1"/></div>
         </div>
-        <button class="btn btn-p btn-sm" onclick="genListing()">✨ Generate Listing</button>
+        <button class="btn btn-p btn-sm" onclick="genListing()">Generate listing</button>
         <div class="rb" id="sell-rb"></div>
-        <div id="sell-out" style="display:none;margin-top:12px">
-          <div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto" id="sell-text"></div>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn btn-g btn-sm" onclick="copySell()">📋 Copy</button>
-            <button class="btn btn-o btn-sm" onclick="dlSell()">⬇ .txt</button>
+        <div id="sell-out" style="display:none;margin-top:14px">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto;font-family:var(--mono)" id="sell-text"></div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-g btn-sm" onclick="copySell()">Copy</button>
+            <button class="btn btn-o btn-sm" onclick="dlSell()">Download .txt</button>
           </div>
         </div>
       </div>
       <div id="sell-guide-box" style="display:none">
         <div class="card">
           <div class="card-t" id="sell-guide-title"></div>
-          <div id="sell-guide-body" style="font-size:11px;color:var(--muted);line-height:2.1;white-space:pre-wrap"></div>
-          <button class="btn btn-o btn-sm" style="margin-top:10px" onclick="$('sell-guide-box').style.display='none'">← Back</button>
+          <div id="sell-guide-body" style="font-size:13px;color:var(--text2);line-height:2;white-space:pre-wrap;font-family:var(--mono)"></div>
+          <button class="btn btn-o btn-sm" style="margin-top:12px" onclick="$('sell-guide-box').style.display='none'">← Back</button>
         </div>
       </div>
     </div>
 
-    <!-- ══ HUMAN SIMULATION ══ -->
-    <div class="tab" id="tab-human">
-
-      <!-- Header banner -->
-      <div style="background:linear-gradient(135deg,rgba(255,107,53,.08),rgba(255,209,102,.06));border:1px solid rgba(255,107,53,.25);border-radius:var(--r2);padding:18px 20px;margin-bottom:16px">
-        <div style="font-family:var(--serif);font-size:18px;font-weight:700;color:var(--orange);margin-bottom:5px">🧠 Synthetic Human Conversation Simulation</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.8">Generate conversations that behave like real humans — emotional, vague, interrupted, confused, and correcting themselves.<br>Companies pay <strong style="color:var(--orange)">3–5× more</strong> for realistic conversation data than plain Q&A.</div>
+    <!-- ── HUMAN SIMULATION ── -->
+    <div class="tab" id="tab-human"div>
+      <div class="card" style="background:var(--orange-bg);border-color:#fed7aa">
+        <div style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:6px">🧠 Human Conversation Simulation</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">Generate conversations that behave like real humans — emotional, vague, interrupted, confused. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for realistic conversation data than plain Q&A.</div>
       </div>
 
-      <!-- Personality Profiles -->
       <div class="card">
-        <div class="card-t">Human Personality Profiles</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Each profile defines how the simulated human behaves. Mix multiple profiles for diverse datasets.</div>
-        <div id="personality-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:4px"></div>
+        <div class="card-t">Personality profile</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Each profile defines how the simulated human behaves. Mix multiple.</p>
+        <div id="personality-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div>
       </div>
 
-      <!-- Behavior Injectors -->
       <div class="card">
-        <div class="card-t">Behavior Injectors</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Force specific realistic behaviors into conversations. These are what make data genuinely hard and valuable.</div>
-        <div id="behavior-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px"></div>
+        <div class="card-t">Behavior injectors</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Force specific realistic behaviors into conversations.</p>
+        <div id="behavior-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px"></div>
       </div>
 
-      <!-- Config -->
       <div class="card">
-        <div class="card-t">Simulation Config</div>
-        <div class="rg" style="margin-bottom:12px">
-          <div class="fg"><label>Number of conversations</label>
+        <div class="card-t">Simulation settings</div>
+        <div class="rg" style="margin-bottom:16px">
+          <div class="fg"><label>Conversations</label>
             <select class="inp" id="hs-count">
               <option value="3">3 conversations</option>
               <option value="5" selected>5 conversations</option>
@@ -734,7 +778,7 @@ select.inp{cursor:pointer}
               <option value="20">20 conversations</option>
             </select>
           </div>
-          <div class="fg"><label>Turns per conversation</label>
+          <div class="fg"><label>Turns each</label>
             <select class="inp" id="hs-turns">
               <option value="4">4 turns (short)</option>
               <option value="6" selected>6 turns (medium)</option>
@@ -744,36 +788,37 @@ select.inp{cursor:pointer}
           </div>
           <div class="fg"><label>Emotional intensity</label>
             <select class="inp" id="hs-intensity">
-              <option value="low">Low — mostly calm</option>
-              <option value="medium" selected>Medium — occasional emotion</option>
-              <option value="high">High — frequent emotional moments</option>
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
             </select>
           </div>
-          <div class="fg"><label>Domain / Topic</label>
+          <div class="fg"><label>Domain</label>
             <select class="inp" id="hs-domain">
               <option value="auto">Auto (from ingested content)</option>
               <option value="customer_support">Customer Support</option>
               <option value="medical">Medical / Health</option>
               <option value="technical">Technical / Coding</option>
-              <option value="education">Education / Learning</option>
+              <option value="education">Education</option>
               <option value="legal">Legal Advice</option>
               <option value="mental_health">Mental Health Support</option>
-              <option value="ecommerce">E-commerce / Shopping</option>
+              <option value="ecommerce">E-commerce</option>
               <option value="general">General Chat</option>
             </select>
           </div>
         </div>
 
-        <!-- Realism sliders -->
-        <div style="margin-bottom:14px">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600">Realism Controls</div>
+        <div class="adv-toggle" onclick="toggleAdv(this,'hs-realism')">
+          <span class="adv-arrow">›</span> Realism controls
+        </div>
+        <div class="adv-content" id="hs-realism" style="margin-bottom:16px;padding:14px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)">
           <div class="hs-slider-row">
             <span class="hs-sl">Typo frequency</span>
             <input type="range" id="sl-typo" min="0" max="3" value="1" class="hs-range" oninput="updateSliderLabel(this,'sl-typo-v',['None','Occasional','Moderate','Frequent'])"/>
             <span class="hs-sv" id="sl-typo-v">Occasional</span>
           </div>
           <div class="hs-slider-row">
-            <span class="hs-sl">Vagueness level</span>
+            <span class="hs-sl">Vagueness</span>
             <input type="range" id="sl-vague" min="0" max="3" value="2" class="hs-range" oninput="updateSliderLabel(this,'sl-vague-v',['Very clear','Slightly vague','Moderately vague','Very vague'])"/>
             <span class="hs-sv" id="sl-vague-v">Moderately vague</span>
           </div>
@@ -789,55 +834,52 @@ select.inp{cursor:pointer}
           </div>
         </div>
 
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-lg" id="hs-btn" onclick="runHumanSim()" style="background:var(--orange);color:#000;border-color:var(--orange);font-weight:700">🧠 Simulate Humans</button>
-          <span style="font-size:10px;color:var(--muted)" id="hs-hint">Select personalities and behaviors above</span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-lg" id="hs-btn" onclick="runHumanSim()" style="background:var(--orange);color:#fff;border-color:var(--orange);font-weight:700">Simulate humans</button>
+          <span style="font-size:12px;color:var(--text3)" id="hs-hint">Select personalities and behaviors above</span>
         </div>
         <div class="rb" id="hs-rb"></div>
       </div>
 
-      <!-- Log -->
       <div class="card" id="hs-log-card" style="display:none">
-        <div class="card-t">Simulation Log</div>
+        <div class="card-t">Simulation log</div>
         <div class="pw"><div class="pb" id="hs-pb" style="width:0%;background:var(--orange)"></div></div>
         <div class="tlog" id="hs-log"></div>
       </div>
 
-      <!-- Results -->
       <div id="hs-results" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:10px;color:var(--muted)">Generated <span style="color:var(--orange)" id="hs-count-out">0</span> human simulations</div>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-g btn-sm" onclick="approveAllHs()">✓ Approve All</button>
-            <button class="btn btn-o btn-sm" onclick="goReview()">→ Review</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;color:var(--text2)">Generated <strong id="hs-count-out">0</strong> human simulations</div>
+          <div style="display:flex;gap:7px">
+            <button class="btn btn-g btn-sm" onclick="approveAllHs()">✓ Approve all</button>
+            <button class="btn btn-o btn-sm" onclick="goReview()">Review →</button>
           </div>
         </div>
         <div class="ds-grid" id="hs-grid"></div>
       </div>
-
     </div>
 
-    <!-- ══ SETTINGS ══ -->
+    <!-- ── SETTINGS ── -->
     <div class="tab" id="tab-settings">
       <div class="card">
-        <div class="card-t">API Configuration</div>
+        <div class="card-t">API configuration</div>
         <div class="fg"><label>Provider</label>
           <select class="inp" id="set-provider" onchange="onProvChange()">
             <option value="groq">Groq (Free, Fast)</option>
             <option value="openai">OpenAI</option>
           </select>
         </div>
-        <div class="fg"><label>API Key</label><input type="password" class="inp" id="set-key" placeholder="gsk_... or sk-..."/></div>
+        <div class="fg"><label>API key</label><input type="password" class="inp" id="set-key" placeholder="gsk_... or sk-..." style="font-family:var(--mono)"/></div>
         <div class="fg"><label>Model</label><select class="inp" id="set-model">
           <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B</option>
           <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
           <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
         </select></div>
-        <button class="btn btn-p btn-sm" onclick="saveSettings()">Save</button>
+        <button class="btn btn-p btn-sm" onclick="saveSettings()">Save settings</button>
         <div class="rb" id="set-rb"></div>
       </div>
       <div class="card">
-        <div class="card-t">Dataset Info</div>
+        <div class="card-t">Dataset info</div>
         <div class="fg"><label>Name</label><input class="inp" id="ds-name" placeholder="my-training-dataset"/></div>
         <div class="fg"><label>Description</label><textarea class="inp" id="ds-desc" rows="3" placeholder="A high-quality training dataset..."></textarea></div>
         <div class="fg"><label>Author</label><input class="inp" id="ds-author" placeholder="your-name"/></div>
@@ -852,16 +894,16 @@ select.inp{cursor:pointer}
         <div class="rb" id="dsinfo-rb"></div>
       </div>
       <div class="card">
-        <div class="card-t">🌐 Hosting Guide</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Deploy TrainForge publicly. Everything you need to go live.</div>
-        <button class="btn btn-o btn-sm" onclick="showHostingGuide()">📋 View Hosting Guide</button>
-        <div id="hosting-guide-out" style="display:none;margin-top:12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;font-size:10px;color:var(--muted);line-height:2;white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
+        <div class="card-t">Hosting guide</div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Deploy TrainForge publicly — free on Netlify, GitHub Pages, or Vercel.</p>
+        <button class="btn btn-o btn-sm" onclick="showHostingGuide()">View guide</button>
+        <div id="hosting-guide-out" style="display:none;margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:12px;color:var(--text2);line-height:2;white-space:pre-wrap;max-height:400px;overflow-y:auto;font-family:var(--mono)"></div>
       </div>
       <div class="card">
-        <div class="card-t">Data Management</div>
+        <div class="card-t">Data management</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-o btn-sm" onclick="importBackup()">📥 Import</button>
-          <button class="btn btn-r btn-sm" onclick="nukeAll()">🗑 Reset All</button>
+          <button class="btn btn-o btn-sm" onclick="importBackup()">Import backup</button>
+          <button class="btn btn-r btn-sm" onclick="nukeAll()">Reset everything</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(this.files[0])"/>
         </div>
       </div>
@@ -869,6 +911,18 @@ select.inp{cursor:pointer}
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<script>
+// Advanced toggle helper
+function toggleAdv(btn,contentId){
+  const arrow=btn.querySelector('.adv-arrow');
+  const content=document.getElementById(contentId);
+  const isOpen=content.classList.contains('open');
+  content.classList.toggle('open',!isOpen);
+  if(arrow)arrow.classList.toggle('open',!isOpen);
+}
+</script>
+
 <script>
 // ══════════════════════════════════════════════════════════════════
 //  STATE
@@ -1027,15 +1081,15 @@ function updateProvTag(){$('prov-tag').textContent=selProvider==='openai'?'OpenA
 //  NAV
 // ══════════════════════════════════════════════════════════════════
 const PAGE_META={
-  ingest:['// ingest_data','Pull content from Wikipedia · URLs · paste · file upload'],
-  generate:['// generate','Lab-grade pipeline · adversarial · conversational · persona mix'],
-  review:['// review','Approve · reject · regenerate · J/K + A/R keyboard nav'],
-  dataset:['// dataset','Your approved training dataset with full metadata'],
-  quality:['// quality_analysis','Quality metrics · filter log · improvement recommendations'],
-  export:['// export','7 export formats including OpenAI JSONL, DPO, Alpaca, CSV'],
-  sell:['// sell_dataset','Monetize · auto-generate listing copy · platform guides'],
-  human:['// human_simulation','Synthetic human conversations · emotional · vague · interrupted · realistic'],
-  settings:['// settings','API config · provider selection · dataset metadata'],
+  ingest:['Add Source','Pull content from Wikipedia, URLs, paste, or file upload'],
+  generate:['Generate','Choose a pipeline and generate training examples'],
+  review:['Review','Approve, reject, or regenerate examples'],
+  dataset:['My Dataset','Your approved training dataset'],
+  quality:['Quality','Quality metrics and improvement recommendations'],
+  export:['Export','7 formats — OpenAI JSONL, DPO, Alpaca, CSV, and more'],
+  sell:['Sell','Monetize your dataset — platform guides and listing copy'],
+  human:['Human Simulation','Synthetic human conversations — emotional, vague, realistic'],
+  settings:['Settings','API config, provider selection, dataset metadata'],
 };
 document.querySelectorAll('.ni[data-t]').forEach(el=>{
   el.addEventListener('click',()=>{
@@ -1178,8 +1232,8 @@ async function ingestURL(){
 function addBatchRow(){
   const list=$('batch-list');
   if(list.children.length>=10){rb('batch-rb','Max 10 URLs','warn');return;}
-  const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;margin-bottom:5px';
-  d.innerHTML='<input class="inp" placeholder="https://..."/><span style="font-size:9px;color:var(--muted);width:40px;text-align:right;line-height:32px"></span>';
+  const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;margin-bottom:7px';
+  d.innerHTML='<input class="inp" placeholder="https://..."/><span style="font-size:11px;color:var(--text3);width:40px;text-align:right;line-height:40px"></span>';
   list.appendChild(d);
 }
 async function ingestBatch(){
@@ -1198,7 +1252,7 @@ async function ingestBatch(){
       const d=document.createElement('div');
       d.innerHTML=html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'');
       all+='\n\n=== Source '+i+': '+urls[i]+' ===\n'+d.textContent.replace(/\s+/g,' ').trim().slice(0,1800);
-      ok++;if(spans[i]){spans[i].textContent='✓';spans[i].style.color='var(--green)';}
+      ok++;if(spans[i]){spans[i].textContent='✓';spans[i].style.color='var(--accent)';}
     }catch{if(spans[i]){spans[i].textContent='✗';spans[i].style.color='var(--red)';}}
     await new Promise(r=>setTimeout(r,300));
   }
@@ -1250,205 +1304,192 @@ function selMode(el){
   el.classList.add('sel');
   selGenMode=el.dataset.mode;
   $('persona-card').style.display=selGenMode==='persona'?'block':'none';
-  if(selGenMode==='persona')renderPersonaChips();
+  if(selGenMode==='persona')initSysChips();
 }
-function renderPersonaChips(){
+function initSysChips(){
   $('sys-chips').innerHTML=SYSTEM_PERSONAS.map(p=>`<div class="sys-chip${selPersonas.has(p.id)?' on':''}" onclick="togglePersona('${p.id}',this)">${p.label}</div>`).join('');
 }
 function togglePersona(id,el){
-  if(selPersonas.has(id)){if(selPersonas.size>1)selPersonas.delete(id);}else{selPersonas.add(id);}
+  if(selPersonas.has(id)){if(selPersonas.size>1)selPersonas.delete(id);}
+  else selPersonas.add(id);
   el.classList.toggle('on',selPersonas.has(id));
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  AUTO QUALITY FILTERS — The key v3 upgrade
+//  QUALITY SCORING
 // ══════════════════════════════════════════════════════════════════
-const SYCO_PATTERNS=[/^certainly[,!]/i,/^sure[,!]/i,/^of course[,!]/i,/^great question[,!]/i,/^absolutely[,!]/i,/^definitely[,!]/i,/^i'd be happy to/i,/^i'm glad you asked/i,/^what a (great|wonderful|fantastic)/i];
-const SELF_PATTERNS=[/as an ai language model/i,/as an ai,/i,/i am an ai/i,/i'm an ai/i,/as a large language model/i];
-const CTX_PATTERNS=[/in the text above/i,/in the passage above/i,/according to the above/i,/from the context provided/i,/as mentioned in the text/i,/based on the passage/i];
-
-function applyQualityFilters(examples){
-  const doSyco=$('flt-syco')?.checked;
-  const doSelf=$('flt-self')?.checked;
-  const doCtx=$('flt-ctx')?.checked;
-  const doRepeat=$('flt-repeat')?.checked;
-  const kept=[];const removed=[];
-  examples.forEach(ex=>{
-    const reasons=[];
-    const resp=ex.data.response||ex.data.chosen||ex.data.messages?.find(m=>m.role==='assistant')?.content||'';
-    const prompt=ex.data.prompt||ex.data.instruction||ex.data.messages?.find(m=>m.role==='user')?.content||'';
-    if(doSyco&&SYCO_PATTERNS.some(p=>p.test(resp.trim())))reasons.push('Sycophantic opener');
-    if(doSelf&&SELF_PATTERNS.some(p=>p.test(resp)))reasons.push('"As an AI" phrase');
-    if(doCtx&&CTX_PATTERNS.some(p=>p.test(prompt)))reasons.push('Context-dependent instruction');
-    if(doRepeat&&prompt.length>20){
-      const pWords=prompt.toLowerCase().split(/\s+/);
-      const rWords=resp.toLowerCase().split(/\s+/);
-      const shared=pWords.filter(w=>w.length>4&&rWords.includes(w)).length;
-      const ratio=shared/Math.max(pWords.length,1);
-      if(ratio>0.4)reasons.push('High repetition ('+Math.round(ratio*100)+'%)');
-    }
-    if(reasons.length){removed.push({id:ex.id,reasons});filterLog.push('Filtered ['+ex.id+']: '+reasons.join(' · '));}
-    else kept.push(ex);
-  });
-  filteredCount+=removed.length;
-  return kept;
-}
-
 function scoreQuality(ex){
-  let score=0;
+  let s=0.5;
   if(ex.type==='instruction'){
     const p=ex.data.prompt||'',r=ex.data.response||'';
-    const words=r.split(' ').length;
-    const lenOk=words>15&&words<400;
-    const hasContent=p.length>10&&r.length>20;
-    const notRepeat=!r.toLowerCase().includes(p.toLowerCase().slice(0,20));
-    const notSyco=!SYCO_PATTERNS.some(pt=>pt.test(r.trim()));
-    const notSelf=!SELF_PATTERNS.some(pt=>pt.test(r));
-    score=(lenOk?.28:0)+(hasContent?.25:0)+(notRepeat?.20:0)+(notSyco?.15:0)+(notSelf?.12:0);
+    if(p.length>20)s+=0.1;
+    if(r.length>80)s+=0.1;
+    if(r.length>200)s+=0.05;
+    if(/^(certainly|sure|of course|great question|absolutely|i'd be happy|i'm glad)/i.test(r))s-=0.15;
+    if(/as an ai|as a language model/i.test(r))s-=0.15;
+    if(/the passage|the text|as mentioned above|in the provided/i.test(p))s-=0.2;
+    if(ex.data.difficulty==='expert')s+=0.05;
+    const words=r.split(/\s+/);const unique=new Set(words.map(w=>w.toLowerCase()));if(words.length>5&&unique.size/words.length<0.6)s-=0.1;
   }else if(ex.type==='conversation'){
     const msgs=ex.data.messages||[];
-    const turns=msgs.length;
-    const hasAssist=msgs.some(m=>m.role==='assistant'&&m.content.length>30);
-    const hasFriction=msgs.some(m=>m.role==='user'&&(m.content.includes('?')||m.content.length<50));
-    score=(turns>=4?.35:turns>=2?.2:0)+(hasAssist?.35:0)+(hasFriction?.15:0)+.15;
-  }else if(ex.type==='preference'){
-    const chosen=ex.data.chosen||'',rejected=ex.data.rejected||'';
-    const diff=Math.abs(chosen.length-rejected.length)>30;
-    const both=chosen.length>30&&rejected.length>30;
-    const notSyco=!SYCO_PATTERNS.some(p=>p.test(chosen.trim()));
-    score=(diff?.30:0)+(both?.35:0)+(notSyco?.20:0)+.15;
-  }else if(ex.type==='adversarial'){
-    const r=ex.data.response||'';
-    const hasReasoning=r.includes('because')||r.includes('however')||r.includes('actually');
-    score=hasReasoning?.8:.5;
-  }
-  return Math.min(1,Math.max(0,score));
-}
-function qualLabel(s){if(s>=0.75)return{cls:'b-hi',lbl:'High'};if(s>=0.45)return{cls:'b-med',lbl:'Medium'};return{cls:'b-lo',lbl:'Low'};}
-function qualExplain(ex){
-  const issues=[];const tips=[];const q=ex.quality||0;
-  if(ex.type==='instruction'){
-    const p=ex.data.prompt||'',r=ex.data.response||'';
-    const words=r.split(' ').length;
-    if(words<15)issues.push('Response too short ('+words+' words — aim for 15+)');
-    if(words>400)issues.push('Response very long — consider splitting into multiple examples');
-    if(SYCO_PATTERNS.some(pt=>pt.test(r.trim())))issues.push('Sycophantic opener detected — use ⟳ Regen');
-    if(SELF_PATTERNS.some(pt=>pt.test(r)))issues.push('"As an AI" phrase — use ⟳ Regen');
-    if(CTX_PATTERNS.some(pt=>pt.test(p)))issues.push('Instruction is context-dependent — not standalone');
-    if(!issues.length){tips.push('✓ Good length');tips.push('✓ Standalone instruction');tips.push('✓ No sycophancy');}
-  }else if(ex.type==='conversation'){
-    const msgs=ex.data.messages||[];
-    if(msgs.length<4)issues.push('Only '+msgs.length+' turns — aim for 4+ for richer signal');
-    const shortAssist=msgs.filter(m=>m.role==='assistant'&&m.content.length<30);
-    if(shortAssist.length)issues.push(shortAssist.length+' assistant turns are very short');
-    if(!issues.length){tips.push('✓ Good turn count');tips.push('✓ Substantive responses');}
+    if(msgs.length>=4)s+=0.1;
+    if(msgs.length>=6)s+=0.05;
+    const first=msgs[1]?.content||'';
+    if(/^(certainly|sure|of course|great|absolutely|i'd be happy)/i.test(first))s-=0.15;
+    if(/as an ai/i.test(msgs.map(m=>m.content).join(' ')))s-=0.1;
   }else if(ex.type==='preference'){
     const c=ex.data.chosen||'',r=ex.data.rejected||'';
-    if(Math.abs(c.length-r.length)<30)issues.push('Chosen/rejected too similar in length — contrast needs to be clearer');
-    if(c.length<30)issues.push('Chosen response too short');
-    if(!issues.length){tips.push('✓ Good chosen/rejected contrast');}
+    if(c.length>r.length*1.2)s+=0.1;
+    if(/^(certainly|sure|of course|great|absolutely)/i.test(r))s+=0.1;
+    if(c.length>100&&r.length>50)s+=0.1;
+  }else if(ex.type==='adversarial'){
+    s+=0.05;
+    if(ex.data.response?.length>100)s+=0.1;
   }
-  const cls=q>=0.75?'hi':q>=0.45?'med':'lo';
+  return Math.max(0,Math.min(1,s));
+}
+function qualLabel(q){
+  if(q>=0.75)return{lbl:'High',cls:'b-hi'};
+  if(q>=0.45)return{lbl:'Med',cls:'b-med'};
+  return{lbl:'Low',cls:'b-lo'};
+}
+function qualExplain(ex){
+  const issues=[],tips=[];
+  const cls=ex.quality>=0.75?'hi':ex.quality>=0.45?'med':'lo';
+  if(ex.type==='instruction'){
+    const r=ex.data.response||'';
+    if(/^(certainly|sure|of course|great question|absolutely)/i.test(r))issues.push('Starts with sycophantic opener — remove it');
+    if(/as an ai|as a language model/i.test(r))issues.push('"As an AI" phrase detected — rephrase naturally');
+    if(/the passage|the text|as mentioned/i.test(ex.data.prompt||''))issues.push('Instruction references context — make it standalone');
+    if(r.length<60)tips.push('Response is short — consider expanding with examples');
+    if(r.length>500)tips.push('Response is long — consider trimming for clarity');
+  }
   return{issues,tips,cls};
 }
-function parseJSON(raw){
-  try{return JSON.parse(raw.replace(/```json|```/g,'').trim());}
-  catch{const m=raw.match(/\[[\s\S]*\]/);return m?JSON.parse(m[0]):[];}
+
+// ══════════════════════════════════════════════════════════════════
+//  QUALITY FILTERS
+// ══════════════════════════════════════════════════════════════════
+function applyQualityFilters(examples){
+  const checkSyco=$('flt-syco')?.checked??true;
+  const checkSelf=$('flt-self')?.checked??true;
+  const checkCtx=$('flt-ctx')?.checked??true;
+  const checkRep=$('flt-repeat')?.checked??true;
+  return examples.filter(ex=>{
+    const r=ex.data.response||ex.data.chosen||ex.data.messages?.[1]?.content||'';
+    const p=ex.data.prompt||ex.data.messages?.[0]?.content||'';
+    if(checkSyco&&/^(certainly|sure|of course|great question|absolutely|i'd be happy|i'm glad|happy to help)/i.test(r)){
+      filterLog.push('Sycophantic opener: "'+r.slice(0,50)+'"');filteredCount++;return false;
+    }
+    if(checkSelf&&/\b(as an ai|as a language model|i'm an ai|i am an ai)\b/i.test(r)){
+      filterLog.push('"As an AI" phrase: "'+r.slice(0,50)+'"');filteredCount++;return false;
+    }
+    if(checkCtx&&/\b(the passage|the text|as mentioned above|in the provided text|the article|based on the text)\b/i.test(p)){
+      filterLog.push('Context-dependent instruction: "'+p.slice(0,50)+'"');filteredCount++;return false;
+    }
+    if(checkRep&&r.length>50){
+      const words=r.split(/\s+/);const unique=new Set(words.map(w=>w.toLowerCase()));
+      if(unique.size/words.length<0.6){filterLog.push('High repetition: "'+r.slice(0,50)+'"');filteredCount++;return false;}
+    }
+    return true;
+  });
 }
-</script>
-<script>
-// ══════════════════════════════════════════════════════════════════
-//  GENERATION ENGINE — 5 MODES
-// ══════════════════════════════════════════════════════════════════
-let generating=false;
-function tlog(msg,cls=''){const e=$('gen-log');e.innerHTML+=`<span class="${cls}">${esc(msg)}</span>\n`;e.scrollTop=e.scrollHeight;}
-function gprog(p){$('gen-pb').style.width=p+'%';}
 
+// ══════════════════════════════════════════════════════════════════
+//  JSON PARSER
+// ══════════════════════════════════════════════════════════════════
+function parseJSON(raw){
+  try{return JSON.parse(raw);}catch{}
+  const clean=raw.replace(/```json|```/g,'').trim();
+  try{return JSON.parse(clean);}catch{}
+  const m=clean.match(/\[[\s\S]*\]/);
+  if(m){try{return JSON.parse(m[0]);}catch{}}
+  const m2=clean.match(/\{[\s\S]*\}/);
+  if(m2){try{const o=JSON.parse(m2[0]);return Array.isArray(o)?o:[o];}catch{}}
+  return[];
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  GENERATION — entry point
+// ══════════════════════════════════════════════════════════════════
 async function startGeneration(){
-  if(generating)return;
   if(!apiKey()){rb('gen-rb','Set API key first','warn');return;}
-  if(!ingestedContent){rb('gen-rb','Ingest content first','warn');return;}
-
+  if(!ingestedContent){rb('gen-rb','Ingest content first (Add Source tab)','warn');return;}
+  const count=parseInt($('count-select').value);
   const fmt=$('fmt-select').value;
   const diff=$('diff-select').value;
-  const count=parseInt($('count-select').value);
   const lang=$('out-lang').value;
-  const dedup=$('opt-dedup').checked;
-  const chunk=$('opt-chunk').checked;
-
-  generating=true;genBuffer=[];filteredCount=0;filterLog=[];
-  hb('gen-rb');
+  const dedup=$('opt-dedup')?.checked??true;
+  const chunk=$('opt-chunk')?.checked??true;
+  genBuffer=[];filteredCount=0;
   $('gen-btn').disabled=true;
   $('gen-log-card').style.display='block';
   $('gen-preview').style.display='none';
-  $('gen-log').innerHTML='';gprog(0);
-
-  tlog('[TRAINFORGE v3] Mode: '+selGenMode.toUpperCase()+' · '+count+' examples','hl');
-  tlog('Source: "'+ingestedContent.title.slice(0,45)+'" ('+ingestedContent.text.length+' chars)','info');
-  tlog('Provider: '+getProv()+' · Model: '+mdl(),'info');
-  tlog('─'.repeat(50));
-
-  let chunks=[ingestedContent.text];
-  if(chunk&&ingestedContent.text.length>1000){
-    const words=ingestedContent.text.split(/\s+/);
-    const sz=Math.ceil(words.length/3);
-    chunks=[0,1,2].map(i=>words.slice(i*sz,(i+1)*sz).join(' ')).filter(c=>c.length>100);
-    tlog('Smart chunking: '+chunks.length+' passages','info');
-  }
-
+  $('gen-log').innerHTML='';
+  $('gen-pb').style.width='0%';
+  hb('gen-rb');
+  document.body.classList.add('generating');
   try{
-    if(selGenMode==='standard') await runStandard(fmt,diff,count,lang,chunks,dedup);
-    else if(selGenMode==='lab') await runLabQuality(fmt,diff,count,lang,chunks,dedup);
-    else if(selGenMode==='adversarial') await runAdversarial(count,lang,chunks,dedup);
-    else if(selGenMode==='conversational') await runConversational(count,lang,chunks,dedup);
-    else if(selGenMode==='persona') await runPersonaMix(fmt,count,lang,chunks,dedup);
-  }catch(e){tlog('Fatal error: '+e.message,'err');}
-
-  gprog(100);
-  tlog('\n'+'═'.repeat(50));
-  tlog('[DONE] '+genBuffer.length+' examples · '+filteredCount+' auto-filtered','hl');
-  $('gen-count').textContent=genBuffer.length;
-  $('gen-filtered').textContent=filteredCount?filteredCount+' filtered out':'';
-  $('gen-preview').style.display='block';
-  renderGenPreview();
+    const text=ingestedContent.text;
+    const chunks=chunk&&text.length>2500?[text.slice(0,3000),text.slice(1500,4500),text.slice(3000)].filter(c=>c.length>200):[ text ];
+    tlog('[TrainForge] Starting generation...','hl');
+    tlog('Mode: '+selGenMode+' · Format: '+fmt+' · Count: '+count+' · Chunks: '+chunks.length,'info');
+    tlog('Source: "'+ingestedContent.title.slice(0,50)+'"','info');
+    tlog('─'.repeat(48));
+    if(selGenMode==='standard')await runStandard(fmt,count,diff,lang,chunks,dedup);
+    else if(selGenMode==='lab')await runLab(fmt,count,diff,lang,chunks,dedup);
+    else if(selGenMode==='adversarial')await runAdversarial(count,lang,chunks,dedup);
+    else if(selGenMode==='conversational')await runConversational(count,lang,chunks,dedup);
+    else if(selGenMode==='persona')await runPersonaMix(fmt,count,lang,chunks,dedup);
+    gprog(100);
+    tlog('\n[Done] '+genBuffer.length+' examples generated. '+filteredCount+' filtered.','hl');
+    $('gen-count').textContent=genBuffer.length;
+    $('gen-filtered').textContent=filteredCount>0?filteredCount+' filtered':'';
+    $('gen-preview').style.display='block';
+    renderGenPreview();
+    updateSidebar();
+  }catch(e){tlog('Fatal error: '+e.message,'err');rb('gen-rb','❌ '+e.message,'err');}
   $('gen-btn').disabled=false;
-  generating=false;
-  updateSidebar();
+  document.body.classList.remove('generating');
 }
+function tlog(msg,cls=''){
+  const e=$('gen-log');
+  e.innerHTML+=`<span class="${cls}">${esc(msg)}</span>\n`;
+  e.scrollTop=e.scrollHeight;
+}
+function gprog(pct){$('gen-pb').style.width=pct+'%';}
 
 // ── STANDARD MODE ──
-async function runStandard(fmt,diff,count,lang,chunks,dedup){
-  const formats=fmt==='all'?['instruction','conversation','preference']:[fmt];
+async function runStandard(fmt,count,diff,lang,chunks,dedup){
+  const formats=fmt==='all'?['instruction','conversation','preference']:[ fmt ];
   const perFmt=Math.ceil(count/formats.length);
-  let step=0;const total=formats.length*chunks.length;
   for(const format of formats){
-    tlog('\n['+format.toUpperCase()+'] Standard generation...','info');
-    let all=[];
-    for(let ci=0;ci<chunks.length&&all.length<perFmt;ci++){
-      const need=Math.ceil(perFmt/chunks.length);
-      tlog('  Chunk '+(ci+1)+'/'+chunks.length+'...','');
+    tlog('\n['+format.toUpperCase()+'] Generating '+perFmt+' examples...','stage');
+    for(const chunk of chunks){
+      if(genBuffer.filter(e=>e.type===format).length>=perFmt)break;
       try{
         let exx=[];
-        if(format==='instruction')exx=await genInstruction(chunks[ci],need,diff,lang);
-        else if(format==='conversation')exx=await genConversation(chunks[ci],need,lang);
-        else if(format==='preference')exx=await genPreference(chunks[ci],need,lang);
-        tlog('    ✓ '+exx.length+' examples','ok');
-        all.push(...exx);
-      }catch(e){tlog('    ✗ '+e.message,'err');}
-      step++;gprog(Math.round(step/total*85));
-      await delay(400);
+        const need=perFmt-genBuffer.filter(e=>e.type===format).length;
+        if(format==='instruction')exx=await genInstruction(chunk,need,diff,lang);
+        else if(format==='conversation')exx=await genConversation(chunk,need,lang);
+        else if(format==='preference')exx=await genPreference(chunk,need,lang);
+        const filtered=applyQualityFilters(exx);
+        const scored=filtered.map(e=>({...e,quality:scoreQuality(e)}));
+        genBuffer.push(...scored);
+        tlog('  ✓ '+scored.length+' examples ('+exx.length+' raw)','ok');
+      }catch(e){tlog('  ✗ '+e.message,'err');}
+      gprog(Math.round(genBuffer.length/count*85));
+      await delay(300);
     }
-    let final=dedup?deduplicate(all):all;
-    final=applyQualityFilters(final).slice(0,perFmt).map(e=>({...e,quality:scoreQuality(e)}));
-    genBuffer.push(...final);
   }
+  if(dedup)genBuffer=deduplicate(genBuffer);
+  genBuffer=genBuffer.slice(0,count);
 }
 
-// ── LAB QUALITY MODE — 3-stage pipeline ──
-async function runLabQuality(fmt,diff,count,lang,chunks,dedup){
-  const formats=fmt==='all'?['instruction','conversation','preference']:[fmt];
+// ── LAB MODE ──
+async function runLab(fmt,count,diff,lang,chunks,dedup){
+  const formats=fmt==='all'?['instruction','conversation','preference']:[ fmt ];
   const perFmt=Math.ceil(count/formats.length);
-
   for(const format of formats){
     tlog('\n[LAB] '+format+' — Stage 1: Topic extraction','stage');
     let all=[];
@@ -1456,12 +1497,9 @@ async function runLabQuality(fmt,diff,count,lang,chunks,dedup){
       if(all.length>=perFmt)break;
       const need=Math.ceil(perFmt/chunks.length);
       try{
-        // STAGE 1: Extract key concepts
         tlog('  → Extracting key concepts...','info');
         const concepts=await extractConcepts(chunk);
         tlog('    Found: '+concepts.slice(0,3).join(', ')+'...','ok');
-
-        // STAGE 2: Generate targeted examples per concept
         tlog('  → Stage 2: Targeted generation per concept','stage');
         let staged=[];
         const perConcept=Math.max(1,Math.ceil(need/Math.max(concepts.length,1)));
@@ -1475,8 +1513,6 @@ async function runLabQuality(fmt,diff,count,lang,chunks,dedup){
           }catch(e){tlog('    concept error: '+e.message,'err');}
           await delay(300);
         }
-
-        // STAGE 3: Quality polish pass
         tlog('  → Stage 3: Quality polish pass','stage');
         const polished=await polishExamples(staged.slice(0,need),format,lang);
         tlog('    ✓ '+polished.length+' polished examples','ok');
@@ -1560,7 +1596,7 @@ async function runPersonaMix(fmt,count,lang,chunks,dedup){
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  PROMPT LIBRARY — Lab-grade prompts
+//  PROMPT LIBRARY
 // ══════════════════════════════════════════════════════════════════
 function diffGuide(diff){return({mixed:'Distribute difficulty: 30% beginner (simple definitions), 40% intermediate (explanations/applications), 30% expert (nuanced analysis)',beginner:'Focus on simple, concrete questions a complete beginner would ask',intermediate:'Focus on practical, applied questions — how things work and why they matter',expert:'Focus on deep technical analysis, nuanced distinctions, and expert-level evaluation'})[diff]||'';}
 
@@ -1571,7 +1607,6 @@ async function extractConcepts(text){
   try{return parseJSON(raw).filter(s=>typeof s==='string').slice(0,6);}catch{return[text.slice(0,30)];}
 }
 
-// Lab-grade instruction prompt with strict quality rules
 async function genLabInstruction(text,concept,count,diff,lang){
   const sys=`You are a senior data curator at a top AI lab. Generate training data that meets strict quality standards.
 
@@ -1674,7 +1709,6 @@ Output ONLY JSON:
 }
 async function genPreference(text,count,lang){return genLabPreference(text,'the main topic',count,lang);}
 
-// STAGE 3: Polish pass
 async function polishExamples(examples,format,lang){
   if(!examples.length)return[];
   const sys=`You are a data quality reviewer at an AI lab. Fix examples that violate quality standards.
@@ -1697,7 +1731,6 @@ Return the same JSON structure with fixed content. Language: ${lang}.`;
   return examples;
 }
 
-// ADVERSARIAL generators
 async function genAdversarial(text,type,desc,count,lang){
   const typePrompts={
     trick:`Generate ${count} trick questions where the obvious/intuitive answer is WRONG. The correct answer should be surprising but verifiable from the source. The response must explain why the obvious answer is wrong and what the right answer actually is.`,
@@ -1716,7 +1749,6 @@ async function genAdversarial(text,type,desc,count,lang){
   }));
 }
 
-// REALISTIC CONVERSATION generators
 async function genRealisticConv(text,styleName,styleDesc,count,lang){
   const sys=`You generate realistic training conversations that teach LLMs how real humans talk. Language: ${lang}.
 
@@ -1737,7 +1769,6 @@ Quality requirements:
   }));
 }
 
-// PERSONA MIX generator
 async function genWithPersona(text,persona,format,count,lang){
   const sys=`${persona.prompt}\n\nYou are generating fine-tuning training data. Language: ${lang}.\nCRITICAL: NEVER start with sycophantic openers. NEVER use "as an AI" phrases.`;
   let usr='';
@@ -1757,7 +1788,6 @@ async function genWithPersona(text,persona,format,count,lang){
   });
 }
 
-// Regen single example
 async function regenEx(id){
   if(!apiKey()){alert('Set API key first');return;}
   const examples=getEx();
@@ -1803,10 +1833,10 @@ const FMT_LABEL={instruction:'Instruction',conversation:'Conversation',preferenc
 function renderCard(ex,actions=true){
   const q=ex.quality!=null?ex.quality:null;
   const ql=q!=null?qualLabel(q):null;
-  const diff=ex.data?.difficulty?`<span class="badge" style="background:var(--s3);color:var(--muted);border:1px solid var(--b2)">${esc(ex.data.difficulty)}</span>`:'';
+  const diff=ex.data?.difficulty?`<span class="badge" style="background:var(--surface3);color:var(--text3);border:1px solid var(--border)">${esc(ex.data.difficulty)}</span>`:'';
   const persona=ex.persona?`<span class="badge b-sys">${esc(ex.persona)}</span>`:'';
   const advType=ex.data?.adversarial_type?`<span class="badge b-adv">${esc(ex.data.adversarial_type)}</span>`:'';
-  const qType=ex.data?.question_type?`<span class="badge" style="background:var(--s3);color:var(--dim);border:1px solid var(--b1)">${esc(ex.data.question_type)}</span>`:'';
+  const qType=ex.data?.question_type?`<span class="badge" style="background:var(--surface3);color:var(--text3);border:1px solid var(--border)">${esc(ex.data.question_type)}</span>`:'';
 
   let content='';
   if(ex.type==='instruction'){
@@ -1816,11 +1846,11 @@ function renderCard(ex,actions=true){
     content=`<div class="ds-field"><div class="ds-label">Challenge Prompt</div><div class="ds-val">${esc(ex.data.prompt||'')}</div></div>
     <div class="ds-field"><div class="ds-label">Model Response</div><div class="ds-val">${esc(ex.data.response||'')}</div></div>`;
   }else if(ex.type==='conversation'){
-    const msgs=(ex.data.messages||[]).map(m=>`<div style="margin-bottom:7px"><span style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:${m.role==='user'?'var(--accent)':'var(--green)'};font-weight:700">${m.role}</span><br><span style="color:var(--text)">${esc(m.content)}</span></div>`).join('');
+    const msgs=(ex.data.messages||[]).map(m=>`<div style="margin-bottom:8px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:${m.role==='user'?'var(--blue)':'var(--accent)'};font-weight:700">${m.role}</span><br><span style="color:var(--text)">${esc(m.content)}</span></div>`).join('');
     content=`<div class="ds-field"><div class="ds-label">Conversation (${(ex.data.messages||[]).length} turns${ex.data.conv_style?' · '+ex.data.conv_style:''})</div><div class="ds-val">${msgs}</div></div>`;
   }else if(ex.type==='preference'){
     content=`<div class="ds-field"><div class="ds-label">Prompt</div><div class="ds-val">${esc(ex.data.prompt||'')}</div></div>
-    <div class="ds-field"><div class="ds-label" style="color:var(--green)">✓ Chosen</div><div class="ds-val">${esc(ex.data.chosen||'')}</div></div>
+    <div class="ds-field"><div class="ds-label" style="color:var(--accent)">✓ Chosen</div><div class="ds-val">${esc(ex.data.chosen||'')}</div></div>
     <div class="ds-field"><div class="ds-label" style="color:var(--red)">✗ Rejected${ex.data.rejection_reason?' ('+ex.data.rejection_reason+')':''}</div><div class="ds-val">${esc(ex.data.rejected||'')}</div></div>`;
   }
 
@@ -1830,8 +1860,8 @@ function renderCard(ex,actions=true){
 
   const statusCls=ex.status==='approved'?'approved':ex.status==='rejected'?'rejected':'';
   const actHtml=actions?`<div class="ds-actions">
-    <button class="btn btn-xs" style="background:rgba(0,232,122,.08);color:var(--green);border-color:rgba(0,232,122,.2)" onclick="setStatus('${ex.id}','approved')">✓ Approve</button>
-    <button class="btn btn-xs" style="background:rgba(255,61,90,.08);color:var(--red);border-color:rgba(255,61,90,.2)" onclick="setStatus('${ex.id}','rejected')">✕ Reject</button>
+    <button class="btn btn-xs" style="background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)" onclick="setStatus('${ex.id}','approved')">✓ Approve</button>
+    <button class="btn btn-xs" style="background:var(--red-bg);color:var(--red);border-color:var(--red-border)" onclick="setStatus('${ex.id}','rejected')">✕ Reject</button>
     <button class="btn btn-xs btn-o regen-btn" onclick="regenEx('${ex.id}')">⟳ Regen</button>
     <button class="btn btn-xs btn-o" onclick="delEx('${ex.id}')">🗑</button>
     <div class="ds-src">${esc((ex.source_title||'').slice(0,28))} · <a href="${esc(ex.source_url||'#')}" target="_blank">src</a></div>
@@ -1844,7 +1874,7 @@ function renderCard(ex,actions=true){
           <span class="badge ${FMT_BADGE[ex.type]||''}">${FMT_LABEL[ex.type]||ex.type}</span>
           ${diff}${persona}${advType}${qType}
           ${ql?`<span class="badge ${ql.cls}">${ql.lbl} ${(q*100).toFixed(0)}%</span>`:''}
-          ${ex.status==='approved'?'<span class="badge b-hi">✓</span>':ex.status==='rejected'?'<span class="badge b-lo">✕</span>':''}
+          ${ex.status==='approved'?'<span class="badge b-hi">✓ Approved</span>':ex.status==='rejected'?'<span class="badge b-lo">Rejected</span>':''}
         </div>
         <div class="ds-meta">id:${ex.id} · ${new Date(ex.added||Date.now()).toLocaleDateString()}</div>
       </div>
@@ -1875,7 +1905,7 @@ function renderReview(){
   else ex=ex.filter(e=>e.type===f);
   const grid=$('review-grid');
   if(!ex.length){
-    grid.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-size:11px"><div style="font-size:28px;margin-bottom:8px">👁</div>No examples match this filter</div>`;
+    grid.innerHTML=`<div class="empty-state"><div class="es-icon">👁</div><p>No examples match this filter</p></div>`;
     return;
   }
   grid.innerHTML=ex.map(e=>renderCard(e)).join('');
@@ -1954,7 +1984,7 @@ function renderDataset(){
   let ex=getEx();
   if(q)ex=ex.filter(e=>JSON.stringify(e.data).toLowerCase().includes(q));
   const list=$('ds-list');
-  if(!ex.length){list.innerHTML=`<div style="text-align:center;padding:36px;color:var(--muted);font-size:11px"><div style="font-size:28px;margin-bottom:8px">🗃</div>No examples yet</div>`;return;}
+  if(!ex.length){list.innerHTML=`<div class="empty-state"><div class="es-icon">🗂</div><p>No examples yet. Generate some first.</p></div>`;return;}
   list.innerHTML=ex.slice().reverse().map(e=>renderCard(e)).join('');
 }
 
@@ -1984,9 +2014,9 @@ function clearDataset(){
 function renderQuality(){
   const ex=getEx();
   if(!ex.length){
-    $('q-overview').innerHTML=`<div style="text-align:center;padding:28px;color:var(--muted);font-size:11px">No data yet</div>`;
-    $('q-breakdown').innerHTML=`<div style="font-size:10px;color:var(--muted);padding:12px">Generate examples first</div>`;
-    $('q-tips').innerHTML=`<div style="font-size:10px;color:var(--muted);padding:12px">Generate examples first</div>`;
+    $('q-overview').innerHTML=`<div class="empty-state"><div class="es-icon">📊</div><p>No data yet</p></div>`;
+    $('q-breakdown').innerHTML=`<p style="font-size:13px;color:var(--text3);padding:12px 0">Generate examples first.</p>`;
+    $('q-tips').innerHTML=`<p style="font-size:13px;color:var(--text3);padding:12px 0">Generate examples first.</p>`;
     return;
   }
   const scored=ex.filter(e=>e.quality!=null);
@@ -1996,16 +2026,16 @@ function renderQuality(){
   const avg=scored.length?scored.reduce((a,e)=>a+e.quality,0)/scored.length:0;
 
   $('q-overview').innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px">
-      <div class="stat"><div class="stat-v" style="color:var(--green)">${hi}</div><div class="stat-l">High (≥75%)</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:14px">
+      <div class="stat"><div class="stat-v" style="color:var(--accent)">${hi}</div><div class="stat-l">High (≥75%)</div></div>
       <div class="stat"><div class="stat-v" style="color:var(--yellow)">${med}</div><div class="stat-l">Medium</div></div>
       <div class="stat"><div class="stat-v" style="color:var(--red)">${lo}</div><div class="stat-l">Low (&lt;45%)</div></div>
-      <div class="stat"><div class="stat-v" style="color:var(--accent)">${(avg*100).toFixed(0)}%</div><div class="stat-l">Average</div></div>
-      <div class="stat"><div class="stat-v" style="color:var(--red)">${filteredCount}</div><div class="stat-l">Auto-Filtered</div></div>
+      <div class="stat"><div class="stat-v">${(avg*100).toFixed(0)}%</div><div class="stat-l">Average</div></div>
+      <div class="stat"><div class="stat-v" style="color:var(--red)">${filteredCount}</div><div class="stat-l">Auto-filtered</div></div>
     </div>`;
 
   const types=['instruction','conversation','preference','adversarial'];
-  const colors={instruction:'var(--accent)',conversation:'var(--purple)',preference:'var(--orange)',adversarial:'var(--red)'};
+  const colors={instruction:'var(--blue)',conversation:'var(--purple)',preference:'var(--orange)',adversarial:'var(--red)'};
   $('q-breakdown').innerHTML=types.map(t=>{
     const tEx=ex.filter(e=>e.type===t&&e.quality!=null);
     const tAvg=tEx.length?tEx.reduce((a,e)=>a+e.quality,0)/tEx.length:0;
@@ -2013,24 +2043,24 @@ function renderQuality(){
       <div class="q-lbl">${FMT_LABEL[t]}</div>
       <div class="q-bar-wrap"><div class="q-bar" style="width:${tAvg*100}%;background:${colors[t]}"></div></div>
       <div class="q-val">${(tAvg*100).toFixed(0)}%</div>
-      <div style="font-size:9px;color:var(--muted);min-width:40px">(${tEx.length})</div>
+      <div style="font-size:11px;color:var(--text4);min-width:40px;font-family:var(--mono)">(${tEx.length})</div>
     </div>`;
   }).join('');
 
   const tips=[];
-  if(lo>0)tips.push(`⚠ ${lo} low-quality examples — select them in Review and use ⟳ Regen`);
-  if(avg<0.5)tips.push('⚠ Average quality is low — try Lab Quality mode with longer source content (3000+ chars)');
-  if(filteredCount>0)tips.push(`ℹ ${filteredCount} examples were auto-filtered (sycophancy, "as an AI", context-dependence)`);
-  if(ex.filter(e=>e.type==='adversarial').length<3)tips.push('→ Add adversarial examples — they make models significantly more robust');
-  if(ex.filter(e=>e.type==='preference').length<5)tips.push('→ Add more preference pairs — essential for alignment and RLHF training');
-  if(ex.filter(e=>e.type==='conversation').length<5)tips.push('→ Add conversational examples — they improve real-world dialogue quality');
-  if(ex.length<50)tips.push('→ Aim for 100+ examples before publishing. More data = more value.');
+  if(lo>0)tips.push(`${lo} low-quality examples — select in Review and use Regen`);
+  if(avg<0.5)tips.push('Average quality is low — try Lab Quality mode with longer source content (3000+ chars)');
+  if(filteredCount>0)tips.push(`${filteredCount} examples were auto-filtered (sycophancy, "as an AI", context-dependence)`);
+  if(ex.filter(e=>e.type==='adversarial').length<3)tips.push('Add adversarial examples — they make models significantly more robust');
+  if(ex.filter(e=>e.type==='preference').length<5)tips.push('Add more preference pairs — essential for alignment and RLHF training');
+  if(ex.filter(e=>e.type==='conversation').length<5)tips.push('Add conversational examples — they improve real-world dialogue quality');
+  if(ex.length<50)tips.push('Aim for 100+ examples before publishing. More data = more value.');
   const personas=new Set(ex.filter(e=>e.persona).map(e=>e.persona));
-  if(personas.size<3&&ex.length>20)tips.push('→ Try Persona Mix mode — diverse system prompts produce more generalizable models');
-  if(!tips.length)tips.push('✓ Dataset looks strong! Consider adding adversarial examples for extra robustness.');
+  if(personas.size<3&&ex.length>20)tips.push('Try Persona Mix mode — diverse system prompts produce more generalizable models');
+  if(!tips.length)tips.push('Dataset looks strong! Consider adding adversarial examples for extra robustness.');
 
-  $('q-tips').innerHTML=tips.map(t=>`<div style="font-size:10px;color:var(--muted);line-height:2;border-left:2px solid var(--b2);padding-left:12px;margin-bottom:5px">${esc(t)}</div>`).join('');
-  $('q-filter-log').innerHTML=filterLog.length?filterLog.map(l=>`<div style="color:var(--red);opacity:.7">${esc(l)}</div>`).join(''):'<div style="color:var(--muted2)">No filters fired this session.</div>';
+  $('q-tips').innerHTML=tips.map(t=>`<div style="font-size:13px;color:var(--text2);line-height:1.8;padding:8px 12px;border-left:3px solid var(--border2);margin-bottom:8px">${esc(t)}</div>`).join('');
+  $('q-filter-log').innerHTML=filterLog.length?filterLog.map(l=>`<div style="color:var(--red);opacity:.7;font-size:11px">${esc(l)}</div>`).join(''):'No filters fired this session.';
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2135,23 +2165,6 @@ from datasets import load_dataset
 dataset = load_dataset("${info.author||'your-name'}/${info.name||'my-dataset'}")
 \`\`\`
 
-## Format Examples
-
-### Instruction Pair
-\`\`\`json
-{"instruction": "...", "response": "..."}
-\`\`\`
-
-### Conversation (ShareGPT)
-\`\`\`json
-{"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
-\`\`\`
-
-### Preference Pair (DPO)
-\`\`\`json
-{"prompt": "...", "chosen": "...", "rejected": "..."}
-\`\`\`
-
 ## Citation
 
 \`\`\`bibtex
@@ -2164,7 +2177,7 @@ dataset = load_dataset("${info.author||'your-name'}/${info.name||'my-dataset'}")
 \`\`\`
 
 ---
-*Generated with [TrainForge v3](https://trainforge.io) — Lab-Grade Dataset Builder*
+*Generated with [TrainForge](https://trainforge.io)*
 `;
   dl('README.md',md,'text/markdown');
   rb('exp-rb','✅ Dataset card exported as README.md','ok');
@@ -2192,7 +2205,7 @@ async function genListing(){
   const avgQ=scored.length?(scored.reduce((a,e)=>a+e.quality,0)/scored.length*100).toFixed(0)+'%':'N/A';
   const adv=ex.filter(e=>e.type==='adversarial').length;
   const platforms={gumroad:'a Gumroad product page (value-focused, bullet points, download contents)',hf:'a HuggingFace dataset card (technical, formats, use cases)',fiverr:'a Fiverr gig description (deliverables, turnaround, credibility)',upwork:'an Upwork proposal (professional, process, expertise)'};
-  rb('sell-rb','✨ Generating listing...','info');
+  rb('sell-rb','Generating listing copy...','info');
   $('sell-out').style.display='none';
   try{
     const result=await callLLM(
@@ -2261,6 +2274,45 @@ function nukeAll(){
   localStorage.removeItem('tf_v3');
   location.reload();
 }
+
+const HOSTING_GUIDE=`
+TRAINFORGE — HOSTING GUIDE
+===========================
+
+OPTION 1: Netlify (Easiest)
+────────────────────────────
+1. Go to netlify.com → Sign up free
+2. Drag and drop your index.html onto the deploy area
+3. Live in 30 seconds at: random-name.netlify.app
+4. Add custom domain in site settings
+
+OPTION 2: GitHub Pages (Free)
+──────────────────────────────
+1. Create account at github.com
+2. New repository → Public
+3. Upload index.html, rename to index.html
+4. Settings → Pages → Source: main branch
+5. Live at: your-username.github.io/repo-name
+
+OPTION 3: Vercel (Fast)
+────────────────────────
+1. vercel.com → Sign up with GitHub
+2. New Project → upload HTML file
+3. Deploy → live in 30 seconds
+
+BUYING A DOMAIN
+───────────────
+• Namecheap.com — ~$10/year for .com
+• Porkbun.com — often $8-9/year
+• Cloudflare.com/registrar — at cost price
+
+COST SUMMARY
+─────────────
+• Hosting: FREE (Netlify, GitHub Pages, Vercel)
+• Domain: ~$10/year
+• SSL: FREE (included everywhere)
+`;
+
 function showHostingGuide(){
   const out=$('hosting-guide-out');
   out.style.display=out.style.display==='none'?'block':'none';
@@ -2271,26 +2323,26 @@ function showHostingGuide(){
 //  HUMAN SIMULATION ENGINE
 // ══════════════════════════════════════════════════════════════════
 const PERSONALITIES=[
-  {id:'frustrated',icon:'😤',name:'Frustrated User',desc:'Short sentences, caps lock, repeats themselves when ignored',color:'var(--red)'},
+  {id:'frustrated',icon:'😤',name:'Frustrated User',desc:'Short sentences, caps lock, repeats themselves',color:'var(--red)'},
   {id:'confused',icon:'😕',name:'Confused User',desc:'Asks the same thing multiple ways, misunderstands answers',color:'var(--yellow)'},
   {id:'anxious',icon:'😰',name:'Anxious User',desc:'Over-explains, second-guesses, apologizes a lot',color:'var(--purple)'},
-  {id:'impatient',icon:'⚡',name:'Impatient User',desc:'Short messages, wants answers fast, cuts off explanations',color:'var(--orange)'},
-  {id:'curious',icon:'🤔',name:'Curious Explorer',desc:'Asks follow-up questions, goes on tangents, enthusiastic',color:'var(--accent)'},
-  {id:'technical',icon:'💻',name:'Tech-Savvy User',desc:'Uses jargon, challenges answers, wants specifics',color:'var(--teal)'},
-  {id:'elderly',icon:'👴',name:'Non-Tech User',desc:'Unfamiliar with tech, needs simple language, easily lost',color:'var(--green)'},
+  {id:'impatient',icon:'⚡',name:'Impatient User',desc:'Short messages, wants answers fast',color:'var(--orange)'},
+  {id:'curious',icon:'🤔',name:'Curious Explorer',desc:'Asks follow-ups, goes on tangents, enthusiastic',color:'var(--blue)'},
+  {id:'technical',icon:'💻',name:'Tech-Savvy User',desc:'Uses jargon, challenges answers, wants specifics',color:'var(--accent)'},
+  {id:'elderly',icon:'👴',name:'Non-Tech User',desc:'Unfamiliar with tech, needs simple language',color:'var(--accent)'},
   {id:'emotional',icon:'😢',name:'Emotional User',desc:'Shares feelings, needs empathy before information',color:'var(--orange)'},
 ];
 
 const BEHAVIORS=[
-  {id:'typos',name:'Typos & autocorrect fails',desc:'realy? taht doesnt make snese to me',icon:'⌨️'},
+  {id:'typos',name:'Typos & autocorrect fails',desc:'"realy? taht doesnt make snese to me"',icon:'⌨️'},
   {id:'vague',name:'Vague opening questions',desc:'"it just doesnt work" without context',icon:'🌫️'},
   {id:'interrupt',name:'Mid-response interruptions',desc:'User sends new message before assistant finishes',icon:'✋'},
   {id:'contradict',name:'Self-contradictions',desc:'User changes what they want mid-conversation',icon:'🔄'},
   {id:'emotion',name:'Emotional outbursts',desc:'Sudden frustration, relief, or excitement',icon:'💥'},
-  {id:'clarify',name:'Misunderstands answers',desc:'Takes the answer the wrong way, needs re-explanation',icon:'❓'},
-  {id:'context_dump',name:'Late context dump',desc:'Reveals key info only after assistant guesses wrong',icon:'📦'},
+  {id:'clarify',name:'Misunderstands answers',desc:'Takes the answer the wrong way',icon:'❓'},
+  {id:'context_dump',name:'Late context dump',desc:'Reveals key info only after wrong guess',icon:'📦'},
   {id:'tangent',name:'Off-topic tangents',desc:'Drifts to unrelated topics mid-conversation',icon:'↗️'},
-  {id:'repeat',name:'Repetition when frustrated',desc:'Says the same thing 2-3 times with slight variation',icon:'🔁'},
+  {id:'repeat',name:'Repetition when frustrated',desc:'Says the same thing 2-3 times with variation',icon:'🔁'},
   {id:'short_replies',name:'Very short replies',desc:'"ok", "yeah", "idk", "no that doesnt help"',icon:'💬'},
 ];
 
@@ -2373,7 +2425,6 @@ async function runHumanSim(){
   for(let i=0;i<count;i++){
     const personality=personalities[i%personalities.length];
     hslog('\n[Conv '+(i+1)+'/'+count+'] Persona: '+personality.icon+' '+personality.name,'stage');
-
     try{
       const conv=await generateHumanConv({
         personality,behaviors,turns,intensity,domain,
@@ -2383,9 +2434,7 @@ async function runHumanSim(){
       });
       results.push(conv);
       hslog('  ✓ '+conv.data.messages.length+' turns generated','ok');
-    }catch(e){
-      hslog('  ✗ '+e.message,'err');
-    }
+    }catch(e){hslog('  ✗ '+e.message,'err');}
     $('hs-pb').style.width=Math.round((i+1)/count*100)+'%';
     await delay(500);
   }
@@ -2424,7 +2473,7 @@ ASSISTANT RULES:
 - Show empathy when the human is emotional
 - Do not be robotic — match the conversational energy
 
-CRITICAL: This must feel like a REAL conversation screenshot, not a training exercise. The human should be believably imperfect.`;
+CRITICAL: This must feel like a REAL conversation screenshot, not a training exercise.`;
 
   const usr=`Domain: ${domain==='auto'?sourceTopic:domain}
 ${sourceText?'Context: '+sourceText.slice(0,800):''}
@@ -2488,37 +2537,37 @@ function renderHsCard(ex){
     const hasTypo=/[a-z]{2,}[a-z]/.test((m.content||'').replace(/\s/g,'').slice(0,30));
     const hasCaps=/[A-Z]{3,}/.test(m.content||'');
     const isShort=(m.content||'').length<30;
-    const indicators=(hasTypo?'<span style="font-size:8px;color:var(--yellow);margin-left:4px">typo</span>':'')+(hasCaps?'<span style="font-size:8px;color:var(--red);margin-left:4px">CAPS</span>':'')+(isShort&&isUser?'<span style="font-size:8px;color:var(--muted);margin-left:4px">short</span>':'');
-    return `<div style="margin-bottom:9px;${isUser?'':'padding-left:12px;border-left:2px solid rgba(0,212,255,.2)'}">
+    const indicators=(hasTypo?'<span style="font-size:10px;color:var(--yellow);margin-left:5px">typo</span>':'')+(hasCaps?'<span style="font-size:10px;color:var(--red);margin-left:5px">caps</span>':'')+(isShort&&isUser?'<span style="font-size:10px;color:var(--text4);margin-left:5px">short</span>':'');
+    return `<div style="margin-bottom:10px;${isUser?'':'padding-left:14px;border-left:2px solid var(--accent-border)'}">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-        <span style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:${isUser?'var(--orange)':'var(--accent)'};font-weight:700">${isUser?ex.data.personality_icon+' '+ex.data.personality:'🤖 Assistant'}</span>
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:${isUser?'var(--orange)':'var(--accent)'};font-weight:700">${isUser?ex.data.personality_icon+' '+ex.data.personality:'Assistant'}</span>
         ${indicators}
       </div>
-      <span style="color:var(--text);font-size:11px">${esc(m.content||'')}</span>
+      <span style="color:var(--text);font-size:13px">${esc(m.content||'')}</span>
     </div>`;
   }).join('');
 
   const behaviors=ex.data.behaviors_injected||[];
-  const behaviorTags=behaviors.map(b=>`<span class="badge" style="background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.2)">${esc(b)}</span>`).join(' ');
+  const behaviorTags=behaviors.map(b=>`<span class="badge" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)">${esc(b)}</span>`).join(' ');
 
-  return `<div class="ds-card" id="card-${ex.id}" style="border-color:rgba(255,107,53,.2)">
+  return `<div class="ds-card" id="card-${ex.id}" style="border-color:#fed7aa">
     <div class="ds-header">
       <div>
         <div class="ds-badges">
-          <span class="badge" style="background:rgba(255,107,53,.12);color:var(--orange);border:1px solid rgba(255,107,53,.25)">🧠 Human Sim</span>
+          <span class="badge" style="background:var(--orange-bg);color:var(--orange);border:1px solid #fed7aa">🧠 Human Sim</span>
           <span class="badge b-conv">${ex.data.personality_icon} ${esc(ex.data.personality||'')}</span>
-          <span class="badge" style="background:var(--s3);color:var(--muted);border:1px solid var(--b2)">${(ex.data.messages||[]).length} turns</span>
+          <span class="badge" style="background:var(--surface3);color:var(--text3);border:1px solid var(--border)">${(ex.data.messages||[]).length} turns</span>
         </div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${behaviorTags}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${behaviorTags}</div>
         <div class="ds-meta">Domain: ${esc(ex.data.domain||'')} · id:${ex.id}</div>
       </div>
     </div>
     <div class="ds-content" style="max-height:320px;overflow-y:auto">${msgs}</div>
     <div class="ds-actions">
-      <button class="btn btn-xs" style="background:rgba(0,232,122,.08);color:var(--green);border-color:rgba(0,232,122,.2)" onclick="hsApprove('${ex.id}')">✓ Approve</button>
-      <button class="btn btn-xs" style="background:rgba(255,61,90,.08);color:var(--red);border-color:rgba(255,61,90,.2)" onclick="hsReject('${ex.id}')">✕ Reject</button>
+      <button class="btn btn-xs" style="background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)" onclick="hsApprove('${ex.id}')">✓ Approve</button>
+      <button class="btn btn-xs" style="background:var(--red-bg);color:var(--red);border-color:var(--red-border)" onclick="hsReject('${ex.id}')">✕ Reject</button>
       <button class="btn btn-xs btn-o" onclick="delEx('${ex.id}')">🗑</button>
-      <div class="ds-src">Human Simulation · ${esc(ex.data.personality||'')}</div>
+      <div class="ds-src">Human Sim · ${esc(ex.data.personality||'')}</div>
     </div>
   </div>`;
 }
@@ -2559,82 +2608,6 @@ function hslog(msg,cls=''){
   e.innerHTML+=`<span class="${cls}">${esc(msg)}</span>\n`;
   e.scrollTop=e.scrollHeight;
 }
-// ══════════════════════════════════════════════════════════════════
-//  HOSTING PREP — injected as data for the hosting guide
-// ══════════════════════════════════════════════════════════════════
-const HOSTING_GUIDE=`
-TRAINFORGE v3 — PUBLIC HOSTING GUIDE
-=====================================
-
-OPTION 1: GitHub Pages (FREE — Best for starting)
-──────────────────────────────────────────────────
-1. Create account at github.com
-2. New repository → name it "trainforge" → Public
-3. Upload trainforge-v3.html
-4. Rename it to index.html
-5. Settings → Pages → Source: main branch
-6. Your site goes live at: your-username.github.io/trainforge
-   Takes 2-3 minutes. Free forever.
-
-OPTION 2: Netlify (FREE — Easier, custom domain)
-─────────────────────────────────────────────────
-1. Go to netlify.com → Sign up free
-2. Drag and drop trainforge-v3.html onto the deploy area
-3. Instant live URL like: random-name.netlify.app
-4. To use custom domain: Site settings → Domain management
-   Add domain you bought (e.g. trainforge.io)
-   Netlify gives you free SSL certificate automatically
-
-OPTION 3: Vercel (FREE — Fastest)
-───────────────────────────────────
-1. vercel.com → Sign up with GitHub
-2. New Project → upload your HTML file
-3. Deploy → live in 30 seconds
-4. Add custom domain in project settings
-
-BUYING A DOMAIN
-───────────────
-Best registrars (cheapest):
-• Namecheap.com — ~$10/year for .com
-• Porkbun.com — often $8-9/year
-• Cloudflare.com/registrar — at cost price
-
-Good domain ideas:
-• trainforge.io
-• dataforge.ai
-• syntheticdata.io
-• llmdata.io
-
-MAKING IT LOOK PROFESSIONAL
-─────────────────────────────
-Before going public, update in the HTML:
-1. Change <title> to your domain name
-2. Add meta description tag in <head>:
-   <meta name="description" content="Build lab-grade AI training datasets in minutes"/>
-3. Add Open Graph tags for social sharing
-4. Add your contact email somewhere visible
-
-SEO (GET FOUND ON GOOGLE)
-──────────────────────────
-Add these in your <head> tag:
-<meta name="keywords" content="AI training data, fine-tuning dataset, RLHF data, instruction tuning"/>
-<meta property="og:title" content="TrainForge — AI Dataset Builder"/>
-<meta property="og:description" content="Build lab-grade fine-tuning datasets in minutes"/>
-
-ANALYTICS (FREE — See who visits)
-───────────────────────────────────
-Add Google Analytics or Plausible.io
-Plausible is privacy-friendly and easier
-Add one line of script to your <head>
-
-COST SUMMARY
-─────────────
-• GitHub Pages hosting: FREE
-• Netlify hosting: FREE  
-• Domain name: ~$10/year
-• SSL certificate: FREE (included everywhere)
-• Total first year: ~$10
-`;
 
 updateSidebar();
 updateExpCount();

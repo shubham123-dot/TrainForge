@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>TrainForge — Dataset Workspace</title>
 <meta name="description" content="Build AI training datasets from any source. For ML engineers and researchers who fine-tune models."/>
+<meta name="theme-color" content="#f8f7f4"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -42,6 +43,7 @@
 }
 html,body{height:100%}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+@supports (height:100dvh){body{height:100dvh}}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -77,6 +79,66 @@ nav{flex:1;padding:10px 10px;overflow-y:auto}
 .sm-v{font-size:18px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1}
 .sm-l{font-size:10px;color:var(--text3);margin-top:3px;font-weight:500}
 .kb-legend{display:none} /* hide keyboard shortcut legend — it's available but not cluttering the UI */
+
+/* ── MOBILE SIDEBAR ── */
+.sb-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease;backdrop-filter:blur(2px)}
+.sb-backdrop.open{opacity:1;pointer-events:auto}
+.hamburger{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;flex-shrink:0;transition:background .15s;margin-right:4px}
+.hamburger:hover{background:var(--surface2)}
+.hamburger svg{width:18px;height:18px;stroke:var(--text2);stroke-width:2;stroke-linecap:round;fill:none;transition:stroke .15s}
+.hamburger:hover svg{stroke:var(--text)}
+
+@media(max-width:767px){
+  body{overflow:auto}
+  /* prevent iOS auto-zoom on input focus (anything <16px triggers it) */
+  .inp,textarea.inp,select.inp{font-size:16px!important}
+  /* hide desktop sidebar from flow */
+  #sb{
+    position:fixed;top:0;left:0;height:100%;width:280px;
+    z-index:200;
+    transform:translateX(-100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s ease;
+    box-shadow:none;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    border-right:1px solid var(--border);
+    padding-top:env(safe-area-inset-top);
+  }
+  #sb.sb-open{
+    transform:translateX(0);
+    box-shadow:4px 0 24px rgba(0,0,0,.15);
+  }
+  .sb-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .sb-backdrop{display:block}
+  .hamburger{display:flex;width:40px;height:40px}
+  /* topbar: sticky, show hamburger */
+  .topbar{
+    position:sticky;top:0;z-index:100;
+    padding:env(safe-area-inset-top) 14px 0;
+    height:calc(52px + env(safe-area-inset-top));
+  }
+  /* main fills full width */
+  #main{width:100%;min-width:0}
+  /* content padding tighter */
+  .content{padding:18px 16px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+  /* brand close button */
+  .brand-close{display:flex}
+  /* bigger, easier-to-tap touch targets */
+  .ni{padding:11px 12px}
+  .btn{padding:11px 16px}
+  .btn-sm{padding:9px 14px}
+  /* snappier taps: skip tap-delay, no double-tap-zoom or text-select on controls */
+  .ni,.btn,.hamburger,.brand-close{touch-action:manipulation;-webkit-touch-callout:none}
+  .btn:active,.ni:active{opacity:.7}
+}
+@media(min-width:768px){
+  .sb-backdrop{display:none!important}
+  .hamburger{display:none!important}
+  .brand-close{display:none!important}
+  #sb{position:relative;transform:none!important;box-shadow:none!important}
+}
+.brand-close{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--r);border:none;background:var(--surface3);cursor:pointer;margin-left:auto;font-size:16px;color:var(--text3);transition:background .15s;flex-shrink:0}
+.brand-close:hover{background:var(--border2);color:var(--text)}
 
 /* ── MAIN ── */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -344,11 +406,17 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
+<!-- ── MOBILE BACKDROP ── -->
+<div class="sb-backdrop" id="sb-backdrop" onclick="closeSidebar()"></div>
+
 <!-- ── SIDEBAR ── -->
 <aside id="sb">
-  <div class="brand">
-    <div class="brand-name">TrainForge</div>
-    <div class="brand-tagline">Dataset workspace for ML engineers</div>
+  <div class="brand" style="display:flex;align-items:center;gap:8px">
+    <div style="flex:1">
+      <div class="brand-name">TrainForge</div>
+      <div class="brand-tagline">Dataset workspace for ML engineers</div>
+    </div>
+    <button class="brand-close" onclick="closeSidebar()" aria-label="Close menu">✕</button>
   </div>
   <nav>
     <div class="nav-sec">Build</div>
@@ -361,7 +429,7 @@ select.inp{cursor:pointer}
     <div class="ni" data-t="export"><span class="ni-icon">📦</span><span class="ni-lbl">Export</span></div>
     <div class="nav-sec">More</div>
     <div class="ni" data-t="sell"><span class="ni-icon">💰</span><span class="ni-lbl">Sell</span></div>
-    <div class="ni" data-t="human"><span class="ni-icon">🧠</span><span class="ni-lbl">Human Sim 🆕</span></div>
+    <div class="ni" data-t="human"><span class="ni-icon">🧠</span><span class="ni-lbl">Human Sim</span></div>
     <div class="ni" data-t="settings"><span class="ni-icon">⚙</span><span class="ni-lbl">Settings</span></div>
   </nav>
   <div class="sb-foot">
@@ -381,14 +449,12 @@ select.inp{cursor:pointer}
 <!-- ── MAIN ── -->
 <div id="main">
   <div class="topbar">
+    <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">
+      <svg viewBox="0 0 18 18"><line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/></svg>
+    </button>
     <div class="tb-left">
       <div class="tb-title" id="tb-title">Add Source</div>
       <div class="tb-sub" id="tb-sub">Pull content from Wikipedia, a URL, or paste text</div>
-    </div>
-    <div class="tb-right">
-      <span class="provider-tag" id="prov-tag">Groq</span>
-      <input type="password" class="inp" id="api-key" style="width:160px;font-size:12px;font-family:var(--mono)" placeholder="API key"/>
-      <button class="btn btn-o btn-sm" onclick="verifyKey()">Verify</button>
     </div>
   </div>
 
@@ -748,7 +814,7 @@ select.inp{cursor:pointer}
     </div>
 
     <!-- ── HUMAN SIMULATION ── -->
-    <div class="tab" id="tab-human"div>
+    <div class="tab" id="tab-human">
       <div class="card" style="background:var(--orange-bg);border-color:#fed7aa">
         <div style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:6px">🧠 Human Conversation Simulation</div>
         <div style="font-size:13px;color:var(--text2);line-height:1.7">Generate conversations that behave like real humans — emotional, vague, interrupted, confused. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for realistic conversation data than plain Q&A.</div>
@@ -877,6 +943,14 @@ select.inp{cursor:pointer}
         </select></div>
         <button class="btn btn-p btn-sm" onclick="saveSettings()">Save settings</button>
         <div class="rb" id="set-rb"></div>
+        <div class="fg" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);margin-bottom:0">
+          <label>Quick connect &amp; verify</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="provider-tag" id="prov-tag">Groq</span>
+            <input type="password" class="inp" id="api-key" style="flex:1;width:auto;min-width:140px;font-family:var(--mono)" placeholder="API key"/>
+            <button class="btn btn-o btn-sm" onclick="verifyKey()">Verify</button>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-t">Dataset info</div>
@@ -921,6 +995,47 @@ function toggleAdv(btn,contentId){
   content.classList.toggle('open',!isOpen);
   if(arrow)arrow.classList.toggle('open',!isOpen);
 }
+
+// ── MOBILE SIDEBAR ──
+function openSidebar(){
+  const sb=document.getElementById('sb');
+  const bd=document.getElementById('sb-backdrop');
+  sb.classList.add('sb-open');
+  bd.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSidebar(){
+  const sb=document.getElementById('sb');
+  const bd=document.getElementById('sb-backdrop');
+ if(sb) sb.classList.remove('sb-open');
+ if(bd) bd.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// Mobile UX improvements
+document.addEventListener('click',function(e){
+  const nav=e.target.closest('.ni');
+  if(nav && window.innerWidth < 768) closeSidebar();
+});
+
+let touchStartX=0;
+document.addEventListener('touchstart',e=>{
+  touchStartX=e.touches[0].clientX;
+},{passive:true});
+
+document.addEventListener('touchend',e=>{
+  const endX=e.changedTouches[0].clientX;
+  const sb=document.getElementById('sb');
+  if(window.innerWidth < 768){
+    if(touchStartX < 25 && endX-touchStartX > 80) openSidebar();
+    if(sb && sb.classList.contains('sb-open') && touchStartX-endX > 60) closeSidebar();
+  }
+},{passive:true});
+
+// Close on Escape key
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeSidebar();
+});
 </script>
 
 <script>
@@ -928,7 +1043,14 @@ function toggleAdv(btn,contentId){
 //  STATE
 // ══════════════════════════════════════════════════════════════════
 const LS=()=>{try{return JSON.parse(localStorage.getItem('tf_v3')||'{}')}catch{return{}}};
-const SS=p=>localStorage.setItem('tf_v3',JSON.stringify({...LS(),...p}));
+const SS = p =>
+  localStorage.setItem(
+    'tf_v3',
+    JSON.stringify({
+      ...LS(),
+      ...p
+    })
+  );
 const getEx=()=>LS().examples||[];
 const getSt=()=>LS().settings||{};
 const getDI=()=>LS().dsinfo||{};
@@ -1107,6 +1229,8 @@ document.querySelectorAll('.ni[data-t]').forEach(el=>{
     if(t==='settings')loadSettings();
     if(t==='generate')updateTokEstimate();
     if(t==='human')initHumanSim();
+    // close sidebar on mobile after nav
+    if(window.innerWidth<768)closeSidebar();
   });
 });
 

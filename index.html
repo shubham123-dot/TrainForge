@@ -310,7 +310,11 @@ select.inp{cursor:pointer}
 #onboarding.hidden{display:none}
 .ob-wrap{max-width:480px;width:100%}
 .ob-logo{font-size:28px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:-.5px}
-.ob-tag{font-size:12px;color:var(--text3);letter-spacing:0;margin-bottom:32px}
+.ob-tag{font-size:13px;color:var(--text2);letter-spacing:0;margin-bottom:24px;line-height:1.5}
+.ob-steps{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:28px;padding:14px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2)}
+.ob-step{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--text2);font-weight:600;min-width:72px}
+.ob-step-icon{font-size:18px}
+.ob-arrow{color:var(--text4);font-size:13px}
 .ob-providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .ob-p{background:var(--surface);border:2px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .15s;text-align:center;box-shadow:var(--shadow)}
 .ob-p:hover,.ob-p.sel{border-color:var(--accent);background:var(--accent-bg)}
@@ -319,6 +323,27 @@ select.inp{cursor:pointer}
 .ob-row{display:flex;gap:8px;margin-bottom:12px}
 .ob-skip{text-align:center;font-size:12px;color:var(--text4);cursor:pointer;margin-top:12px}
 .ob-skip:hover{color:var(--text)}
+
+/* ── FIRST-VISIT STORY INTRO ── */
+#intro-story{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;user-select:none}
+#intro-story.hidden{display:none}
+.is-bars{position:absolute;top:18px;left:18px;right:70px;display:flex;gap:5px}
+.is-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.is-bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:2px}
+.is-bar.done i{width:100%}
+.is-bar.active i{animation:isgrow linear forwards;animation-duration:var(--dur,2400ms)}
+@keyframes isgrow{from{width:0}to{width:100%}}
+.is-skip{position:absolute;top:14px;right:16px;font-size:12px;color:var(--text3);padding:8px 6px}
+.is-skip:hover{color:var(--text)}
+.is-card{max-width:360px;width:100%;text-align:center}
+.is-icon{font-size:54px;margin-bottom:18px;animation:isPop .35s ease}
+@keyframes isPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.is-title{font-size:21px;font-weight:700;color:var(--text);margin-bottom:9px;letter-spacing:-.3px;animation:isFade .3s ease}
+.is-desc{font-size:14px;color:var(--text2);line-height:1.6;animation:isFade .3s ease .05s}
+@keyframes isFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.is-cta{margin-top:22px;cursor:pointer}
+.is-cta.hidden{display:none}
+.is-hint{margin-top:16px;font-size:11px;color:var(--text4)}
 
 /* ── SYSTEM PROMPT PICKER ── */
 .sys-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
@@ -382,11 +407,32 @@ select.inp{cursor:pointer}
 </head>
 <body>
 
+<!-- ── FIRST-VISIT STORY INTRO ── -->
+<div id="intro-story" class="hidden">
+  <div class="is-bars" id="is-bars"></div>
+  <div class="is-skip" onclick="introSkip()">Skip ✕</div>
+  <div class="is-card">
+    <div class="is-icon" id="is-icon">👋</div>
+    <div class="is-title" id="is-title">Hey there!</div>
+    <div class="is-desc" id="is-desc">Let's see what TrainForge can do.</div>
+    <button class="btn btn-p is-cta hidden" id="is-cta" onclick="introFinish()">Let's go →</button>
+    <div class="is-hint" id="is-hint">Tap anywhere to continue</div>
+  </div>
+</div>
+
 <!-- ── ONBOARDING ── -->
-<div id="onboarding">
+<div id="onboarding" class="hidden">
   <div class="ob-wrap">
     <div class="ob-logo">TrainForge</div>
-    <div class="ob-tag">Dataset Workspace · Connect your API key to get started</div>
+    <div class="ob-tag">Turn any article, URL, or pasted text into a ready-to-use AI training dataset.</div>
+    <div class="ob-steps">
+      <div class="ob-step"><span class="ob-step-icon">📄</span>Add a source</div>
+      <span class="ob-arrow">→</span>
+      <div class="ob-step"><span class="ob-step-icon">⚙️</span>AI generates examples</div>
+      <span class="ob-arrow">→</span>
+      <div class="ob-step"><span class="ob-step-icon">📦</span>Export your dataset</div>
+    </div>
+    <div class="nav-sec" style="padding:0 0 8px;text-align:center">Connect a free API key to start generating</div>
     <div class="ob-providers">
       <div class="ob-p sel" id="ob-groq" onclick="selProv('groq',this)">
         <div class="ob-p-name">⚡ Groq</div>
@@ -414,7 +460,7 @@ select.inp{cursor:pointer}
   <div class="brand" style="display:flex;align-items:center;gap:8px">
     <div style="flex:1">
       <div class="brand-name">TrainForge</div>
-      <div class="brand-tagline">Dataset workspace for ML engineers</div>
+      <div class="brand-tagline">Turn content into AI training data</div>
     </div>
     <button class="brand-close" onclick="closeSidebar()" aria-label="Close menu">✕</button>
   </div>
@@ -976,6 +1022,7 @@ select.inp{cursor:pointer}
       <div class="card">
         <div class="card-t">Data management</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-o btn-sm" onclick="introStart()">▶ Watch intro again</button>
           <button class="btn btn-o btn-sm" onclick="importBackup()">Import backup</button>
           <button class="btn btn-r btn-sm" onclick="nukeAll()">Reset everything</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(this.files[0])"/>
@@ -1189,7 +1236,6 @@ async function obSave(){
 (function initOb(){
   const s=getSt();
   if(s.key){
-    $('onboarding').classList.add('hidden');
     $('api-key').value=s.key;
     $('api-dot').className='api-dot ok';
     $('api-txt').textContent=(s.provider||'groq')+' active';
@@ -1198,6 +1244,85 @@ async function obSave(){
   }
 })();
 function updateProvTag(){$('prov-tag').textContent=selProvider==='openai'?'OpenAI':'Groq';}
+
+// ══════════════════════════════════════════════════════════════════
+//  FIRST-VISIT STORY INTRO (Duolingo-style quick visual walkthrough)
+// ══════════════════════════════════════════════════════════════════
+const INTRO_SLIDES=[
+  {icon:'👋',title:'Hey there!',desc:"Here's what TrainForge does — in about 30 seconds.",dur:5000},
+  {icon:'📄',title:'Add a Source',desc:'Paste text, a URL, or a Wikipedia link — any raw content works.',dur:5000},
+  {icon:'⚙️',title:'Generate Examples',desc:'AI turns your source into clean, structured training examples.',dur:5000},
+  {icon:'👁',title:'Review & Refine',desc:'Approve, reject, or regenerate any example with one tap.',dur:5000},
+  {icon:'🗂',title:'Build Your Dataset',desc:'Every approved example lands in your dataset, ready to grow.',dur:5000},
+  {icon:'📦',title:'Export Anywhere',desc:'Download in 7+ formats — OpenAI JSONL, Alpaca, CSV, and more.',dur:5000},
+  {icon:'🚀',title:"That's it!",desc:'Connect a free API key and start building.',cta:true},
+];
+let introIdx=0,introTimer=null;
+function introRenderBars(){
+  $('is-bars').innerHTML=INTRO_SLIDES.map((s,i)=>{
+    if(i<introIdx) return '<div class="is-bar done"><i></i></div>';
+    if(i===introIdx) return `<div class="is-bar active" style="--dur:${s.dur||0}ms"><i></i></div>`;
+    return '<div class="is-bar"><i></i></div>';
+  }).join('');
+}
+function introShowSlide(i){
+  if(i<0)i=0;
+  if(i>=INTRO_SLIDES.length){introFinish();return;}
+  introIdx=i;
+  const s=INTRO_SLIDES[i];
+  const icon=$('is-icon'),title=$('is-title'),desc=$('is-desc');
+  icon.style.animation='none';title.style.animation='none';desc.style.animation='none';
+  requestAnimationFrame(()=>{icon.style.animation='';title.style.animation='';desc.style.animation='';});
+  icon.textContent=s.icon;
+  title.textContent=s.title;
+  desc.textContent=s.desc;
+  $('is-cta').classList.toggle('hidden',!s.cta);
+  $('is-hint').classList.toggle('hidden',!!s.cta);
+  introRenderBars();
+  clearTimeout(introTimer);
+  if(!s.cta){introTimer=setTimeout(()=>introShowSlide(i+1),s.dur);}
+}
+function introNext(){clearTimeout(introTimer);introShowSlide(introIdx+1);}
+function introPrev(){clearTimeout(introTimer);introShowSlide(introIdx-1);}
+function introSkip(){introFinish();}
+function introFinish(){
+  clearTimeout(introTimer);
+  try{localStorage.setItem('tf_intro_done','1');}catch(e){}
+  $('intro-story').classList.add('hidden');
+  if(!getSt().key){$('onboarding').classList.remove('hidden');}
+}
+function introStart(){
+  $('intro-story').classList.remove('hidden');
+  introShowSlide(0);
+}
+let introTouchX=0,introSwiped=false;
+$('intro-story').addEventListener('touchstart',e=>{introTouchX=e.touches[0].clientX;},{passive:true});
+$('intro-story').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-introTouchX;
+  if(Math.abs(dx)>40){
+    introSwiped=true;
+    if(dx<0)introNext();else introPrev();
+    setTimeout(()=>{introSwiped=false;},350);
+  }
+},{passive:true});
+$('intro-story').addEventListener('click',e=>{
+  if(introSwiped)return;
+  if(e.target.closest('.is-skip')||e.target.closest('.is-cta'))return;
+  const x=e.clientX,w=window.innerWidth;
+  if(x<w*0.3)introPrev();else introNext();
+});
+document.addEventListener('keydown',e=>{
+  if($('intro-story').classList.contains('hidden'))return;
+  if(e.key==='ArrowRight'||e.key===' ')introNext();
+  else if(e.key==='ArrowLeft')introPrev();
+  else if(e.key==='Escape')introSkip();
+});
+(function decideFirstRun(){
+  let seen=false;
+  try{seen=localStorage.getItem('tf_intro_done')==='1';}catch(e){}
+  if(!seen){introStart();}
+  else if(!getSt().key){$('onboarding').classList.remove('hidden');}
+})();
 
 // ══════════════════════════════════════════════════════════════════
 //  NAV

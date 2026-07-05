@@ -70,6 +70,8 @@ nav{flex:1;padding:10px 10px;overflow-y:auto}
 
 .sb-foot{padding:12px;border-top:1px solid var(--border)}
 .api-pill{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r2);background:var(--surface2);border:1px solid var(--border);margin-bottom:10px}
+.trial-badge{font-size:11px;color:var(--orange);background:var(--orange-bg);border:1px solid #fed7aa;border-radius:var(--r2);padding:6px 10px;margin-bottom:10px;font-weight:600;text-align:center}
+.trial-badge.hidden{display:none}
 .api-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:all .3s}
 .api-dot.ok{background:var(--accent)}
 .api-dot.err{background:var(--red)}
@@ -289,6 +291,8 @@ select.inp{cursor:pointer}
 /* ── GENERATION MODE SELECTOR ── */
 .gen-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
 .gen-mode-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .15s}
+.gen-mode-card.locked{opacity:.5;cursor:not-allowed;position:relative}
+.gen-mode-card.locked::after{content:'🔒 Requires your own key';position:absolute;top:8px;right:10px;font-size:9px;font-weight:700;color:var(--text3);background:var(--surface);padding:2px 6px;border-radius:8px;border:1px solid var(--border)}
 .gen-mode-card:hover{border-color:var(--border2);background:var(--surface)}
 .gen-mode-card.sel{border-color:var(--accent);background:var(--accent-bg)}
 .gm-icon{font-size:22px;margin-bottom:6px}
@@ -323,6 +327,7 @@ select.inp{cursor:pointer}
 .ob-row{display:flex;gap:8px;margin-bottom:12px}
 .ob-skip{text-align:center;font-size:12px;color:var(--text4);cursor:pointer;margin-top:12px}
 .ob-skip:hover{color:var(--text)}
+.hidden{display:none!important}
 
 /* ── FIRST-VISIT STORY INTRO ── */
 #intro-story{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;user-select:none}
@@ -344,6 +349,36 @@ select.inp{cursor:pointer}
 .is-cta{margin-top:22px;cursor:pointer}
 .is-cta.hidden{display:none}
 .is-hint{margin-top:16px;font-size:11px;color:var(--text4)}
+
+/* ── PERSISTENT HELP BUTTON ── */
+.help-fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.22);cursor:pointer;z-index:500;transition:transform .15s,box-shadow .15s;touch-action:manipulation}
+.help-fab:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(0,0,0,.28)}
+.help-fab:active{transform:scale(.95)}
+.help-fab.hidden{display:none}
+
+/* ── WRITTEN HELP DOC ── */
+#help-doc{position:fixed;inset:0;z-index:9500;background:rgba(20,18,14,.5);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+#help-doc.hidden{display:none}
+.help-doc-panel{background:var(--bg);width:100%;max-width:560px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(0,0,0,.25)}
+@media(min-width:768px){.help-doc-panel{border-radius:20px;max-height:80vh;margin-bottom:6vh}}
+.help-doc-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.help-doc-title{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.help-doc-close{font-size:20px;color:var(--text3);cursor:pointer;padding:2px 6px;line-height:1;touch-action:manipulation}
+.help-doc-close:hover{color:var(--text)}
+.help-doc-body{overflow-y:auto;padding:18px 20px calc(24px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.hd-sec{margin-bottom:18px}
+.hd-sec:last-child{margin-bottom:0}
+.hd-sec-t{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.hd-sec-icon{font-size:15px}
+.hd-sec-p{font-size:12.5px;color:var(--text2);line-height:1.65}
+.hd-sec-p b{color:var(--text);font-weight:600}
+.hd-list{margin-top:6px;padding-left:0;list-style:none}
+.hd-list li{font-size:12.5px;color:var(--text2);line-height:1.6;padding-left:14px;position:relative;margin-bottom:4px}
+.hd-list li::before{content:'—';position:absolute;left:0;color:var(--text4)}
+.hd-divider{height:1px;background:var(--border);margin:16px 0}
+
+.url-suggest{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:var(--r2);padding:12px 14px;margin-bottom:14px}
+.url-suggest.hidden{display:none}
 
 /* ── SYSTEM PROMPT PICKER ── */
 .sys-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
@@ -399,6 +434,21 @@ select.inp{cursor:pointer}
 .home-strip h2{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-.2px}
 .home-strip p{font-size:13px;color:var(--text2);line-height:1.6}
 
+/* ── SAMPLE TOPIC CHIPS ── */
+.sample-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.sample-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);background:var(--surface);cursor:pointer;transition:all .15s;font-family:var(--sans);touch-action:manipulation}
+.sample-chip:hover,.sample-chip:active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+
+/* ── DEMO BANNER ── */
+.demo-banner{display:flex;align-items:flex-start;gap:12px;background:var(--blue-bg);border:1px solid #bfdbfe;border-radius:var(--r2);padding:14px 16px;margin-bottom:18px}
+.demo-banner.hidden{display:none}
+.demo-banner-body{flex:1;min-width:0}
+.demo-banner-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:3px}
+.demo-banner-sub{font-size:12px;color:var(--text2);line-height:1.5}
+.demo-banner-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.demo-dismiss{font-size:18px;color:var(--text4);cursor:pointer;flex-shrink:0;line-height:1;padding:2px;touch-action:manipulation}
+.demo-dismiss:hover{color:var(--text)}
+
 /* ── COMPACT EMPTY STATE ── */
 .empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
 .empty-state .es-icon{font-size:32px;margin-bottom:10px;opacity:.5}
@@ -448,7 +498,115 @@ select.inp{cursor:pointer}
       <button class="btn btn-p" onclick="obSave()">Start →</button>
     </div>
     <div class="rb" id="ob-rb"></div>
+    <div class="ob-trial hidden" id="ob-trial" style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px">or skip the setup entirely</div>
+      <button class="btn btn-o btn-sm" id="ob-trial-btn" onclick="$('onboarding').classList.add('hidden');updateTrialBadge();applyTrialUIRestrictions()">✨ Try it free once — no key needed</button>
+    </div>
     <div class="ob-skip" onclick="$('onboarding').classList.add('hidden')">Skip — add key later</div>
+  </div>
+</div>
+
+<!-- ── PERSISTENT HELP BUTTON ── -->
+<button class="help-fab hidden" id="help-fab" onclick="openHelpDoc()" title="How TrainForge works" aria-label="How TrainForge works">?</button>
+
+<!-- ── WRITTEN HELP DOC ── -->
+<div id="help-doc" class="hidden" onclick="if(event.target.id==='help-doc')closeHelpDoc()">
+  <div class="help-doc-panel">
+    <div class="help-doc-header">
+      <div class="help-doc-title">How TrainForge Works</div>
+      <span class="help-doc-close" onclick="closeHelpDoc()">✕</span>
+    </div>
+    <div class="help-doc-body">
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">🎯</span>What is TrainForge?</div>
+        <div class="hd-sec-p">TrainForge turns any article, URL, or pasted text into <b>ready-to-use AI training data</b> — instruction pairs, conversations, preference pairs, and more — using your own AI provider key (Groq or OpenAI).</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">📄</span>1. Add a Source</div>
+        <div class="hd-sec-p">Give TrainForge raw content to work from. Five ways to do it:</div>
+        <ul class="hd-list">
+          <li><b>Wikipedia</b> — type any topic, it fetches the article automatically</li>
+          <li><b>URL</b> — paste a link to scrape any web page</li>
+          <li><b>Paste text</b> — drop in your own notes, docs, or transcripts</li>
+          <li><b>File upload</b> — upload a text file directly</li>
+          <li><b>Batch URLs</b> — scrape several pages at once</li>
+        </ul>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">🧭</span>2. Choose a Generation Style</div>
+        <ul class="hd-list">
+          <li><b>Standard</b> — fast, clean Q&A pairs, good default</li>
+          <li><b>Lab Quality</b> — 3-stage pipeline with stricter quality checks</li>
+          <li><b>Adversarial</b> — trick questions, false premises, ambiguous prompts to harden a model</li>
+          <li><b>Conversational</b> — realistic multi-turn dialogue with natural friction</li>
+          <li><b>Persona Mix</b> — generates across multiple assistant personalities/system prompts</li>
+        </ul>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">⚙️</span>3. Pick a Format</div>
+        <ul class="hd-list">
+          <li><b>Instruction</b> — a prompt + ideal response pair</li>
+          <li><b>Conversation</b> — a multi-turn back-and-forth</li>
+          <li><b>Preference</b> — a "chosen" vs "rejected" pair for DPO/RLHF-style training</li>
+          <li><b>Adversarial</b> — edge cases: trick questions, corrections, refusals</li>
+        </ul>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">👁</span>4. Review & Refine</div>
+        <div class="hd-sec-p">Every generated example lands in Review as <b>pending</b>. Approve, reject, or regenerate any of them with one tap. Filter by status or format to work through a batch quickly.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">📊</span>5. Quality Scoring</div>
+        <div class="hd-sec-p">Every example is auto-scored on quality. Built-in filters catch common problems before they reach your dataset — sycophantic openers ("Certainly!", "Great question!"), "as an AI" phrasing, and near-duplicate examples.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">🗂</span>6. My Dataset</div>
+        <div class="hd-sec-p">Approved examples collect here. Search across them, see live stats — total count, approved count, breakdown by format, average quality score.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">📦</span>7. Export</div>
+        <div class="hd-sec-p">Download your dataset in 7+ formats ready for fine-tuning — OpenAI JSONL, DPO pairs, Alpaca format, CSV, and more.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">👥</span>8. Human Simulation</div>
+        <div class="hd-sec-p">Generates synthetic human-style conversations — vague questions, pushback, realistic imperfection — instead of scripted, too-perfect dialogue.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">💰</span>9. Sell</div>
+        <div class="hd-sec-p">Guides for listing and monetizing a finished dataset once you're happy with it.</div>
+      </div>
+      <div class="hd-divider"></div>
+
+      <div class="hd-sec">
+        <div class="hd-sec-t"><span class="hd-sec-icon">🔑</span>10. API Keys & Settings</div>
+        <div class="hd-sec-p">TrainForge needs a Groq or OpenAI key to generate — it calls their API directly from your browser, nothing is sent anywhere else. Add or change your key anytime under <b>Settings → API Configuration</b>. Groq offers a free tier and is the faster default; OpenAI models are also supported.</div>
+      </div>
+      <div class="hd-sec hidden" id="hd-trial-sec">
+        <div class="hd-divider"></div>
+        <div class="hd-sec-t"><span class="hd-sec-icon">✨</span>Free Trial</div>
+        <div class="hd-sec-p" id="hd-trial-text"></div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -483,6 +641,7 @@ select.inp{cursor:pointer}
       <div class="api-dot" id="api-dot"></div>
       <span class="api-txt" id="api-txt">No key connected</span>
     </div>
+    <div class="trial-badge hidden" id="trial-badge"></div>
     <div class="stat-mini">
       <div class="sm"><div class="sm-v" id="ms-ex">0</div><div class="sm-l">Examples</div></div>
       <div class="sm"><div class="sm-v" id="ms-ap">0</div><div class="sm-l">Approved</div></div>
@@ -511,6 +670,15 @@ select.inp{cursor:pointer}
       <div class="home-strip">
         <h2>Start by adding a source</h2>
         <p>Paste text, fetch a Wikipedia article, scrape a URL, or upload a file. TrainForge turns it into training data for fine-tuning.</p>
+        <div class="sample-chips">
+          <span style="font-size:11px;color:var(--text3);font-weight:600;align-self:center;letter-spacing:.4px;text-transform:uppercase">Try:</span>
+          <div class="sample-chip" onclick="trySample('Transformer architecture')">🤖 Transformer architecture</div>
+          <div class="sample-chip" onclick="trySample('Reinforcement learning')">🎮 Reinforcement learning</div>
+          <div class="sample-chip" onclick="trySample('Photosynthesis')">🌿 Photosynthesis</div>
+          <div class="sample-chip" onclick="trySample('Roman Empire')">🏛️ Roman Empire</div>
+          <div class="sample-chip" onclick="trySample('Quantum computing')">⚛️ Quantum computing</div>
+          <div class="sample-chip" onclick="trySample('Climate change')">🌍 Climate change</div>
+        </div>
       </div>
 
       <div class="mode-tabs">
@@ -554,6 +722,7 @@ select.inp{cursor:pointer}
 
       <div class="mode-pane" id="pane-url">
         <div class="card">
+          <div class="url-suggest hidden" id="url-suggest"></div>
           <div class="fg"><label>URL</label><input class="inp" id="url-inp" placeholder="https://..."/></div>
           <button class="btn btn-p" onclick="ingestURL()">Scrape page</button>
           <div class="rb" id="url-rb"></div>
@@ -625,6 +794,12 @@ select.inp{cursor:pointer}
 
     <!-- ── GENERATE ── -->
     <div class="tab" id="tab-generate">
+      <div class="demo-banner hidden" id="gen-trial-note">
+        <div class="demo-banner-body">
+          <div class="demo-banner-title">✨ Free trial mode</div>
+          <div class="demo-banner-sub">Limited to 10 examples, English only, and Standard/Adversarial/Conversational styles. Add your own key in Settings to unlock everything.</div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-t">Generation style</div>
         <div class="gen-modes" id="gen-modes">
@@ -751,6 +926,17 @@ select.inp{cursor:pointer}
 
     <!-- ── REVIEW ── -->
     <div class="tab" id="tab-review">
+      <div id="demo-banner" class="demo-banner hidden">
+        <div class="demo-banner-body">
+          <div class="demo-banner-title">👇 These are sample examples — try approving, rejecting, or regenerating one</div>
+          <div class="demo-banner-sub">This is what TrainForge generates from any article. Connect an API key on the Add Source tab to generate from your own content.</div>
+          <div class="demo-banner-actions">
+            <button class="btn btn-o btn-sm" onclick="document.querySelector('.ni[data-t=ingest]').click()">← Add my own source</button>
+            <button class="btn btn-o btn-sm" onclick="dismissDemo()">Clear demo data</button>
+          </div>
+        </div>
+        <span class="demo-dismiss" onclick="dismissDemo()" title="Dismiss">✕</span>
+      </div>
       <div class="review-toolbar">
         <button class="chip on" data-f="all" onclick="setFilter(this)">All</button>
         <button class="chip" data-f="pending" onclick="setFilter(this)">Pending</button>
@@ -863,7 +1049,7 @@ select.inp{cursor:pointer}
     <div class="tab" id="tab-human">
       <div class="card" style="background:var(--orange-bg);border-color:#fed7aa">
         <div style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:6px">🧠 Human Conversation Simulation</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.7">Generate conversations that behave like real humans — emotional, vague, interrupted, confused. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for realistic conversation data than plain Q&A.</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7" id="human-banner-desc">Generate conversations that behave like real humans — emotional, vague, interrupted, confused. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for realistic conversation data than plain Q&A.</div>
       </div>
 
       <div class="card">
@@ -1014,12 +1200,6 @@ select.inp{cursor:pointer}
         <div class="rb" id="dsinfo-rb"></div>
       </div>
       <div class="card">
-        <div class="card-t">Hosting guide</div>
-        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Deploy TrainForge publicly — free on Netlify, GitHub Pages, or Vercel.</p>
-        <button class="btn btn-o btn-sm" onclick="showHostingGuide()">View guide</button>
-        <div id="hosting-guide-out" style="display:none;margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:12px;color:var(--text2);line-height:2;white-space:pre-wrap;max-height:400px;overflow-y:auto;font-family:var(--mono)"></div>
-      </div>
-      <div class="card">
         <div class="card-t">Data management</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-o btn-sm" onclick="introStart()">▶ Watch intro again</button>
@@ -1050,6 +1230,7 @@ function openSidebar(){
   sb.classList.add('sb-open');
   bd.classList.add('open');
   document.body.style.overflow='hidden';
+  const fab=$('help-fab');if(fab&&!fab.classList.contains('hidden'))fab.style.display='none';
 }
 function closeSidebar(){
   const sb=document.getElementById('sb');
@@ -1057,6 +1238,7 @@ function closeSidebar(){
  if(sb) sb.classList.remove('sb-open');
  if(bd) bd.classList.remove('open');
   document.body.style.overflow='';
+  const fab=$('help-fab');if(fab)fab.style.display='';
 }
 
 // Mobile UX improvements
@@ -1081,7 +1263,7 @@ document.addEventListener('touchend',e=>{
 
 // Close on Escape key
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape')closeSidebar();
+  if(e.key==='Escape'){closeSidebar();closeHelpDoc();}
 });
 </script>
 
@@ -1114,6 +1296,161 @@ let filterLog=[];
 let filteredCount=0;
 
 const CORS='https://api.allorigins.win/raw?url=';
+
+// ══════════════════════════════════════════════════════════════════
+//  FREE TRIAL MODE
+//  ⚠️ SECURITY NOTE: this is a static HTML file with no backend — any
+//  key placed below is visible to anyone via "View Source" or DevTools.
+//  Do NOT use a key you can't afford to have copied and reused by others.
+//  Set a hard spending/budget cap on this key at the provider level.
+//  Leave TRIAL_KEY empty to disable trial mode entirely.
+// ══════════════════════════════════════════════════════════════════
+const TRIAL_KEY='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';           // paste a rate-limited/budget-capped Groq key here to enable
+const TRIAL_PROVIDER='groq';
+const TRIAL_MODEL='llama-3.3-70b-versatile';
+const TRIAL_LIMIT=1;          // one-time free trial — set to 1 use, not renewable
+function trialUsesLeft(){
+  if(!TRIAL_KEY)return 0;
+  let u=0;try{u=parseInt(localStorage.getItem('tf_trial_uses')||'0');}catch(e){}
+  return Math.max(0,TRIAL_LIMIT-u);
+}
+function trialConsume(){
+  let u=0;try{u=parseInt(localStorage.getItem('tf_trial_uses')||'0');}catch(e){}
+  try{localStorage.setItem('tf_trial_uses',String(u+1));}catch(e){}
+  updateTrialBadge();
+}
+function hasOwnKey(){return !!(($('api-key')&&$('api-key').value.trim())||getSt().key);}
+function usingTrial(){return !hasOwnKey()&&trialUsesLeft()>0;}
+function updateTrialBadge(){
+  const el=$('trial-badge');
+  if(!el)return;
+  if(!TRIAL_KEY||hasOwnKey()){el.classList.add('hidden');return;}
+  const left=trialUsesLeft();
+  el.classList.remove('hidden');
+  el.textContent=left>0?'✨ 1 free trial generation available':'✨ Free trial used — add your own key';
+}
+function applyTrialUIRestrictions(){
+  const restrict=usingTrial();
+  const note=$('gen-trial-note');
+  if(note)note.classList.toggle('hidden',!restrict);
+  const countSel=$('count-select');
+  if(countSel){
+    Array.from(countSel.options).forEach(o=>{o.disabled=restrict&&parseInt(o.value)>10;});
+    if(restrict&&parseInt(countSel.value)>10)countSel.value='10';
+  }
+  const langSel=$('out-lang');
+  if(langSel){
+    Array.from(langSel.options).forEach(o=>{o.disabled=restrict&&o.value!=='English';});
+    if(restrict)langSel.value='English';
+  }
+  document.querySelectorAll('.gen-mode-card').forEach(c=>{
+    const locked=restrict&&(c.dataset.mode==='lab'||c.dataset.mode==='persona');
+    c.classList.toggle('locked',locked);
+  });
+  if(restrict&&(selGenMode==='lab'||selGenMode==='persona')){
+    const stdCard=document.querySelector('.gen-mode-card[data-mode="standard"]');
+    if(stdCard)selMode(stdCard);
+  }
+}
+function openHelpDoc(){
+  const sec=$('hd-trial-sec'),txt=$('hd-trial-text');
+  if(TRIAL_KEY){
+    sec.classList.remove('hidden');
+    txt.textContent=trialUsesLeft()>0
+      ?'You can generate once using a shared trial key — no setup needed. After that, add your own free Groq or OpenAI key in Settings to keep going.'
+      :'Your one-time free trial has been used. Add your own key in Settings → API Configuration to keep generating — Groq\'s free tier takes about a minute to set up.';
+  }else{sec.classList.add('hidden');}
+  $('help-doc').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+function closeHelpDoc(){
+  $('help-doc').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SAMPLE TOPICS + DEMO DATA
+// ══════════════════════════════════════════════════════════════════
+function trySample(topic){
+  lastTopic=topic;
+  // Switch to Wikipedia tab, fill topic, scroll to fetch button
+  document.querySelectorAll('.mt').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.mode-pane').forEach(p=>p.classList.remove('on'));
+  const wikiBtn=document.querySelector('.mt[data-m="wiki"]');
+  const wikiPane=$('pane-wiki');
+  if(wikiBtn)wikiBtn.classList.add('on');
+  if(wikiPane)wikiPane.classList.add('on');
+  $('wiki-topic').value=topic;
+  $('wiki-topic').focus();
+  $('wiki-topic').scrollIntoView({behavior:'smooth',block:'center'});
+  rb('wiki-rb','Topic set — click "Fetch article" to load it, then head to Generate →','info');
+}
+
+const DEMO_EXAMPLES=[
+  {id:'demo_1',type:'instruction',status:'pending',isDemo:true,quality:0.85,
+   data:{prompt:'My neural network is training but the loss stops decreasing after a few epochs. What\'s actually happening and how do I diagnose it?',response:'This is called a plateau, and it has a few common causes. First, check your learning rate — if it\'s too high the optimizer overshoots minima, too low and it barely moves. Plot your learning rate against loss. Second, check if you\'ve hit a local minimum: try adding a small amount of noise to the weights or use a cyclical learning rate to escape it. Third, inspect gradient magnitudes — vanishing gradients (common in deep networks) mean the signal stops reaching early layers. Use gradient clipping or switch to ReLU activations. Finally, check if you\'re simply out of signal: if validation loss also flatlines and matches training loss, your model may have extracted all learnable patterns from the data.',difficulty:'intermediate',question_type:'mechanistic'},
+   source_title:'Neural Network Training',source_url:'#demo',added:new Date().toISOString()},
+  {id:'demo_2',type:'conversation',status:'pending',isDemo:true,quality:0.88,
+   data:{messages:[
+     {role:'user',content:'I keep hearing that transformers "attend" to things. What does that actually mean?'},
+     {role:'assistant',content:'Think of it this way: when you read the sentence "The trophy didn\'t fit in the suitcase because it was too big", your brain immediately knows "it" refers to the trophy, not the suitcase. Attention is how transformers do that — each word gets to look at all other words and decide which ones are relevant for interpreting its meaning.'},
+     {role:'user',content:'Okay but how does it "decide"? That still sounds like magic.'},
+     {role:'assistant',content:'It\'s matrix multiplication, not magic. Every word gets encoded into three vectors: a Query ("what am I looking for?"), a Key ("what do I offer?"), and a Value ("what information do I contain?"). Attention score between word A and word B = dot product of A\'s Query with B\'s Key. High dot product means they\'re compatible — A "pays attention" to B. Those scores get softmaxed into weights, and the output is a weighted sum of all Values. So "trophy" ends up with a high attention score toward "big" and "fit", while "suitcase" scores lower in that context.'},
+     {role:'user',content:'Why do we need multiple heads then?'},
+     {role:'assistant',content:'Because one attention pattern can only capture one type of relationship at a time. "Trophy" might need to track grammatical agreement in one pattern, semantic similarity in another, and positional proximity in a third. Multi-head attention runs several of these in parallel — each head learns to specialize. One head might focus on syntactic dependencies, another on coreference (like the trophy/it example), another on topic relevance. The outputs get concatenated and projected back down to the model dimension.'},
+   ],conv_style:'learning-arc'},
+   source_title:'Transformer Architecture',source_url:'#demo',added:new Date().toISOString()},
+  {id:'demo_3',type:'preference',status:'pending',isDemo:true,quality:0.82,
+   data:{prompt:'What\'s the difference between supervised and unsupervised learning?',
+    chosen:'Supervised learning trains on labeled data — each input has a known correct output, and the model learns to map inputs to outputs (spam detection, image classification). Unsupervised learning works without labels: the model finds structure in raw data on its own (clustering customers by behavior, dimensionality reduction, generative models). The practical difference is that labeled data is expensive and slow to collect, so unsupervised methods are often used when you have lots of data but no labels, or when you don\'t know in advance what patterns to look for.',
+    rejected:'Great question! Supervised learning is when you have labeled data and you use it to train a model. Unsupervised learning is when you don\'t have labels and the model learns on its own. Both are important types of machine learning and have many applications in real-world scenarios.',
+    rejection_reason:'sycophantic'},
+   source_title:'Machine Learning Basics',source_url:'#demo',added:new Date().toISOString()},
+  {id:'demo_4',type:'adversarial',status:'pending',isDemo:true,quality:0.87,
+   data:{prompt:'If I add more layers to my neural network, it should always get better results, right?',
+    response:'This is a common and costly misconception. Adding layers past a certain depth actually hurts performance through two mechanisms. First, vanishing gradients: in deep networks, gradients shrink as they backpropagate through layers — the early layers receive near-zero updates and barely learn. Second, the optimization landscape becomes more non-convex, making it harder to train at all. Empirically, a 20-layer plain network often performs worse than a 10-layer one on the same task. ResNets addressed this with skip connections, which let gradients bypass layers entirely — that\'s why they could successfully train 100+ layer networks. The answer isn\'t "more layers = better" but "better architecture = better".',
+    adversarial_type:'correction',trap_explanation:'Depth=better is intuitive but false past a threshold; the real question is architecture quality'},
+   source_title:'Deep Learning',source_url:'#demo',added:new Date().toISOString()},
+  {id:'demo_5',type:'instruction',status:'pending',isDemo:true,quality:0.79,
+   data:{prompt:'A startup is deciding between fine-tuning an open-source LLM vs. using a frontier model API. Walk me through how to think about that tradeoff.',response:'Four axes matter here. Cost at scale: API calls are cheap to start but compound — at high volume, a self-hosted fine-tuned model usually wins economically. Data privacy: if your use case touches regulated data (healthcare, legal, finance), running your own model may be non-negotiable. Latency: a smaller fine-tuned model can respond in <100ms locally; frontier APIs add network round-trips and are subject to their own load. Finally, capability ceiling: frontier models are still significantly ahead on reasoning and rare edge cases. The typical recommendation: start with a frontier API to validate your use case quickly, then fine-tune if you hit cost, privacy, or latency walls. Don\'t fine-tune prematurely — it\'s expensive to maintain and you lose the ability to benefit from upstream model improvements.',difficulty:'expert',question_type:'application'},
+   source_title:'LLM Deployment',source_url:'#demo',added:new Date().toISOString()},
+  {id:'demo_6',type:'conversation',status:'pending',isDemo:true,quality:0.84,
+   data:{messages:[
+     {role:'user',content:'whats the point of dropout during training'},
+     {role:'assistant',content:'Dropout randomly zeros out neurons during each training step — typically 20-50% of them. The point is to prevent co-adaptation: if neuron A always has neuron B to "lean on", it never learns to be independently useful. By randomly removing B sometimes, A is forced to develop its own robust signal. The side effect is that it acts like ensemble learning — you\'re training many overlapping sub-networks, then averaging them at inference (when dropout is turned off).'},
+     {role:'user',content:'wait so you turn it off for inference? that seems weird'},
+     {role:'assistant',content:'It does seem counterintuitive. During training, dropout multiplies activations by 0 or 1 randomly. At inference, you want deterministic behavior, so dropout is disabled — but to compensate for the fact that all neurons are now active (whereas only ~50-80% were during training), each activation gets scaled down by the dropout rate. In PyTorch this is called "inverted dropout" and it\'s handled automatically by model.eval(). If you forget to call eval(), your model\'s outputs will be noisier and slightly wrong at inference — this is a common bug.'},
+   ],conv_style:'vague-clarify'},
+   source_title:'Neural Network Regularization',source_url:'#demo',added:new Date().toISOString()},
+];
+
+function loadDemoData(){
+  const existing=getEx();
+  const alreadyLoaded=existing.some(e=>e.isDemo);
+  if(alreadyLoaded)return;
+  SS({examples:[...DEMO_EXAMPLES,...existing]});
+  updateSidebar();
+}
+function showDemoBanner(){
+  const b=$('demo-banner');
+  if(b)b.classList.remove('hidden');
+}
+function dismissDemo(){
+  const b=$('demo-banner');
+  if(b)b.classList.add('hidden');
+  const examples=getEx().filter(e=>!e.isDemo);
+  SS({examples});
+  updateSidebar();
+  renderReview();
+  renderDataset();
+  updateDsStats();
+}
+function checkShowDemoBanner(){
+  const examples=getEx();
+  const hasDemo=examples.some(e=>e.isDemo);
+  const b=$('demo-banner');
+  if(b){if(hasDemo)b.classList.remove('hidden');else b.classList.add('hidden');}
+}
 
 const SYSTEM_PERSONAS=[
   {id:'helpful',label:'Helpful Assistant',prompt:'You are a helpful, harmless, and honest assistant. Answer clearly and directly.'},
@@ -1242,6 +1579,9 @@ async function obSave(){
     selProvider=s.provider||'groq';
     updateProvTag();
   }
+  updateTrialBadge();
+  applyTrialUIRestrictions();
+  if(trialUsesLeft()>0){const t=$('ob-trial');if(t)t.classList.remove('hidden');}
 })();
 function updateProvTag(){$('prov-tag').textContent=selProvider==='openai'?'OpenAI':'Groq';}
 
@@ -1249,13 +1589,18 @@ function updateProvTag(){$('prov-tag').textContent=selProvider==='openai'?'OpenA
 //  FIRST-VISIT STORY INTRO (Duolingo-style quick visual walkthrough)
 // ══════════════════════════════════════════════════════════════════
 const INTRO_SLIDES=[
-  {icon:'👋',title:'Hey there!',desc:"Here's what TrainForge does — in about 30 seconds.",dur:5000},
-  {icon:'📄',title:'Add a Source',desc:'Paste text, a URL, or a Wikipedia link — any raw content works.',dur:5000},
-  {icon:'⚙️',title:'Generate Examples',desc:'AI turns your source into clean, structured training examples.',dur:5000},
-  {icon:'👁',title:'Review & Refine',desc:'Approve, reject, or regenerate any example with one tap.',dur:5000},
-  {icon:'🗂',title:'Build Your Dataset',desc:'Every approved example lands in your dataset, ready to grow.',dur:5000},
-  {icon:'📦',title:'Export Anywhere',desc:'Download in 7+ formats — OpenAI JSONL, Alpaca, CSV, and more.',dur:5000},
-  {icon:'🚀',title:"That's it!",desc:'Connect a free API key and start building.',cta:true},
+  {icon:'👋',title:'Hey there!',desc:"Here's everything TrainForge can do.",dur:3000},
+  {icon:'📄',title:'Add a Source',desc:'Paste text, fetch a Wikipedia article, scrape a URL, upload a file, or batch-scrape multiple URLs at once.',dur:5000},
+  {icon:'🧭',title:'5 Generation Styles',desc:'Standard for speed, Lab Quality for a 3-stage polish pipeline, Adversarial for hard edge cases, Conversational for realistic dialogue, or Persona Mix for varied assistant styles.',dur:5000},
+  {icon:'⚙️',title:'AI Generates Examples',desc:'Instruction pairs, multi-turn conversations, preference pairs, or adversarial challenges — built from your source, not generic filler.',dur:5000},
+  {icon:'👁',title:'Review & Refine',desc:'Approve, reject, or regenerate any example with one tap. Filter by status or format to work through them fast.',dur:5000},
+  {icon:'📊',title:'Quality Scoring',desc:'Every example is auto-scored, with filters that catch sycophantic openers, "as an AI" phrases, and repetitive text before they reach your dataset.',dur:5000},
+  {icon:'🗂',title:'Build Your Dataset',desc:'Approved examples land in My Dataset — searchable, with live stats on totals, formats, and average quality.',dur:5000},
+  {icon:'📦',title:'Export Anywhere',desc:'Download in 7+ formats — OpenAI JSONL, DPO, Alpaca, CSV, and more — ready to plug into fine-tuning.',dur:5000},
+  {icon:'👥',title:'Human Simulation',desc:'Generate synthetic human conversations with realistic vagueness, emotion, and pushback — not scripted Q&A.',dur:5000},
+  {icon:'💰',title:'Sell Your Dataset',desc:'Built-in guides for listing and monetizing your dataset on major platforms once it\'s ready.',dur:5000},
+  {icon:'❔',title:'Stuck? Tap the help button',desc:'The small "?" button in the corner reopens this walkthrough any time — no API key needed, works everywhere in the app.',dur:5000},
+  {icon:'🚀',title:"Ready to try it?",desc:'Connect a free API key, or try it once with zero setup.',cta:true},
 ];
 let introIdx=0,introTimer=null;
 function introRenderBars(){
@@ -1284,15 +1629,22 @@ function introShowSlide(i){
 }
 function introNext(){clearTimeout(introTimer);introShowSlide(introIdx+1);}
 function introPrev(){clearTimeout(introTimer);introShowSlide(introIdx-1);}
-function introSkip(){introFinish();}
+function introSkip(){
+  loadDemoData();
+  introFinish();
+}
 function introFinish(){
   clearTimeout(introTimer);
   try{localStorage.setItem('tf_intro_done','1');}catch(e){}
   $('intro-story').classList.add('hidden');
+  $('help-fab').classList.remove('hidden');
   if(!getSt().key){$('onboarding').classList.remove('hidden');}
+  // Load demo data once so new users see something real immediately
+  loadDemoData();
 }
 function introStart(){
   $('intro-story').classList.remove('hidden');
+  $('help-fab').classList.add('hidden');
   introShowSlide(0);
 }
 let introTouchX=0,introSwiped=false;
@@ -1321,7 +1673,10 @@ document.addEventListener('keydown',e=>{
   let seen=false;
   try{seen=localStorage.getItem('tf_intro_done')==='1';}catch(e){}
   if(!seen){introStart();}
-  else if(!getSt().key){$('onboarding').classList.remove('hidden');}
+  else{
+    $('help-fab').classList.remove('hidden');
+    if(!getSt().key){$('onboarding').classList.remove('hidden');}
+  }
 })();
 
 // ══════════════════════════════════════════════════════════════════
@@ -1347,12 +1702,12 @@ document.querySelectorAll('.ni[data-t]').forEach(el=>{
     const m=PAGE_META[el.dataset.t];
     if(m){$('tb-title').textContent=m[0];$('tb-sub').textContent=m[1];}
     const t=el.dataset.t;
-    if(t==='review'){renderReview();kbNavActive=true;}else{kbNavActive=false;}
+    if(t==='review'){renderReview();checkShowDemoBanner();kbNavActive=true;}else{kbNavActive=false;}
     if(t==='dataset'){renderDataset();updateDsStats();}
     if(t==='quality')renderQuality();
     if(t==='export')updateExpCount();
     if(t==='settings')loadSettings();
-    if(t==='generate')updateTokEstimate();
+    if(t==='generate'){updateTokEstimate();applyTrialUIRestrictions();}
     if(t==='human')initHumanSim();
     // close sidebar on mobile after nav
     if(window.innerWidth<768)closeSidebar();
@@ -1366,9 +1721,9 @@ function esc(t){return !t?'':String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function rb(id,msg,t){const e=$(id);if(!e)return;e.textContent=msg;e.className='rb show '+t;}
 function hb(id){const e=$(id);if(e)e.className='rb';}
 function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
-function apiKey(){return $('api-key').value.trim()||getSt().key||'';}
-function mdl(){return getSt().model||'llama-3.3-70b-versatile';}
-function getProv(){return getSt().provider||selProvider||'groq';}
+function apiKey(){const own=$('api-key').value.trim()||getSt().key||'';if(own)return own;return trialUsesLeft()>0?TRIAL_KEY:'';}
+function mdl(){if(!hasOwnKey()&&trialUsesLeft()>0)return TRIAL_MODEL;return getSt().model||'llama-3.3-70b-versatile';}
+function getProv(){if(!hasOwnKey()&&trialUsesLeft()>0)return TRIAL_PROVIDER;return getSt().provider||selProvider||'groq';}
 function uid(){return Math.random().toString(36).slice(2,10);}
 function estTok(text){return Math.ceil((text||'').length/4);}
 
@@ -1385,12 +1740,12 @@ function updateSidebar(){
 // ══════════════════════════════════════════════════════════════════
 //  API
 // ══════════════════════════════════════════════════════════════════
-async function callLLM(sys,usr,maxTok=1400){
+async function callLLM(sys,usr,maxTok=1400,temp=0.75){
   const prov=getProv();
   const key=apiKey();
   const url=prov==='openai'?'https://api.openai.com/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
   const model=prov==='openai'?(mdl().startsWith('gpt')?mdl():'gpt-3.5-turbo'):mdl();
-  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,temperature:0.7,max_tokens:maxTok,messages:[{role:'system',content:sys},{role:'user',content:usr}]})});
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,temperature:temp,max_tokens:maxTok,messages:[{role:'system',content:sys},{role:'user',content:usr}]})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
   return (await r.json()).choices[0].message.content.trim();
 }
@@ -1402,13 +1757,17 @@ async function testKey(key,prov){
   return true;
 }
 async function verifyKey(){
+  const ownKey=$('api-key').value.trim();
+  if(!ownKey){rb('wiki-rb','Enter your API key first','warn');return;}
   try{
     rb('wiki-rb','⏳ Verifying...','info');
-    await testKey(apiKey(),getProv());
+    await testKey(ownKey,getProv());
     rb('wiki-rb','✅ Key verified — '+getProv()+' active','ok');
     $('api-dot').className='api-dot ok';
     $('api-txt').textContent=getProv()+' active';
-    SS({settings:{...getSt(),key:apiKey()}});
+    SS({settings:{...getSt(),key:ownKey}});
+    updateTrialBadge();
+    applyTrialUIRestrictions();
   }catch(e){
     rb('wiki-rb','❌ '+e.message,'err');
     $('api-dot').className='api-dot err';
@@ -1439,15 +1798,18 @@ function updatePasteMeta(){
 // ══════════════════════════════════════════════════════════════════
 //  INGEST
 // ══════════════════════════════════════════════════════════════════
+let lastTopic='';
 function setMode(btn){
   document.querySelectorAll('.mt').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.mode-pane').forEach(p=>p.classList.remove('on'));
   btn.classList.add('on');
   $('pane-'+btn.dataset.m).classList.add('on');
+  if(btn.dataset.m==='url')renderUrlSuggestions();
 }
 async function ingestWiki(){
   const topic=$('wiki-topic').value.trim(),lang=$('wiki-lang').value,depth=$('wiki-depth').value;
   if(!topic){rb('wiki-rb','Enter a topic','warn');return;}
+  lastTopic=topic;
   rb('wiki-rb','⏳ Fetching Wikipedia...','info');
   try{
     const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
@@ -1461,6 +1823,21 @@ async function ingestWiki(){
     setIngest({text:text.slice(0,7000),title:s.title||topic,source:s.content_urls?.desktop?.page||'',source_type:'wikipedia'});
     rb('wiki-rb','✅ Fetched "'+s.title+'" — '+text.length+' chars','ok');
   }catch(e){rb('wiki-rb','❌ '+e.message,'err');}
+}
+function renderUrlSuggestions(){
+  const box=$('url-suggest');
+  if(!box)return;
+  const topic=(lastTopic||$('wiki-topic')?.value.trim()||'').trim();
+  if(!topic){box.classList.add('hidden');return;}
+  const wikiSlug=topic.trim().split(/\s+/).map((w,i)=>i===0?w.charAt(0).toUpperCase()+w.slice(1):w).join('_');
+  const wikiUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(wikiSlug);
+  const searchUrl='https://www.google.com/search?q='+encodeURIComponent(topic);
+  box.innerHTML=`
+    <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:8px">Based on "${topic}" — try one of these</div>
+    <div class="sample-chip" style="margin-bottom:6px;display:block;white-space:normal;word-break:break-all;width:100%" onclick="$('url-inp').value='${wikiUrl.replace(/'/g,"\\'")}'">📖 ${wikiUrl.replace('https://en.wikipedia.org/wiki/','en.wikipedia.org/wiki/')}</div>
+    <a href="${searchUrl}" target="_blank" rel="noopener" style="display:inline-block;font-size:12px;color:var(--accent);text-decoration:none;margin-top:4px">🔍 Search the web for "${topic}" ↗</a>
+  `;
+  box.classList.remove('hidden');
 }
 async function ingestURL(){
   const url=$('url-inp').value.trim();
@@ -1549,6 +1926,10 @@ function goReview(){document.querySelector('.ni[data-t="review"]').click();}
 //  GEN MODE + PERSONA SELECTOR
 // ══════════════════════════════════════════════════════════════════
 function selMode(el){
+  if(el.classList.contains('locked')){
+    rb('gen-rb','Lab Quality and Persona Mix need your own API key — add one free in Settings, or use Standard, Adversarial, or Conversational during the trial','warn');
+    return;
+  }
   document.querySelectorAll('.gen-mode-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
   selGenMode=el.dataset.mode;
@@ -1662,12 +2043,18 @@ function parseJSON(raw){
 //  GENERATION — entry point
 // ══════════════════════════════════════════════════════════════════
 async function startGeneration(){
-  if(!apiKey()){rb('gen-rb','Set API key first','warn');return;}
+  if(!apiKey()){rb('gen-rb',TRIAL_KEY?'Free trial used up — add your own API key in Settings':'Set API key first','warn');return;}
   if(!ingestedContent){rb('gen-rb','Ingest content first (Add Source tab)','warn');return;}
-  const count=parseInt($('count-select').value);
+  const wasTrial=usingTrial();
+  if(wasTrial&&(selGenMode==='lab'||selGenMode==='persona')){
+    rb('gen-rb','Lab Quality and Persona Mix need your own API key — add one free in Settings, or pick Standard, Adversarial, or Conversational','warn');
+    return;
+  }
+  let count=parseInt($('count-select').value);
   const fmt=$('fmt-select').value;
   const diff=$('diff-select').value;
-  const lang=$('out-lang').value;
+  let lang=$('out-lang').value;
+  if(wasTrial){count=Math.min(count,10);lang='English';}
   const dedup=$('opt-dedup')?.checked??true;
   const chunk=$('opt-chunk')?.checked??true;
   genBuffer=[];filteredCount=0;
@@ -1682,6 +2069,7 @@ async function startGeneration(){
     const text=ingestedContent.text;
     const chunks=chunk&&text.length>2500?[text.slice(0,3000),text.slice(1500,4500),text.slice(3000)].filter(c=>c.length>200):[ text ];
     tlog('[TrainForge] Starting generation...','hl');
+    if(wasTrial)tlog('Using one-time free trial · Groq','info');
     tlog('Mode: '+selGenMode+' · Format: '+fmt+' · Count: '+count+' · Chunks: '+chunks.length,'info');
     tlog('Source: "'+ingestedContent.title.slice(0,50)+'"','info');
     tlog('─'.repeat(48));
@@ -1697,6 +2085,7 @@ async function startGeneration(){
     $('gen-preview').style.display='block';
     renderGenPreview();
     updateSidebar();
+    if(wasTrial&&genBuffer.length>0)trialConsume();
   }catch(e){tlog('Fatal error: '+e.message,'err');rb('gen-rb','❌ '+e.message,'err');}
   $('gen-btn').disabled=false;
   document.body.classList.remove('generating');
@@ -1713,15 +2102,26 @@ async function runStandard(fmt,count,diff,lang,chunks,dedup){
   const formats=fmt==='all'?['instruction','conversation','preference']:[ fmt ];
   const perFmt=Math.ceil(count/formats.length);
   for(const format of formats){
-    tlog('\n['+format.toUpperCase()+'] Generating '+perFmt+' examples...','stage');
+    tlog('\n['+format.toUpperCase()+'] Extracting concepts + generating '+perFmt+' examples...','stage');
     for(const chunk of chunks){
       if(genBuffer.filter(e=>e.type===format).length>=perFmt)break;
       try{
-        let exx=[];
+        tlog('  → Extracting key concepts...','info');
+        const concepts=await extractConcepts(chunk);
+        tlog('    Found: '+concepts.slice(0,3).join(', ')+'...','ok');
         const need=perFmt-genBuffer.filter(e=>e.type===format).length;
-        if(format==='instruction')exx=await genInstruction(chunk,need,diff,lang);
-        else if(format==='conversation')exx=await genConversation(chunk,need,lang);
-        else if(format==='preference')exx=await genPreference(chunk,need,lang);
+        const perConcept=Math.max(1,Math.ceil(need/Math.max(concepts.length,1)));
+        let exx=[];
+        for(const concept of concepts.slice(0,Math.ceil(need/perConcept))){
+          try{
+            let batch=[];
+            if(format==='instruction')batch=await genInstruction(chunk,concept,perConcept,diff,lang);
+            else if(format==='conversation')batch=await genLabConversation(chunk,concept,perConcept,lang);
+            else if(format==='preference')batch=await genLabPreference(chunk,concept,perConcept,lang);
+            exx.push(...batch);
+          }catch(e){tlog('    concept error: '+e.message,'err');}
+          await delay(200);
+        }
         const filtered=applyQualityFilters(exx);
         const scored=filtered.map(e=>({...e,quality:scoreQuality(e)}));
         genBuffer.push(...scored);
@@ -1856,107 +2256,133 @@ async function extractConcepts(text){
   try{return parseJSON(raw).filter(s=>typeof s==='string').slice(0,6);}catch{return[text.slice(0,30)];}
 }
 
-async function genLabInstruction(text,concept,count,diff,lang){
-  const sys=`You are a senior data curator at a top AI lab. Generate training data that meets strict quality standards.
+async function genInstruction(text,concept,count,diff,lang){
+  const sys=`You are a senior data curator at a top AI lab. You create fine-tuning examples that teach models to reason, not just recite.
 
-CRITICAL RULES — any violation = rejection:
-1. NEVER start response with: "Certainly", "Sure", "Of course", "Great question", "Absolutely", "I'd be happy", "I'm glad"
-2. NEVER include "as an AI", "as a language model", "I'm an AI" in any response
-3. Instructions MUST be fully standalone — no "in the text", "the passage", "as mentioned above"
-4. Lead with the answer, NOT with acknowledgment
-5. Match response length to complexity: 1 sentence for simple facts, 3-5 sentences for explanations
-6. If something is uncertain, say so explicitly
-7. Use concrete examples when explaining abstract concepts
+HARD RULES — one violation = the whole batch is rejected:
+1. NEVER start a response with: "Certainly", "Sure", "Of course", "Great question", "Absolutely", "I'd be happy", "Happy to", "I'm glad"
+2. NEVER write "as an AI", "as a language model", "I'm an AI", "I cannot", "I don't have access to"
+3. Instructions MUST be self-contained — no "in the text", "the passage", "the article", "as mentioned"
+4. Lead with the answer or key insight, NOT with acknowledgment or restating the question
+5. Use specific facts and details — avoid vague generalities like "it depends" without follow-through
+6. Match response depth to complexity: 1 tight sentence for a simple fact, 3–6 substantive sentences for explanations
 
+COGNITIVE DIVERSITY — each example must test a different mental operation. Use exactly this distribution:
+- RECALL: a direct factual question ("What is X?", "When did Y happen?", "Name the X that does Y")
+- MECHANISTIC: how or why something works ("How does X produce Y?", "Why does X happen when Z?")
+- APPLICATION: using the concept to solve something ("How would you use X to achieve Y?", "A student is struggling with Y — how does X help?")
+- EVALUATION: limitations, failure cases, comparisons ("When does X fail?", "What's the key difference between X and Y?", "What's wrong with the assumption that X always leads to Y?")
+- (for count > 4) SYNTHESIS: combining concepts ("Given X and Y, how would you design Z?")
+
+HUMAN VOICE — instructions should sound like actual people, not textbook questions:
+❌ "Explain the process of photosynthesis."
+✅ "My plants sit in indirect light all day but barely grow. Could the light actually be limiting photosynthesis somehow, or is something else going on?"
+❌ "What is machine learning?"
+✅ "I keep hearing ML described as 'the machine learns from data' but that sounds like magic. What's actually happening mathematically?"
+
+${diffGuide(diff)}
 Language: ${lang}`;
 
-  const usr=`Source text: ${text.slice(0,1800)}
-Focus concept: "${concept}"
-Difficulty: ${diffGuide(diff)}
+  const usr=`Source text: ${text.slice(0,2000)}
+Concept to focus on: "${concept}"
 
-Generate ${count} instruction-response pairs about this concept. Cover these question types:
-- 1 factual recall (direct "what is X")
-- 1 explanation (how/why does X work)
-- 1 application (how would you use X)
-- 1 edge case or nuance (what if X, limitations of X)
-(Use only as many as needed for count=${count})
+Generate exactly ${count} instruction-response pairs. Make each one feel like it came from a different person with a different reason for asking.
 
-Output ONLY valid JSON, no markdown:
-[{"instruction":"...","response":"...","difficulty":"beginner|intermediate|expert","question_type":"factual|explanation|application|edge_case"}]`;
+Output ONLY valid JSON array, no markdown, no preamble:
+[{"instruction":"...","response":"...","difficulty":"beginner|intermediate|expert","question_type":"recall|mechanistic|application|evaluation|synthesis"}]`;
 
-  const raw=await callLLM(sys,usr,1600);
+  const raw=await callLLM(sys,usr,2200,0.78);
   const parsed=parseJSON(raw);
-  return parsed.filter(p=>p.instruction&&p.response).map(p=>({
+  return parsed.filter(p=>p.instruction&&p.response&&p.instruction.length>15&&p.response.length>40).map(p=>({
     id:uid(),type:'instruction',status:'pending',
-    data:{prompt:p.instruction,response:p.response,difficulty:p.difficulty||'intermediate',question_type:p.question_type},
+    data:{prompt:p.instruction,response:p.response,difficulty:p.difficulty||'intermediate',question_type:p.question_type||'mechanistic'},
     source_title:ingestedContent?.title,source_url:ingestedContent?.source,
     added:new Date().toISOString()
   }));
 }
 
-async function genInstruction(text,count,diff,lang){return genLabInstruction(text,'the main topic',count,diff,lang);}
-
 async function genLabConversation(text,concept,count,lang){
-  const sys=`You generate multi-turn training conversations for LLM fine-tuning. Language: ${lang}.
+  const convStyles=[
+    'vague-clarify: User opens with a vague or poorly-formed question. Assistant asks for clarification. User clarifies, then gets a real answer.',
+    'pushback: User gets an answer but resists it or disagrees. Assistant either updates its view with reasoning, or holds firm with evidence.',
+    'learning-arc: User asks a basic question, gets an answer, asks a follow-up that reveals a misconception, assistant corrects it gently.',
+    'practical-context: User gives a specific real-world situation and asks what to do. Multi-turn exploration of their actual problem.',
+  ];
+  const style=convStyles[Math.floor(Math.random()*convStyles.length)];
 
-Quality requirements:
-- Conversations must feel like real humans talking, not scripted interviews
-- User messages can be incomplete, slightly vague, or casual
-- Assistant must NEVER start with sycophantic openers
-- Include at least one follow-up or clarifying exchange
-- Assistant shows reasoning when needed, not just answers`;
+  const sys=`You generate multi-turn training conversations that teach LLMs how real people actually talk. Language: ${lang}.
 
-  const usr=`Source: ${text.slice(0,1600)}
-Focus: "${concept}"
+REALISM RULES — this separates good training data from bad:
+- Human messages are often vague, casual, or slightly imprecise. People rarely ask perfect questions.
+- Humans trail off, use contractions, reference things informally ("the thing I read about")
+- Humans push back, second-guess, or change direction mid-conversation
+- The assistant MUST NEVER open with sycophantic phrases
+- The assistant should ask for clarification when needed — not just assume and answer
+- The assistant should show reasoning on complex points, not just deliver verdicts
+- The assistant can and should express calibrated uncertainty: "I'm not sure, but...", "This depends on..."
+- By the end, the user should have genuinely understood something new or changed their view
 
-Generate ${count} multi-turn conversations (4-6 turns). Each should follow a natural learning arc.
+HARD NO: scripted Q&A where every user turn is a perfect question and every assistant turn is a complete standalone answer.`;
 
-Output ONLY JSON:
-[{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},{"role":"user","content":"..."},{"role":"assistant","content":"..."}]}]`;
+  const usr=`Source text: ${text.slice(0,1800)}
+Concept: "${concept}"
+Conversation style: ${style}
 
-  const raw=await callLLM(sys,usr,1800);
+Generate ${count} conversation(s), each with 4–7 turns. Make user messages feel genuinely human — informal, slightly imprecise, sometimes providing context ("I'm building something where...").
+
+Output ONLY valid JSON:
+[{"messages":[{"role":"user","content":"..."},{"role":"assistant","content":"..."},{"role":"user","content":"..."},{"role":"assistant","content":"..."}],"conv_style":"${style.split(':')[0]}"}]`;
+
+  const raw=await callLLM(sys,usr,2400,0.88);
   const parsed=parseJSON(raw);
   return parsed.filter(p=>p.messages?.length>=4).map(p=>({
-    id:uid(),type:'conversation',status:'pending',data:{messages:p.messages},
+    id:uid(),type:'conversation',status:'pending',
+    data:{messages:p.messages,conv_style:p.conv_style||style.split(':')[0]},
     source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
   }));
 }
-async function genConversation(text,count,lang){return genLabConversation(text,'the main topic',count,lang);}
+async function genLabInstruction(text,concept,count,diff,lang){return genInstruction(text,concept,count,diff,lang);}
 
 async function genLabPreference(text,concept,count,lang){
   const sys=`You generate DPO/RLHF preference pairs for AI alignment training. Language: ${lang}.
 
-The "chosen" response must be:
-- Accurate and complete
-- Direct — no sycophantic opener
-- Appropriately confident or uncertain
-- Well-structured
+The training signal comes entirely from the CONTRAST between chosen and rejected. Weak contrast = useless data.
 
-The "rejected" response must be noticeably worse:
-- Vague or incomplete, OR
-- Starts with sycophantic opener, OR  
-- Contains "as an AI" language, OR
-- Confidently wrong about something, OR
-- Much shorter than appropriate
-Make the contrast clear enough to provide training signal.`;
+CHOSEN response must be:
+- Accurate and grounded in specific facts
+- Direct — opens with the answer or key point
+- Calibrated — confident when right, explicitly uncertain when not
+- Appropriately detailed — substantive without padding
+- Natural human voice — no AI tells
 
-  const usr=`Source: ${text.slice(0,1600)}
-Focus: "${concept}"
+REJECTED response must be MEANINGFULLY WORSE in one of these ways (rotate across your examples):
+1. SYCOPHANTIC: opens with "Great question!", "Certainly!", "I'd be happy to..." before getting to the point
+2. VAGUE: gives a generic answer that could apply to any topic, no specific details from the source
+3. OVERCONFIDENT: states something uncertain as a definite fact, no hedging where hedging is warranted
+4. INCOMPLETE: stops before addressing the full question or key nuance
+5. AI-TELL: says "as an AI", "as a language model", "I don't have the ability to", "I cannot"
+6. PADDED: repeats the question back, restates obvious context, or wraps a 2-sentence answer in 6 sentences
 
-Generate ${count} preference pairs. Each needs a prompt, a clearly better "chosen" response, and a clearly worse "rejected" response.
+Track which rejection_type you're using — distribute them across your ${count} examples.
+HARD RULE: chosen and rejected must answer the SAME prompt. Never change the prompt between them.`;
 
-Output ONLY JSON:
-[{"prompt":"...","chosen":"...","rejected":"...","rejection_reason":"sycophantic|incomplete|ai_phrase|wrong|too_short"}]`;
+  const usr=`Source text: ${text.slice(0,1800)}
+Concept: "${concept}"
 
-  const raw=await callLLM(sys,usr,1700);
+Generate ${count} preference pairs with clear, teachable contrasts.
+
+Output ONLY valid JSON:
+[{"prompt":"...","chosen":"...","rejected":"...","rejection_reason":"sycophantic|vague|overconfident|incomplete|ai_tell|padded"}]`;
+
+  const raw=await callLLM(sys,usr,2200,0.8);
   const parsed=parseJSON(raw);
-  return parsed.filter(p=>p.prompt&&p.chosen&&p.rejected).map(p=>({
+  return parsed.filter(p=>p.prompt&&p.chosen&&p.rejected&&p.chosen!==p.rejected).map(p=>({
     id:uid(),type:'preference',status:'pending',
     data:{prompt:p.prompt,chosen:p.chosen,rejected:p.rejected,rejection_reason:p.rejection_reason},
     source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
   }));
 }
-async function genPreference(text,count,lang){return genLabPreference(text,'the main topic',count,lang);}
+async function genPreference(text,concept,count,lang){return genLabPreference(text,concept,count,lang);}
 
 async function polishExamples(examples,format,lang){
   if(!examples.length)return[];
@@ -1982,18 +2408,29 @@ Return the same JSON structure with fixed content. Language: ${lang}.`;
 
 async function genAdversarial(text,type,desc,count,lang){
   const typePrompts={
-    trick:`Generate ${count} trick questions where the obvious/intuitive answer is WRONG. The correct answer should be surprising but verifiable from the source. The response must explain why the obvious answer is wrong and what the right answer actually is.`,
-    refusal:`Generate ${count} examples where a question should be declined or pushed back on — because it's based on a false premise, asks for something harmful, or is unanswerable from the source. The response should decline clearly and explain why, offering what CAN be said instead.`,
-    correction:`Generate ${count} examples where the user states something factually incorrect as part of their question. The response must politely but firmly correct the misconception, explain why it's wrong, and provide the accurate information.`,
-    ambiguous:`Generate ${count} examples where the user's question is genuinely ambiguous. The response should identify the ambiguity, explain the different interpretations, and ask a clarifying question before attempting to answer.`
+    trick:`Generate ${count} trick questions where the intuitive/obvious answer is WRONG. The trap should be real — a genuine misconception or misleading framing. The response must: (1) acknowledge why the obvious answer seems right, (2) explain why it's actually wrong, (3) give the correct answer with reasoning.`,
+    refusal:`Generate ${count} examples where the question contains a false premise, asks for something the assistant genuinely cannot know from source alone, or is unanswerable as asked. The response must: decline to answer as asked, explain the specific problem with the question, and offer what CAN be said instead. No generic refusals — be specific.`,
+    correction:`Generate ${count} examples where the user states something factually incorrect as part of their question (not obviously wrong — a believable misconception). The response must: validate why the misconception is common, correct it clearly and precisely, and explain the accurate version with a specific example.`,
+    ambiguous:`Generate ${count} examples where the question genuinely has multiple valid interpretations that lead to different answers. The response must: identify the specific ambiguity (not just say "it's complicated"), lay out what each interpretation would lead to, and ask a targeted clarifying question.`
   };
-  const sys=`You generate adversarial training examples for AI robustness. These teach models to handle edge cases well. Language: ${lang}.\n\nCRITICAL: NEVER start responses with sycophantic openers. NEVER use "as an AI" phrases.`;
-  const usr=`Source text: ${text.slice(0,1600)}\n\nTask: ${desc}\n${typePrompts[type]}\n\nOutput ONLY JSON:\n[{"instruction":"...","response":"...","adversarial_type":"${type}"}]`;
-  const raw=await callLLM(sys,usr,1600);
+  const sys=`You generate adversarial training examples for AI robustness. These teach models to handle edge cases, misconceptions, and bad premises. Language: ${lang}.
+
+CRITICAL: NEVER use sycophantic openers. NEVER use "as an AI" phrases.
+The challenge scenarios must be BELIEVABLE — common misconceptions, reasonable-sounding wrong questions, genuinely ambiguous phrasings. Not absurd or obvious traps.`;
+
+  const usr=`Source text: ${text.slice(0,1800)}
+
+Task: ${desc}
+${typePrompts[type]}
+
+Output ONLY valid JSON:
+[{"instruction":"...","response":"...","adversarial_type":"${type}","trap_explanation":"one sentence explaining what makes this tricky"}]`;
+
+  const raw=await callLLM(sys,usr,1800,0.92);
   const parsed=parseJSON(raw);
   return parsed.filter(p=>p.instruction&&p.response).map(p=>({
     id:uid(),type:'adversarial',status:'pending',
-    data:{prompt:p.instruction,response:p.response,adversarial_type:p.adversarial_type||type},
+    data:{prompt:p.instruction,response:p.response,adversarial_type:p.adversarial_type||type,trap_explanation:p.trap_explanation},
     source_title:ingestedContent?.title,source_url:ingestedContent?.source,added:new Date().toISOString()
   }));
 }
@@ -2049,9 +2486,9 @@ async function regenEx(id){
   try{
     let newEx=[];
     const chunk=ingestedContent.text;
-    if(ex.type==='instruction')newEx=await genLabInstruction(chunk,ex.data.prompt?.slice(0,30)||'main topic',1,'mixed','English');
-    else if(ex.type==='conversation')newEx=await genLabConversation(chunk,'main topic',1,'English');
-    else if(ex.type==='preference')newEx=await genLabPreference(chunk,'main topic',1,'English');
+    if(ex.type==='instruction')newEx=await genInstruction(chunk,ex.data.prompt?.slice(0,40)||'main topic',1,ex.data.difficulty||'mixed','English');
+    else if(ex.type==='conversation')newEx=await genLabConversation(chunk,ex.data.messages?.[0]?.content?.slice(0,40)||'main topic',1,'English');
+    else if(ex.type==='preference')newEx=await genLabPreference(chunk,ex.data.prompt?.slice(0,40)||'main topic',1,'English');
     else if(ex.type==='adversarial')newEx=await genAdversarial(chunk,ex.data.adversarial_type||'trick','',1,'English');
     if(newEx.length){
       const n={...newEx[0],id,status:ex.status,quality:scoreQuality(newEx[0])};
@@ -2066,7 +2503,13 @@ async function regenEx(id){
 function deduplicate(examples){
   const seen=new Set();
   return examples.filter(e=>{
-    const key=JSON.stringify(e.data).slice(0,80).toLowerCase();
+    // Normalize: lowercase, collapse whitespace, strip punctuation, take first 120 chars of the actual content
+    const norm=s=>(s||'').toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim().slice(0,120);
+    const keyText=e.type==='instruction'?e.data.prompt:
+                  e.type==='conversation'?e.data.messages?.[0]?.content:
+                  e.type==='preference'?e.data.prompt:
+                  e.data.prompt||'';
+    const key=e.type+'|'+norm(keyText);
     if(seen.has(key))return false;seen.add(key);return true;
   });
 }
@@ -2498,6 +2941,8 @@ function saveSettings(){
   SS({settings:{key,model,provider}});
   if(key){$('api-key').value=key;$('api-dot').className='api-dot ok';$('api-txt').textContent=provider+' active';}
   updateProvTag();
+  updateTrialBadge();
+  applyTrialUIRestrictions();
   rb('set-rb','✅ Saved','ok');
 }
 function saveDsInfo(){
@@ -2522,50 +2967,6 @@ function nukeAll(){
   if(!confirm('Delete everything? Cannot be undone.'))return;
   localStorage.removeItem('tf_v3');
   location.reload();
-}
-
-const HOSTING_GUIDE=`
-TRAINFORGE — HOSTING GUIDE
-===========================
-
-OPTION 1: Netlify (Easiest)
-────────────────────────────
-1. Go to netlify.com → Sign up free
-2. Drag and drop your index.html onto the deploy area
-3. Live in 30 seconds at: random-name.netlify.app
-4. Add custom domain in site settings
-
-OPTION 2: GitHub Pages (Free)
-──────────────────────────────
-1. Create account at github.com
-2. New repository → Public
-3. Upload index.html, rename to index.html
-4. Settings → Pages → Source: main branch
-5. Live at: your-username.github.io/repo-name
-
-OPTION 3: Vercel (Fast)
-────────────────────────
-1. vercel.com → Sign up with GitHub
-2. New Project → upload HTML file
-3. Deploy → live in 30 seconds
-
-BUYING A DOMAIN
-───────────────
-• Namecheap.com — ~$10/year for .com
-• Porkbun.com — often $8-9/year
-• Cloudflare.com/registrar — at cost price
-
-COST SUMMARY
-─────────────
-• Hosting: FREE (Netlify, GitHub Pages, Vercel)
-• Domain: ~$10/year
-• SSL: FREE (included everywhere)
-`;
-
-function showHostingGuide(){
-  const out=$('hosting-guide-out');
-  out.style.display=out.style.display==='none'?'block':'none';
-  out.textContent=HOSTING_GUIDE;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2601,6 +3002,16 @@ let selBehaviors=new Set(['typos','vague','emotion','clarify']);
 function initHumanSim(){
   renderPersonalityGrid();
   renderBehaviorGrid();
+  updateHumanBanner();
+}
+function updateHumanBanner(){
+  const el=$('human-banner-desc');
+  if(!el)return;
+  if(ingestedContent&&ingestedContent.title){
+    el.innerHTML=`Using your source <b>"${ingestedContent.title}"</b> — conversations will be grounded in it when Domain is set to Auto. Real people ask messy, emotional, half-formed questions. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for data that sounds like that instead of clean textbook Q&A.`;
+  }else{
+    el.innerHTML=`Generate conversations that behave like real humans — emotional, vague, interrupted, confused. Companies pay <strong style="color:var(--orange)">3–5×</strong> more for realistic conversation data than plain Q&A. <b>Add a source first</b> to ground these in real content, or leave Domain on a fixed topic below.`;
+  }
 }
 
 function renderPersonalityGrid(){
